@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import com.jfoenix.controls.JFXToggleButton?>
+<fx:root xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml" type="VBox" styleClass="panel_boton" maxWidth="Infinity" alignment="CENTER" spacing="5" minWidth="80" minHeight="80">
+    <JFXButton fx:id="boton" focusTraversable="false" minWidth="50" minHeight="50" styleClass="btn">
+    </JFXButton>
+    <Label fx:id="label" wrapText="true">
+    </Label>
+</fx:root>

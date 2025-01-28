@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.text.Text?>
+<?import javafx.geometry.Insets?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import com.dlsc.gemsfx.skins.TimePickerPopup?>
+<?import com.dlsc.gemsfx.YearMonthPicker?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      spacing="40"
+      fx:controller="com.guba.app.controllers.cursos.ListController">
+    <HBox spacing="10.0">
+        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Lista de Cursos" styleClass="titulo"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button styleClass="btnsAgregar" text="Agregar Curso" fx:id="btnAgregar" onAction="#openPanelAdd">
+            <padding>
+                <Insets top="10" bottom="10" left="20" right="20"/>
+            </padding>
+        </Button>
+    </HBox>
+    <VBox VBox.vgrow="ALWAYS" spacing="10.0">
+        <HBox alignment="CENTER">
+            <HBox fillHeight="true" HBox.hgrow="ALWAYS" styleClass="search" alignment="CENTER" spacing="10">
+                <padding>
+                    <Insets left="10" right="10" top="5" bottom="5"/>
+                </padding>
+                <FontIcon iconLiteral="mdi-magnify" styleClass="iconSearch" iconSize="15"/>
+                <TextField HBox.hgrow="ALWAYS" fx:id="busquedaSearch" styleClass="textFieldSearch" promptText="Buscar..."/>
+                <JFXButton onAction="#borrarFiltros">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi-close" fill="red" iconSize="15" />
+                    </graphic>
+                </JFXButton>
+            </HBox>
+            <YearMonthPicker styleClass="monthPicker" fx:id="yearmMonthPicker" />
+        </HBox>
+        <TableView styleClass="table" VBox.vgrow="ALWAYS" fx:id="tableView">
+            <columns>
+                <TableColumn text="Curso" fx:id="nombre" styleClass="celda" prefWidth="150"/>
+                <TableColumn text="Fecha Inicio" fx:id="fechaInicio" prefWidth="150"/>
+                <TableColumn text="Fecha Finalizacion" fx:id="fechaFinalizacion" prefWidth="150"/>
+                <TableColumn text="Modalidad" fx:id="modalidad" prefWidth="150"/>
+                <TableColumn text="Acciones" fx:id="acciones" prefWidth="320"/>
+            </columns>
+        </TableView>
+    </VBox>
+</VBox>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import com.dlsc.gemsfx.CalendarPicker?>
+<?import com.jfoenix.controls.JFXButton?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.guba.app.controllers.cursos.DetailsController" alignment="CENTER" spacing="20">
+    <HBox alignment="CENTER">
+        <Button fx:id="backButton" onAction="#backPanel" styleClass="btn, btnBack">
+            <graphic>
+                <FontIcon fill="white" iconLiteral="mdi-arrow-left-bold" iconSize="15" />
+            </graphic>
+        </Button>
+        <Region HBox.hgrow="ALWAYS"/>
+    </HBox>
+    <VBox alignment="CENTER" spacing="30" >
+        <HBox spacing="30" >
+            <VBox  styleClass="panelShadow" spacing="20">
+                <Label text="Datos Generales del Curso" styleClass="subtitulo"/>
+                <HBox spacing="30" alignment="CENTER">
+                    <VBox  maxWidth="Infinity" spacing="10.0">
+                        <Label text="Nombre Del Curso:" />
+                        <TextField fx:id="nombreField"  editable="false" prefWidth="200" styleClass="textField" />
+                    </VBox>
+                    <VBox  maxWidth="Infinity" spacing="10.0">
+                        <Label text="Modalidad:" />
+                        <ComboBox fx:id="comboModalidades" prefWidth="200" disable="true" styleClass="combo" />
+                    </VBox>
+                </HBox>
+                <HBox spacing="30" alignment="CENTER">
+                    <VBox spacing="10">
+                        <Label text="Fecha Incio:" />
+                        <CalendarPicker fx:id="daeFechaInico" prefWidth="200" styleClass="textField" />
+                    </VBox>
+                    <VBox  maxWidth="Infinity" spacing="10.0">
+                        <Label text="Fecha de Finalizacion:" />
+                        <CalendarPicker fx:id="fechaFin"  prefWidth="200"  styleClass="textField" />
+                    </VBox>
+                </HBox>
+                <VBox maxWidth="Infinity" spacing="10.0">
+                    <Label text="Duracion (horas):" />
+                    <TextField fx:id="duracionField"  prefWidth="200" editable="false"  styleClass="textField" />
+                </VBox>
+            </VBox>
+            <VBox styleClass="panelShadow"  spacing="20" HBox.hgrow="ALWAYS">
+                <Label text="Impartidor" styleClass="subtitulo"/>
+                <VBox spacing="20">
+                    <VBox maxWidth="Infinity" spacing="10.0">
+                        <Label text="Nombre:" />
+                        <TextField fx:id="impartidorNombreField" editable="false"  prefWidth="200" styleClass="textField" />
+                    </VBox>
+                    <VBox maxWidth="Infinity" spacing="10.0">
+                        <Label text="Puesto:" />
+                        <TextField fx:id="impartidorPuestoFlied" editable="false"   prefWidth="200" styleClass="textField" />
+                    </VBox>
+                    <VBox maxWidth="Infinity" spacing="10.0">
+                        <Label text="Lugar:" />
+                        <TextField fx:id="impartdiorLugarField" editable="false"   prefWidth="200" styleClass="textField" />
+                    </VBox>
+                </VBox>
+            </VBox>
+        </HBox>
+        <VBox styleClass="panelShadow" maxWidth="Infinity" minWidth="-Infinity">
+            <Label text="Participantes" styleClass="subtitulo"/>
+            <ListView styleClass="listView" focusTraversable="false" fx:id="listParticipantes"  orientation="HORIZONTAL">
+            </ListView>
+        </VBox>
+    </VBox>
+
+</VBox>

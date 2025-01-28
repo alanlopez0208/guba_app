@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.text.Text?>
+<?import javafx.geometry.Insets?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import com.jfoenix.controls.JFXButton?>
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" spacing="40"
+      fx:controller="com.guba.app.controllers.materias.ListController">
+    <HBox spacing="10.0">
+        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Lista de Materias" styleClass="titulo"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button styleClass="btnsAgregar" text="Agregar Materia" fx:id="btnAgregar" onAction="#openPaneAddAlumno">
+            <padding>
+                <Insets top="10" bottom="10" left="20" right="20"/>
+            </padding>
+        </Button>
+    </HBox>
+    <VBox VBox.vgrow="ALWAYS" spacing="10.0">
+        <HBox alignment="CENTER">
+            <HBox fillHeight="true" HBox.hgrow="ALWAYS" styleClass="search" alignment="CENTER" spacing="10">
+                <padding>
+                    <Insets left="10" right="10" top="5" bottom="5"/>
+                </padding>
+                <FontIcon iconLiteral="mdi-magnify" styleClass="iconSearch" iconSize="15"/>
+                <TextField HBox.hgrow="ALWAYS" fx:id="busquedaSearch" styleClass="textFieldSearch" promptText="Buscar..."/>
+                <JFXButton onAction="#borrarFiltros">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi-close" fill="red" iconSize="15" />
+                    </graphic>
+                </JFXButton>
+            </HBox>
+            <JFXButton styleClass="btnFiltro" minHeight="-Infinity" maxHeight="Infinity" text="Filtros">
+                <graphic>
+                    <FontIcon iconLiteral="mdi-filter" iconSize="15"/>
+                </graphic>
+                <contextMenu>
+                    <ContextMenu styleClass="contextMenu">
+                        <items>
+                            <RadioMenuItem userData="1" text="Clave" >
+                                <toggleGroup>
+                                    <ToggleGroup fx:id="toggleFiltroNormal"/>
+                                </toggleGroup>
+                            </RadioMenuItem>
+                            <RadioMenuItem userData="2"  text="Nombre" >
+                                <toggleGroup>
+                                    <fx:reference source="toggleFiltroNormal"/>
+                                </toggleGroup>
+                            </RadioMenuItem>
+                            <RadioMenuItem userData="3" text="Semestre" toggleGroup="$toggleFiltroNormal" >
+                                <toggleGroup>
+                                    <fx:reference source="toggleFiltroNormal"/>
+                                </toggleGroup>
+                            </RadioMenuItem>
+                        </items>
+                    </ContextMenu>
+                </contextMenu>
+            </JFXButton>
+            <JFXButton styleClass="btnFiltro" minHeight="-Infinity" maxHeight="Infinity" text="Filtros Carreras">
+                <graphic>
+                    <FontIcon iconLiteral="mdi-filter" iconSize="15"/>
+                </graphic>
+                <contextMenu>
+                    <ContextMenu fx:id="contextMenu" styleClass="contextMenu">
+                    </ContextMenu>
+                </contextMenu>
+            </JFXButton>
+            <JFXButton styleClass="btnFiltro, btnFiltroFinal" minHeight="-Infinity" maxHeight="Infinity" text="Semestres">
+                <graphic>
+                    <FontIcon iconLiteral="mdi-filter" iconSize="15"/>
+                </graphic>
+                <contextMenu>
+                    <ContextMenu styleClass="contextMenu">
+                        <items>
+                            <RadioMenuItem userData="1" text="1" >
+                                <toggleGroup>
+                                    <ToggleGroup fx:id="toggleSemestre"/>
+                                </toggleGroup>
+                            </RadioMenuItem>
+                            <RadioMenuItem userData="2"  text="2" >
+                                <toggleGroup>
+                                    <fx:reference source="toggleSemestre"/>
+                                </toggleGroup>
+                            </RadioMenuItem>
+                            <RadioMenuItem userData="3" text="3">
+                                <toggleGroup>
+                                    <fx:reference source="toggleSemestre"/>
+                                </toggleGroup>
+                            </RadioMenuItem>
+                            <RadioMenuItem userData="4" text="4" >
+                                <toggleGroup>
+                                    <fx:reference source="toggleSemestre"/>
+                                </toggleGroup>
+                            </RadioMenuItem>
+                            <RadioMenuItem userData="5" text="5">
+                                <toggleGroup>
+                                    <fx:reference source="toggleSemestre"/>
+                                </toggleGroup>
+                            </RadioMenuItem>
+                            <RadioMenuItem userData="6" text="6" >
+                                <toggleGroup>
+                                    <fx:reference source="toggleSemestre"/>
+                                </toggleGroup>
+                            </RadioMenuItem>
+                            <RadioMenuItem userData="7" text="7" >
+                                <toggleGroup>
+                                    <fx:reference source="toggleSemestre"/>
+                                </toggleGroup>
+                            </RadioMenuItem>
+                            <RadioMenuItem userData="8" text="8" >
+                                <toggleGroup>
+                                    <fx:reference source="toggleSemestre"/>
+                                </toggleGroup>
+                            </RadioMenuItem>
+                        </items>
+                    </ContextMenu>
+                </contextMenu>
+            </JFXButton>
+        </HBox>
+        <Label text="Cargando....." fx:id="label"/>
+        <TableView styleClass="table" VBox.vgrow="ALWAYS" visible="false" fx:id="tableView">
+            <columns>
+                <TableColumn text="Clave" fx:id="clave" styleClass="celda" prefWidth="150"/>
+                <TableColumn text="Nombre" fx:id="nombre" prefWidth="250"/>
+                <TableColumn text="Creditos" fx:id="creditos" prefWidth="100"/>
+                <TableColumn text="Carrera" fx:id="carrera" prefWidth="250"/>
+                <TableColumn text="Modalidad" fx:id="modalidad" prefWidth="150"/>
+                <TableColumn text="Acciones" fx:id="acciones" prefWidth="320"/>
+            </columns>
+        </TableView>
+    </VBox>
+</VBox>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.text.Text?>
+<?import javafx.geometry.Insets?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" spacing="40" fx:controller="com.guba.app.controllers.personal.ListController">
+    <HBox spacing="10.0">
+        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Lista de Personal" styleClass="titulo"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button styleClass="btnsAgregar" text="Agregar Personal" fx:id="btnAgregar" onAction="#openPanelAdd">
+
+            <padding>
+                <Insets top="10" bottom="10" left="20" right="20"/>
+            </padding>
+        </Button>
+    </HBox>
+    <VBox VBox.vgrow="ALWAYS" spacing="10.0">
+        <HBox alignment="CENTER">
+            <HBox fillHeight="true" HBox.hgrow="ALWAYS" styleClass="search" alignment="CENTER" spacing="10">
+                <padding>
+                    <Insets left="10" right="10" top="5" bottom="5"/>
+                </padding>
+                <FontIcon iconLiteral="mdi-magnify" styleClass="iconSearch" iconSize="15"/>
+                <TextField HBox.hgrow="ALWAYS" fx:id="busquedaSearch" styleClass="textFieldSearch" promptText="Buscar..."/>
+                <JFXButton onAction="#borrarFiltros">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi-close" fill="red" iconSize="15" />
+                    </graphic>
+                </JFXButton>
+            </HBox>
+            <JFXButton styleClass="btnFiltro" minHeight="-Infinity" maxHeight="Infinity" text="Filtros" fx:id="btnFiltros">
+                <graphic>
+                    <FontIcon iconLiteral="mdi-filter" iconSize="15"/>
+                </graphic>
+                <contextMenu>
+                    <ContextMenu styleClass="contextMenu">
+                        <items>
+                            <RadioMenuItem userData="1" text="Nombre" >
+                                <toggleGroup>
+                                    <ToggleGroup fx:id="toggleFiltroNormal"/>
+                                </toggleGroup>
+                            </RadioMenuItem>
+                            <RadioMenuItem userData="2"  text="Apellidos" >
+                                <toggleGroup>
+                                    <fx:reference source="toggleFiltroNormal"/>
+                                </toggleGroup>
+                            </RadioMenuItem>
+                        </items>
+                    </ContextMenu>
+                </contextMenu>
+            </JFXButton>
+        </HBox>
+        <TableView styleClass="table" VBox.vgrow="ALWAYS" fx:id="tableView">
+            <columns>
+                <TableColumn text="RFC" fx:id="rfc" styleClass="celda" prefWidth="150"/>
+                <TableColumn text="Nombre" fx:id="nombre" prefWidth="150"/>
+                <TableColumn text="Apellido Paterno" fx:id="apPaterno" prefWidth="150"/>
+                <TableColumn text="Apellido Materno" fx:id="apMaterno" prefWidth="150"/>
+                <TableColumn text="Acciones" fx:id="acciones" prefWidth="320"/>
+            </columns>
+        </TableView>
+    </VBox>
+</VBox>

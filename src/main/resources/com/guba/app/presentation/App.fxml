@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+
+<?import com.guba.app.presentation.componets.Sidebar?>
+<?import com.guba.app.presentation.componets.ItemButton?>
+<?import javafx.scene.layout.StackPane?>
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            xmlns="http://javafx.com/javafx"
+            stylesheets="@styles.css"
+            fx:controller="com.guba.app.controllers.AppController" fx:id="pantallaPrincipal">
+    <left>
+        <Sidebar fx:id="sidebar">
+        </Sidebar>
+    </left>
+    <center>
+        <StackPane fx:id="stackPane">
+
+        </StackPane>
+    </center>
+</BorderPane>

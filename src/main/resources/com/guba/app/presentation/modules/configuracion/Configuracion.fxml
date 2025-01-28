@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import com.jfoenix.controls.JFXButton?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      styleClass="panel"
+      fx:controller="com.guba.app.controllers.configuracion.ConfiguracionController" alignment="CENTER" fillWidth="false" spacing="30">
+    <StackPane.margin>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+    </StackPane.margin>
+    <VBox styleClass="panelShadow" spacing="10">
+        <Label text="Ciclo Escolar" styleClass="subtitulo"/>
+        <Region prefWidth="20"/>
+        <VBox fillWidth="false" spacing="10.0">
+            <Label text="Nombre del Ciclo:" />
+            <TextField fx:id="txtNombreCiclo" editable="false" prefWidth="200" styleClass="textField" />
+        </VBox>
+        <VBox fillWidth="false" spacing="10.0">
+            <Label text="Inicio del Ciclo:" />
+            <TextField fx:id="txtInicioCiclo" editable="false" prefWidth="200" styleClass="textField" />
+        </VBox>
+        <VBox fillWidth="false" maxWidth="Infinity" spacing="10.0">
+            <Label text="Fin del Ciclo:" />
+            <TextField fx:id="txtFinCiclo"  editable="false" prefWidth="200" styleClass="textField" />
+        </VBox>
+        <HBox maxWidth="Infinity" alignment="CENTER_RIGHT">
+            <JFXButton fx:id="btnActualizarCiclo" text="Actualizar" focusTraversable="false" onAction="#handleActualizarCiclo" styleClass="btnNormal"/>
+        </HBox>
+    </VBox>
+    <VBox styleClass="panelShadow" spacing="10">
+        <Label text="Acuerdo" styleClass="subtitulo"/>
+        <Region prefWidth="20"/>
+        <VBox fillWidth="false" maxWidth="Infinity" spacing="10.0">
+            <Label text="Número de Acuerdo:" />
+            <TextField fx:id="txtNumeroAcuerdo" prefWidth="200" styleClass="textField" />
+        </VBox>
+        <VBox fillWidth="false" maxWidth="Infinity" spacing="10.0">
+            <Label text="Fecha:" />
+            <DatePicker fx:id="dateFecha" prefWidth="200" styleClass="calendario" />
+        </VBox>
+        <VBox fillWidth="false" maxWidth="Infinity" spacing="10.0">
+            <Label text="CCT: " />
+            <TextField fx:id="txtCCT" prefWidth="200" styleClass="textField" />
+        </VBox>
+        <HBox maxWidth="Infinity" alignment="CENTER_RIGHT">
+            <JFXButton fx:id="btnActualizarAcuerdo" text="Actualizar" onAction="#handleActualizarAcuerdo" focusTraversable="false" styleClass="btnNormal"/>
+        </HBox>
+    </VBox>
+</VBox>

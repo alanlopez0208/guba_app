@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.shape.Circle?>
+<?import javafx.geometry.Insets?>
+<?import com.guba.app.presentation.componets.ItemButton?>
+<?import javafx.scene.shape.SVGPath?>
+<?import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid?>
+
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<fx:root xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" type="VBox" alignment="CENTER" spacing="20" >
+    <padding>
+        <Insets top="10" bottom="20" left="10" right="10"/>
+    </padding>
+   <ImageView fitHeight="80" fitWidth="100">
+       <Image requestedHeight="300" requestedWidth="300" url="@../../assets/img/logo.png" preserveRatio="true" smooth="true" />
+   </ImageView>
+    <ScrollPane fitToHeight="true" fitToWidth="true" minWidth="120" styleClass="scroll">
+        <VBox alignment="TOP_CENTER" spacing="10" fx:id="itemsContainer"  styleClass="background-transparent">
+        </VBox>
+    </ScrollPane>
+</fx:root>

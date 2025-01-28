@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import com.jfoenix.controls.JFXDatePicker?>
+<?import com.jfoenix.controls.JFXTimePicker?>
+<?import com.dlsc.gemsfx.TimePicker?>
+<?import com.dlsc.gemsfx.CalendarPicker?>
+<?import com.dlsc.gemsfx.DurationPicker?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.scene.control.PasswordField?>
+<?import com.dlsc.gemsfx.skins.TimePickerPopup?>
+<VBox spacing="10.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.guba.app.controllers.estudiantes.DetailsController">
+
+   <HBox alignment="CENTER" spacing="30.0">
+      <padding>
+         <Insets bottom="10.0" left="20.0" right="10.0" top="10.0" />
+      </padding>
+      <Button fx:id="backButton" onAction="#backPanel" styleClass="btn, btnBack">
+         <graphic>
+            <FontIcon fill="white" iconLiteral="mdi-arrow-left-bold" iconSize="15" />
+         </graphic>
+      </Button>
+      <Region HBox.hgrow="ALWAYS" />
+      <Button styleClass="btnDetails, seleccionado" text="General" fx:id="btnDetals" onAction="#openDatos">
+      </Button>
+      <Button styleClass="btnDetails" text="Calificaciones" fx:id="btnCalificaciones" onAction="#openCalificaciones">
+      </Button>
+      <Button styleClass="btnDetails" text="Titulacion" fx:id="btnTitulacion" onAction="#openTitulo" />
+      <Button styleClass="btnDetails" text=" Adicionales" fx:id="btnAdicionales" onAction="#openAdicionales"/>
+      <Region HBox.hgrow="ALWAYS" />
+   </HBox>
+   <StackPane VBox.vgrow="ALWAYS">
+      <VBox fx:id="panelDatos" alignment="CENTER" visible="false">
+         <HBox alignment="CENTER" spacing="20.0">
+            <VBox alignment="TOP_CENTER" spacing="15.0" HBox.hgrow="ALWAYS">
+               <Circle fx:id="fotoEstudiante" fill="DODGERBLUE" radius="80.0" stroke="BLACK" strokeType="INSIDE" />
+               <VBox fillWidth="false" maxWidth="Infinity" spacing="10.0">
+                  <Label text="Matricula" />
+                  <TextField fx:id="txtMatricula" editable="false" prefWidth="200" styleClass="textField" />
+               </VBox>
+               <HBox fillHeight="false" spacing="20.0">
+                  <VBox fillWidth="false" spacing="10.0">
+                     <Label text="Nombre" />
+                     <TextField fx:id="txtNombre" editable="false" prefWidth="150" styleClass="textField" />
+                  </VBox>
+                  <VBox fillWidth="false" spacing="10.0">
+                     <Label text="Apellido Paterno" />
+                     <TextField fx:id="txtApPat" editable="false" prefWidth="150" styleClass="textField" />
+                  </VBox>
+                  <VBox fillWidth="false" spacing="10.0">
+                     <Label text="Apellido Materno" />
+                     <TextField fx:id="txtApMat" editable="false" prefWidth="150" styleClass="textField" />
+                  </VBox>
+               </HBox>
+               <VBox spacing="10.0" fillWidth="false">
+                  <Label text="Carrera" />
+                  <ComboBox fx:id="comboCarrera" disable="true" prefWidth="400" styleClass="combo" />
+               </VBox>
+               <HBox fillHeight="false" spacing="20.0">
+                  <VBox fillWidth="false" spacing="10.0">
+                     <Label text="Estatus" />
+                     <ComboBox fx:id="comboStatus" disable="true" prefWidth="200" styleClass="combo" />
+                  </VBox>
+                  <VBox spacing="10.0">
+                     <Label text="Semestre" />
+                     <ComboBox fx:id="comboSemestre" disable="true" prefWidth="200" styleClass="combo" />
+                  </VBox>
+               </HBox>
+               <VBox spacing="10.0">
+                  <Label text="Generacion" />
+                  <TextField fx:id="txtGeneracion" editable="false" styleClass="textField" />
+               </VBox>
+               <VBox spacing="10.0">
+                  <Label text="Correo Institucional" />
+                  <TextField fx:id="txtCorreoInst" editable="false" styleClass="textField" />
+               </VBox>
+            </VBox>
+            <VBox spacing="15.0" HBox.hgrow="ALWAYS">
+               <VBox spacing="10.0">
+                  <Label text="Correo Personal" />
+                  <TextField fx:id="txtCorreoPer" editable="false" styleClass="textField" />
+               </VBox>
+               <VBox spacing="10.0">
+                  <Label text="Numero de telefono" />
+                  <TextField fx:id="txtCelular" editable="false" styleClass="textField" />
+               </VBox>
+               <VBox spacing="10.0">
+                  <Label text="Sexo" />
+                  <ComboBox fx:id="comboSexo" disable="true" editable="false" styleClass="combo" />
+               </VBox>
+               <VBox spacing="10.0">
+                  <Label text="Nacimiento" />
+                  <DatePicker fx:id="comboNacimiento" editable="false" styleClass="calendario" />
+               </VBox>
+               <VBox spacing="10.0">
+                  <Label text="Direccion" />
+                  <TextField fx:id="txtDireccion" editable="false" styleClass="textField" />
+               </VBox>
+               <VBox spacing="10.0">
+                  <Label text="Escuela de Procedencia" />
+                  <TextField fx:id="txtEscuelaProc" editable="false" styleClass="textField" />
+               </VBox>
+               <VBox spacing="10.0">
+                  <Label text="Últimos Grados de Estudio" />
+                  <TextField fx:id="txtGrado" editable="false" styleClass="textField" />
+               </VBox>
+               <VBox spacing="10.0">
+                  <Label text="Municipio" />
+                  <TextField fx:id="txtMunicipio" editable="false" styleClass="textField" />
+               </VBox>
+               <VBox spacing="10.0">
+                  <Label text="Estado" />
+                  <TextField fx:id="txtEstado" editable="false" styleClass="textField" />
+               </VBox>
+            </VBox>
+         </HBox>
+      </VBox>
+      <VBox fx:id="panelCalificaciones">
+         <TableView fx:id="tablaCalificaciones" VBox.vgrow="ALWAYS" editable="true">
+            <columns>
+               <TableColumn text="Clave" fx:id="columnClaveMateria"/>
+               <TableColumn text="Materia" fx:id="columnNombreMateria" prefWidth="200"/>
+               <TableColumn prefWidth="75.0" text="Unidad 1" >
+                  <columns>
+                     <TableColumn prefWidth="75.0" text="Parcial 1" fx:id="columnU1P1"/>
+                     <TableColumn prefWidth="75.0" text="Parcial 2" fx:id="columnU1P2"/>
+                     <TableColumn prefWidth="75.0" text="Parcial 3" fx:id="columnU1P3"/>
+                     <TableColumn prefWidth="75.0" text="Parcial 4" fx:id="columnU1P4"/>
+                     <TableColumn prefWidth="75.0" text="Promedio" fx:id="columnU1PM"/>
+                  </columns>
+               </TableColumn>
+               <TableColumn prefWidth="75.0" text="Unidad 2">
+                  <columns>
+                     <TableColumn prefWidth="75.0" text="Parcial 1" fx:id="columnU2P1" />
+                     <TableColumn prefWidth="75.0" text="Parcial 2" fx:id="columnU2P2"/>
+                     <TableColumn prefWidth="75.0" text="Parcial 3" fx:id="columnU2P3"/>
+                     <TableColumn prefWidth="75.0" text="Parcial 4" fx:id="columnU2P4"/>
+                     <TableColumn prefWidth="75.0" text="Promedio"  fx:id="columnU2PM"/>
+                  </columns>
+               </TableColumn>
+               <TableColumn prefWidth="75.0" text="Unidad 3">
+                  <columns>
+                     <TableColumn prefWidth="75.0" text="Parcial 1" fx:id="columnU3P1"  />
+                     <TableColumn prefWidth="75.0" text="Parcial 2" fx:id="columnU3P2"  />
+                     <TableColumn prefWidth="75.0" text="Parcial 3" fx:id="columnU3P3" />
+                     <TableColumn prefWidth="75.0" text="Parcial 4" fx:id="columnU3P4"  />
+                     <TableColumn prefWidth="75.0" text="Promedio" fx:id="columnU3PM" />
+                  </columns>
+               </TableColumn>
+               <TableColumn prefWidth="75.0" text="Unidad 4">
+                  <columns>
+                     <TableColumn prefWidth="75.0" text="Parcial 1" fx:id="columnU4P1"  />
+                     <TableColumn prefWidth="75.0" text="Parcial 2" fx:id="columnU4P2"  />
+                     <TableColumn prefWidth="75.0" text="Parcial 3" fx:id="columnU4P3" />
+                     <TableColumn prefWidth="75.0" text="Parcial 4" fx:id="columnU4P4"  />
+                     <TableColumn prefWidth="75.0" text="Promedio" fx:id="columnU4PM" />
+                  </columns>
+               </TableColumn>
+               <TableColumn text="Trabajo Final" fx:id="columnTF"/>
+               <TableColumn text="Promedio" fx:id="columnPromedio"/>
+            </columns>
+         </TableView>
+      </VBox>
+      <VBox fx:id="panelTitulo" alignment="CENTER" spacing="30">
+         <HBox alignment="CENTER" spacing="40">
+            <VBox styleClass="panelShadow" spacing="20" fillWidth="false">
+               <Label text="Informacion del Titutlo: " styleClass="subtitulo"/>
+               <VBox spacing="10">
+                  <Label text="Libro:" />
+                  <TextField fx:id="libroField" styleClass="textField" />
+               </VBox>
+               <HBox spacing="10">
+                  <VBox spacing="10.0">
+                     <Label text="Acta:" />
+                     <TextField fx:id="actaField" styleClass="textField" />
+                  </VBox>
+                  <VBox spacing="10.0">
+                     <Label text="Hoja:" />
+                     <TextField fx:id="fojaField" styleClass="textField" />
+                  </VBox>
+                  <VBox spacing="10.0">
+                     <Label text="Registro:" />
+                     <TextField fx:id="registroField" styleClass="textField" />
+                  </VBox>
+                  <VBox spacing="10.0">
+                     <Label text="Folio:" />
+                     <TextField fx:id="folioFiled" styleClass="textField" />
+                  </VBox>
+               </HBox>
+               <VBox spacing="10.0">
+                  <Label text="Tipo de Examen:" />
+                  <TextField fx:id="tipoField" styleClass="textField" />
+               </VBox>
+               <VBox spacing="10.0">
+                  <Label text="Nombre de tesis:" />
+                  <TextField fx:id="nombreField" styleClass="textField" />
+               </VBox>
+               <VBox spacing="10.0">
+                  <Label text="Fecha de Aplicación :" />
+                  <HBox spacing="5" alignment="CENTER">
+                     <CalendarPicker fx:id="dateAplicacion"/>
+                    <TimePicker prefWidth="100" fx:id="timeInicio"/>
+                     <Label text="hasta"/>
+                     <TimePicker fx:id="timeFinal"/>
+                  </HBox>
+               </VBox>
+            </VBox>
+            <VBox fillWidth="false"  styleClass="panelShadow" spacing="20">
+               <Label text="Sinodales: " styleClass="subtitulo"/>
+               <VBox spacing="10">
+                  <Label text="Presidente:" />
+                  <TextField fx:id="presidenteField" styleClass="textField" />
+               </VBox>
+               <VBox spacing="10.0">
+                  <Label text="Secretario:" />
+                  <TextField fx:id="secretarioField" styleClass="textField" />
+               </VBox>
+               <VBox spacing="10.0">
+                  <Label text="Vocal:" />
+                  <TextField fx:id="vocalField" styleClass="textField" />
+               </VBox>
+            </VBox>
+         </HBox>
+         <StackPane>
+            <JFXButton text="Guardar Titulo" fx:id="btnGuardarTitulo" onAction="#guardarTitulo" styleClass="btnsAgregar">
+               <padding>
+                  <Insets top="10" bottom="10" right="40" left="40"/>
+               </padding>
+            </JFXButton>
+            <JFXButton text="Editar Titulo" fx:id="btnEditarTitulo" onAction="#editarTitulo" styleClass="btnEdit">
+               <padding>
+                  <Insets top="10" bottom="10" right="40" left="40"/>
+               </padding>
+            </JFXButton>
+         </StackPane>
+      </VBox>
+      <VBox fx:id="panelAdicionales" alignment="CENTER" spacing="30">
+         <HBox spacing="40" alignment="CENTER">
+            <VBox styleClass="panelShadow" spacing="20" >
+               <Label text="Documentos Disponibles" styleClass="subtitulo"/>
+               <VBox spacing="10.0">
+                  <Label text="Documento:" />
+                  <ComboBox styleClass="combo" prefWidth="200" fx:id="comboDocumentos"/>
+               </VBox>
+               <VBox spacing="10.0">
+                  <Label text="Fecha:" />
+                  <CalendarPicker fx:id="dateFechaDoc"/>
+               </VBox>
+               <JFXButton text="Generar Docuemento" styleClass="btnsAgregar"  onAction="#generarDocumentos" minWidth="-Infinity" maxWidth="Infinity"/>
+            </VBox>
+            <VBox styleClass="panelShadow" spacing="20">
+               <Label text="Usuario y Contraseña" styleClass="subtitulo"/>
+               <VBox spacing="10.0">
+                  <Label text="Usuario:" />
+                  <TextField fx:id="usuarioField" disable="true" styleClass="textField" />
+               </VBox>
+               <VBox spacing="10.0">
+                  <Label text="Contraseña:" />
+                  <PasswordField fx:id="paswordField" disable="true" styleClass="textField" />
+               </VBox>
+               <JFXButton styleClass="btnVer" minWidth="-Infinity" onAction="#verPassword" maxWidth="Infinity">
+                  <graphic>
+                     <FontIcon iconLiteral="mdi-eye" fill="white"/>
+                  </graphic>
+               </JFXButton>
+            </VBox>
+
+         </HBox>
+      </VBox>
+      <padding>
+         <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+      </padding>
+   </StackPane>
+</VBox>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.geometry.Insets?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.guba.app.controllers.pago_alumnos.DetailsController"
+      alignment="CENTER_LEFT" spacing="30">
+    <HBox alignment="CENTER_LEFT">
+        <Button fx:id="backButton" onAction="#regresarAPanel" styleClass="btn, btnBack">
+            <graphic>
+                <FontIcon fill="white" iconLiteral="mdi-arrow-left-bold" iconSize="15" />
+            </graphic>
+        </Button>
+    </HBox>
+    <padding>
+        <Insets left="50" right="50"/>
+    </padding>
+
+    <VBox VBox.vgrow="ALWAYS" alignment="CENTER" spacing="10">
+        <Label text="Pago:" styleClass="titulo" maxWidth="Infinity" textAlignment="LEFT"/>
+        <HBox spacing="50" >
+            <VBox HBox.hgrow="ALWAYS" spacing="20">
+                <VBox  spacing="10.0">
+                    <Label text="Alumno: " />
+                    <ComboBox fx:id="comboAlumnos" prefWidth="150"  disable="true"  styleClass="combo" minHeight="-Infinity" maxWidth="Infinity"/>
+                </VBox>
+                <VBox  spacing="10.0">
+                    <Label text="Fecha: " />
+                    <DatePicker fx:id="dateFeha" prefWidth="150" styleClass="calendario" disable="true" editable="false" minHeight="-Infinity" maxWidth="Infinity"/>
+                </VBox>
+                <VBox  spacing="10.0">
+                    <Label text="Concetpo:" />
+                    <HBox alignment="CENTER" fx:id="containerMoney" maxWidth="Infinity" styleClass="textField" minWidth="-Infinity" focusTraversable="true">
+                        <padding>
+                            <Insets left="10"/>
+                        </padding>
+                        <FontIcon iconLiteral="mdi-cash" fill="#894957"/>
+                        <Region prefWidth="5"/>
+                        <TextField fx:id="txtCantidad" editable="false" prefWidth="150" styleClass="textFieldEmpty" HBox.hgrow="ALWAYS">
+                        </TextField>
+                    </HBox>
+                </VBox>
+            </VBox>
+            <VBox HBox.hgrow="ALWAYS" spacing="20">
+                <VBox spacing="10.0">
+                    <Label text="Cantidad:" />
+                    <TextField fx:id="txtConcepto" editable="false" prefWidth="150" styleClass="textField" />
+                </VBox>
+                <VBox spacing="10.0">
+                    <Label text="Factura:" />
+                    <TextField fx:id="txtFactura" editable="false"  prefWidth="150" styleClass="textField" />
+                </VBox>
+            </VBox>
+        </HBox>
+    </VBox>
+</VBox>

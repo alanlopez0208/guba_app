@@ -1,0 +1,438 @@
+.root{
+    -fx-font-family: 'Montserrat';
+    -fx-background-color:#F4F4F4;
+}
+
+.panel{
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-background-color: white;
+    -fx-padding: 20px, 10px;
+    -fx-border-color: #E6E6E6;
+    -fx-border-width: 2;
+}
+
+.titulo{
+    -fx-font-family: "Montserrat Bold";
+    -fx-font-size: 24;
+}
+
+.subtitulo{
+    -fx-font-family: "Montserrat Bold";
+    -fx-font-size: 20;
+}
+
+.panel_boton{
+    -fx-background-color: transparent;
+}
+
+.textoNegritas{
+    -fx-font-family: "Montserrat Bold";
+    -fx-font-size: 12;
+}
+
+.btnsAgregar{
+    -fx-background-color: #1B3765;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+.btnsAgregar .label{
+    -fx-text-fill: white;
+}
+
+.btnVer{
+    -fx-background-color: #04BF68;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-fill: white;
+    -fx-cursor: hand;
+}
+
+.btnEdit{
+    -fx-background-color: #216BFE;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-fill: white;
+    -fx-cursor: hand;
+}
+
+.btnEdit{
+    -fx-text-fill: white;
+}
+
+
+.btnBorrar{
+    -fx-background-color:#FF546E;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-fill: white;
+    -fx-cursor: hand;
+}
+
+
+.btnsAgregar:hover{
+    -fx-background-color: #42517A;
+}
+
+.background-transparent{
+    -fx-background-color: #F4F4F4;
+}
+
+.btn{
+    -fx-shape: "M50,50m-50,0a50,50 0 1,0 100,0a50,50 0 1,0 -100,0";
+}
+
+.scroll {
+    -fx-background-color: transparent;
+}
+
+/*----Este es para todo el conteido de el scroll*/
+.scroll .scroll-bar:vertical{
+    -fx-background-color: transparent;
+}
+
+/*----Esta es para como se dice el track es decir el rango el que se desplazara la ralla*/
+.scroll .scroll-bar:vertical .track{
+    -fx-background-color :transparent;
+    -fx-border-color :transparent;
+}
+
+
+/*----Esta es para los botones que se tienen en las esquinas*/
+.scroll .scroll-bar:vertical .increment-button,
+.scroll .scroll-bar:vertical .decrement-button
+{
+    -fx-background-color :transparent;
+    -fx-background-radius : 0.0em;
+    -fx-padding :0.0 0.0 10.0 0.0;
+}
+/*
+.scroll .scroll-bar:vertical .track-background{
+    -fx-background-color: yellow;
+    -fx-background-insets: 20;
+    -fx-background-radius: 2em;
+}*/
+
+.scroll .scroll-bar .increment-arrow,
+.scroll .scroll-bar .decrement-arrow{
+    -fx-shape : " ";
+    -fx-padding :0.15em 0.0;
+}
+
+/*----Esta es para las rallitas*/
+.scroll .scroll-bar:vertical .thumb{
+    -fx-background-color : #dddddd;
+    -fx-background-radius : 2.0em;
+    -fx-pref-width: 30;
+}
+
+
+.table{
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+
+.table .column-header-background{
+    -fx-background-color: transparent;
+}
+
+.table .column-header,
+.table .column-header-background .filler{
+    -fx-background-color:#A7737C ;
+}
+.table .column-header .label{
+    -fx-text-fill: white;
+    -fx-font-family: "Montserrat Bold";
+    -fx-padding: 15 ;
+}
+
+.table .cell{
+    -fx-cell-size: 40;
+    -fx-alignment: center;
+}
+
+.table .scroll-bar{
+    -fx-background-color: transparent;
+}
+
+.table .scroll-bar .thumb{
+    -fx-background-color : #dddddd;
+    -fx-background-radius : 2.0em;
+    -fx-pref-width: 30;
+}
+
+.table .table-row-cell:empty{
+    -fx-background-color: white;
+}
+
+.table .table-row-cell:empty .table-cell{
+    -fx-border-width: 0px;
+    -fx-background-color: white;
+}
+
+
+.textField{
+    -fx-border-color: #dddddd;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-background-color: white;
+    -fx-padding: 5px;
+}
+
+.textField:focused{
+    -fx-border-color:  #42517A;
+}
+
+.combo{
+    -fx-background-color: white;
+    -fx-border-color:  #dddddd;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+.combo:disabled{
+    -fx-opacity: 1;
+    -fx-text-fill: green;
+}
+
+.combo:disabled .cell:disabled{
+    -fx-opacity: 1;
+}
+
+.combo .list-view{
+    -fx-background-color: white;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 10;
+}
+
+.combo .list-view .list-cell:hover{
+    -fx-background-color: rgba(65, 61, 250, 0.5);
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.calendario{
+    -fx-pref-width: 200;
+    -fx-background-color: white;
+    -fx-border-color:  #dddddd;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+.calendario:disabled{
+    -fx-opacity: 1;
+}
+
+.calendario:disabled .cell:disabled{
+    -fx-opacity: 1;
+}
+
+.calendario .arrow-button{
+    -fx-background-color: #894957;
+}
+
+.calendario .arrow-button .arrow{
+    -fx-background-color: white;
+}
+
+.btnDetails{
+    -fx-padding: 10px 20px;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+    -fx-background-color: #686C85;
+}
+
+.btnBack{
+    -fx-cell-size: 20;
+    -fx-background-color: #894957;
+    -fx-cursor: hand;
+    -fx-min-width: 40;
+    -fx-min-height: 40;
+}
+
+
+.seleccionado{
+    -fx-background-color: #145A5F;
+}
+
+.unselected{
+    -fx-background-color: #686C85;
+}
+
+.btnCamera{
+    -fx-background-color: #1B3765;
+    -fx-min-width: 30;
+    -fx-min-height: 30;
+}
+
+.btnCamera .iconFills{
+    -fx-fill: white;
+}
+
+.textField{
+    -fx-border-color: #dddddd;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-background-color: white;
+    -fx-padding: 5px;
+}
+
+.textFieldEmpty{
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-label-padding: 0;
+    -fx-padding: 0;
+}
+
+.select{
+    -fx-border-color:  #42517A;
+}
+
+.containerIcon{
+    -fx-shape: "M50,50m-50,0a50,50 0 1,0 100,0a50,50 0 1,0 -100,0";
+    -fx-background-color: white;
+    -fx-padding: 60;
+    -fx-effect: dropshadow(gaussian,rgb(0,0,0,0.15), 15,0.3, 0, 0);
+}
+
+.btnNormal{
+    -fx-background-color: #894957;
+    -fx-padding: 8 20;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+}
+
+.btnNormal:hover{
+    -fx-cursor: hand;
+}
+
+.panelShadow{
+    -fx-background-color: white;
+    -fx-padding: 20 30;
+    -fx-effect: dropshadow(gaussian,rgb(0,0,0,0.15), 10,0.25, 0, 0);
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.list-view{
+    -fx-padding: 10 20;
+}
+
+
+.list-view .list-cell{
+    -fx-border-insets: 10 10;
+    -fx-padding: 5 10;
+}
+
+.listView{
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+
+.listView .list-cell{
+    -fx-background-color: transparent;
+}
+
+
+.listView .scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.list-view .scroll-bar:horizontal .track{
+    -fx-background-color :transparent;
+    -fx-border-color :transparent;
+}
+
+
+/*----Esta es para los botones que se tienen en las esquinas*/
+.list-view .scroll-bar:horizontal .increment-button,
+.list-view .scroll-bar:horizontal .decrement-button
+{
+    -fx-background-color :transparent;
+    -fx-background-radius : 0.0em;
+    -fx-padding :0.0 0.0 10.0 0.0;
+}
+
+.list-view .scroll-bar .increment-arrow,
+.list-view .scroll-bar .decrement-arrow{
+    -fx-shape : " ";
+    -fx-padding :0.15em 0.0;
+}
+
+/*----Esta es para las rallitas*/
+.list-view .scroll-bar:horizontal .thumb{
+    -fx-background-color : #dddddd;
+    -fx-background-radius : 2.0em;
+    -fx-pref-width: 30;
+}
+
+.search{
+    -fx-background-color: #F2F2F2;
+    -fx-border-radius: 5 0 0 5;
+    -fx-background-radius: 5 0 0 5;
+}
+
+.textFieldSearch{
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.iconSearch{
+    -fx-fill: grey;
+}
+
+
+.btnFiltro{
+    -fx-background-color: white;
+    -fx-border-color:  #dddddd;
+
+}
+
+.btnFiltroFinal{
+    -fx-border-radius: 0 5 5 0;
+    -fx-background-radius: 0 5 5 0;
+}
+
+.contextMenu{
+    -fx-padding: 5 10;
+    -fx-background-color: white;
+    -fx-border-color:  #dddddd;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+.contextMenu .menu-item{
+    -fx-background-insets: 5px, 0px ;
+    -fx-padding: 10;
+}
+
+.contextMenu .menu-item:hover{
+    -fx-background-color: #894957;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+
+.contextMenu .radio-menu-item .radio {
+    -fx-background-color: #894957;
+}
+
+
+
+.monthPicker {
+    -fx-background-color: white;
+    -fx-border-color:  #dddddd;
+    -fx-border-radius: 0 5 5 0;
+    -fx-background-radius: 0 5 5 0;
+}
+
+.monthPicker .edit-button{
+    -fx-background-color: grey;
+    -fx-fill: white;
+}
