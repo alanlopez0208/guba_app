@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -10,16 +7,13 @@
 <?import javafx.geometry.Insets?>
 <?import com.jfoenix.controls.JFXButton?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
-<?import com.dlsc.gemsfx.skins.TimePickerPopup?>
+
 <?import com.dlsc.gemsfx.YearMonthPicker?>
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      spacing="40"
-      fx:controller="com.guba.app.controllers.cursos.ListController">
+<fx:root type="VBox" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" spacing="40">
     <HBox spacing="10.0">
         <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Lista de Cursos" styleClass="titulo"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button styleClass="btnsAgregar" text="Agregar Curso" fx:id="btnAgregar" onAction="#openPanelAdd">
+        <Button styleClass="btnsAgregar" text="Agregar Curso" fx:id="btnAgregar">
             <padding>
                 <Insets top="10" bottom="10" left="20" right="20"/>
             </padding>
@@ -27,19 +21,24 @@
     </HBox>
     <VBox VBox.vgrow="ALWAYS" spacing="10.0">
         <HBox alignment="CENTER">
-            <HBox fillHeight="true" HBox.hgrow="ALWAYS" styleClass="search" alignment="CENTER" spacing="10">
+            <HBox HBox.hgrow="ALWAYS" styleClass="search" alignment="CENTER" spacing="10">
                 <padding>
                     <Insets left="10" right="10" top="5" bottom="5"/>
                 </padding>
                 <FontIcon iconLiteral="mdi-magnify" styleClass="iconSearch" iconSize="15"/>
                 <TextField HBox.hgrow="ALWAYS" fx:id="busquedaSearch" styleClass="textFieldSearch" promptText="Buscar..."/>
-                <JFXButton onAction="#borrarFiltros">
+                <JFXButton fx:id="btnBorrarFiltros">
                     <graphic>
                         <FontIcon iconLiteral="mdi-close" fill="red" iconSize="15" />
                     </graphic>
                 </JFXButton>
             </HBox>
             <YearMonthPicker styleClass="monthPicker" fx:id="yearmMonthPicker" />
+            <JFXButton fx:id="btnActualizar" styleClass="btnFiltro, btnFiltroFinal" maxHeight="Infinity" >
+                <graphic>
+                    <FontIcon  iconLiteral="mdi-autorenew" fill="green" iconSize="15" />
+                </graphic>
+            </JFXButton>
         </HBox>
         <TableView styleClass="table" VBox.vgrow="ALWAYS" fx:id="tableView">
             <columns>
@@ -51,4 +50,4 @@
             </columns>
         </TableView>
     </VBox>
-</VBox>
+</fx:root>

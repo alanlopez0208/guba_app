@@ -1,10 +1,10 @@
 package com.guba.app.controllers.carreras;
 
-import com.guba.app.dao.DAOCarreras;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Carrera;
+import com.guba.app.data.dao.DAOCarreras;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Carrera;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -102,16 +102,13 @@ public class AddController extends BaseController<Carrera> implements Initializa
     @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
         carrera = null;
-        mediador.changePane(Paginas.LIST);
+        paginasProperty.set(Paginas.LIST);
     }
 
     @FXML
     private void guardarCarrera(ActionEvent event){
         if (mostrarConfirmacion()){
-            daoCarreras.insertCarrera(carrera);
-            getLista().add(carrera);
-            carrera = null;
-            mediador.changePane(Paginas.LIST);
+            mediador.guardar(carrera);
         }
     }
 
@@ -120,4 +117,8 @@ public class AddController extends BaseController<Carrera> implements Initializa
         return dialogConfirmacion.showAndWait().orElse(0) == 1;
     }
 
+    @Override
+    protected void cleanData() {
+
+    }
 }

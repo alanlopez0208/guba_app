@@ -8,7 +8,7 @@
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             xmlns="http://javafx.com/javafx"
             stylesheets="@styles.css"
-            fx:controller="com.guba.app.controllers.AppController" fx:id="pantallaPrincipal">
+            fx:controller="com.guba.app.controllers.app.AppController" fx:id="pantallaPrincipal">
     <left>
         <Sidebar fx:id="sidebar">
         </Sidebar>

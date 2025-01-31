@@ -1,8 +1,8 @@
 package com.guba.app.presentation.dialogs;
 
-import com.guba.app.dao.DAOMaterias;
-import com.guba.app.models.Grupo;
-import com.guba.app.models.Materia;
+import com.guba.app.data.dao.DAOMaterias;
+import com.guba.app.domain.models.Grupo;
+import com.guba.app.domain.models.Materia;
 import com.guba.app.presentation.utils.Constants;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;

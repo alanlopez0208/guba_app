@@ -1,9 +1,9 @@
 package com.guba.app.controllers.personal;
 
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Personal;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Personal;
 import com.guba.app.presentation.utils.Constants;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -13,8 +13,6 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 
-import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -56,8 +54,7 @@ public class DetailsController extends BaseController<Personal> implements Initi
 
     @FXML
     private void backPanel(){
-        mediador.changePane(Paginas.LIST);
-
+        paginasProperty.set(Paginas.LIST);
     }
 
     @Override
@@ -80,5 +77,10 @@ public class DetailsController extends BaseController<Personal> implements Initi
         txtCelular.textProperty().bind(personal.celularProperty());
         txtCurp.textProperty().bind(personal.curpProperty());
         comboSexo.valueProperty().bind(personal.generoProperty());
+    }
+
+    @Override
+    protected void cleanData() {
+
     }
 }

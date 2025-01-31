@@ -1,16 +1,17 @@
 package com.guba.app.controllers.carreras;
 
-import com.guba.app.dao.DAOCarreras;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Carrera;
+import com.guba.app.data.dao.DAOCarreras;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Mediador;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Carrera;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
+import com.guba.app.utils.Estado;
 import com.jfoenix.controls.JFXButton;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -30,7 +31,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
-public class ListController extends BaseController<Carrera> implements Initializable {
+public class ListController extends BaseController<Carrera>{
 
     @FXML
     private Label label;
@@ -46,60 +47,53 @@ public class ListController extends BaseController<Carrera> implements Initializ
     private ContextMenu contextMenu;
     @FXML
     private ToggleGroup toggleFiltroNormal;
-    private ToggleGroup toggleCarreras = new ToggleGroup();
-    private Filtros filtros = Filtros.NOMBRE;
+
+    private FilteredList<Carrera> filteredList;
+    private Filtros filtroSeleccionado = Filtros.NOMBRE;
     private List<Carrera> carreraList = new ArrayList<>();
     private ObservableList<Carrera> listaFiltros = FXCollections.observableArrayList();
 
     private DAOCarreras daoCarreras = new DAOCarreras();
+
+
+    public ListController(String ruta, Mediador<Carrera> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super(ruta, mediador, estadoProperty, paginasProperty);
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         cargarCarrerasBD();
         setCellColumns();
         setFiltro();
+        estadoProperty.addListener((observableValue, oldValue, newValue) -> {
+            if (newValue.equals(Estado.CARGANDO)){
+                label.setVisible(true);
+                tableView.setVisible(false);
+            } else if (newValue.equals(Estado.CARGADO)) {
+                filteredList = new FilteredList<>(listaFiltros,estudiante -> true);
+                tableView.setVisible(true);
+                tableView.setItems(filteredList);
+            }
+        });
     }
 
     @FXML
     private void openPaneAddAlumno(ActionEvent event){
-        mediador.loadData(Paginas.ADD, new Carrera());
+        mediador.loadContent(Paginas.ADD, new Carrera());
     }
 
     @FXML
     private void borrarFiltros(ActionEvent event){
         busquedaSearch.setText("");
-        getLista().setAll(carreraList);
-        toggleCarreras.selectToggle(null);
+        mediador.loadBD();
+        filteredList.filtered(c -> true);
         toggleFiltroNormal.selectToggle(null);
 
     }
 
-
     private void cargarCarrerasBD(){
-        Task<List<Carrera>> task = new Task<List<Carrera>>() {
-            @Override
-            protected List<Carrera> call() throws Exception {
-                return daoCarreras.getAllCarreras();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            try {
-                label.setVisible(false);
-                carreraList = task.get();
-                listaFiltros.setAll(carreraList);
-                getLista().setAll(listaFiltros);
-                tableView.setItems(getLista());
-                tableView.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
+        mediador.loadBD();
     }
-
-
 
     private void setCellColumns(){
         clave.setCellValueFactory(new PropertyValueFactory<>("idClave"));
@@ -142,14 +136,14 @@ public class ListController extends BaseController<Carrera> implements Initializ
                             openIcon.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent actionEvent) {
-                                    mediador.loadData(Paginas.DETAILS, carrera);
+                                    paginasProperty.set(Paginas.DETAILS);
                                 }
                             });
 
                             editIcon.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent event) {
-                                    mediador.loadData(Paginas.EDIT, carrera);
+                                    paginasProperty.set(Paginas.EDIT);
                                 }
                             });
 
@@ -163,8 +157,7 @@ public class ListController extends BaseController<Carrera> implements Initializ
                                         @Override
                                         public void accept(Integer integer) {
                                             if (integer.equals(1)){
-                                                daoCarreras.eliminarCarrera(carrera.getIdCarrera());
-                                                getLista().remove(carrera);
+                                               mediador.eliminar(carrera);
                                             }
                                         }
                                     });
@@ -185,58 +178,30 @@ public class ListController extends BaseController<Carrera> implements Initializ
     }
 
     private void setFiltro(){
-        busquedaSearch.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-                if (t1.isEmpty()){
-                    getLista().setAll(listaFiltros);
-                    return;
-                }
-                switch (filtros){
-
-                    case NOMBRE -> {
-                        System.out.println("SE VA A BUSCAR POR EL NOMBRE PA");
-                        List<Carrera> filtro = listaFiltros.stream()
-                                .filter(carrera -> carrera.getNombre().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-
-                        getLista().setAll(filtro);
-                    }
-                    case CLAVE -> {
-                        List<Carrera> filtro = listaFiltros.stream()
-                                .filter(carrera -> carrera.getIdClave().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-                        getLista().setAll(filtro);
-                    }
-                    case CREDITOS -> {
-                        List<Carrera> filtro = listaFiltros.stream()
-                                .filter(carrera -> carrera.getCreditos().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-                        getLista().setAll(filtro);
-                    }
-                }
-            }
+        busquedaSearch.textProperty().addListener((observableValue, s, t1) -> {
+            aplicarFiltros();
         });
 
         toggleFiltroNormal.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
             RadioMenuItem rb = (RadioMenuItem) toggleFiltroNormal.getSelectedToggle();
-            if (rb == null){
-                filtros = Filtros.NOMBRE;
-                return;
-            }
-            int index = Integer.parseInt(rb.getUserData().toString());
-            switch (index){
-                case 1->{
-                    filtros = Filtros.CLAVE;
-                }
-                case 2->{
-                    filtros = Filtros.NOMBRE;
-                }
-                case 3->{
-                    filtros = Filtros.CREDITOS;
-                }
-            }
+            filtroSeleccionado  = (rb != null) ? (Filtros) rb.getUserData() : null;
         });
+    }
+
+    private void aplicarFiltros(){
+        filteredList.filtered(carrera -> {
+            String filtro = busquedaSearch.getText().toLowerCase();
+            return switch (filtroSeleccionado){
+                case NOMBRE -> carrera.getNombre().toLowerCase().contains(filtro);
+                case CLAVE -> carrera.getIdClave().toLowerCase().contains(filtro);
+                case CREDITOS -> carrera.getCreditos().toLowerCase().contains(filtro);
+            };
+        });
+    }
+
+    @Override
+    protected void cleanData() {
+
     }
 }
 enum Filtros{

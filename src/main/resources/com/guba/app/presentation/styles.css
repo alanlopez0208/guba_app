@@ -68,10 +68,9 @@
     -fx-background-color:#FF546E;
     -fx-border-radius: 6px;
     -fx-background-radius: 6px;
-    -fx-fill: white;
+    -fx-text-fill: white;
     -fx-cursor: hand;
 }
-
 
 .btnsAgregar:hover{
     -fx-background-color: #42517A;

@@ -1,11 +1,11 @@
 package com.guba.app.controllers.materias;
 
-import com.guba.app.dao.DAOCarreras;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Carrera;
-import com.guba.app.models.Materia;
+import com.guba.app.data.dao.DAOCarreras;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Carrera;
+import com.guba.app.domain.models.Materia;
 import com.guba.app.presentation.utils.ComboCell;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -100,7 +100,7 @@ public class DetailsController extends BaseController<Materia> implements Initia
 
     @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
-        mediador.changePane(Paginas.LIST);
+        paginasProperty.set(Paginas.LIST);
     }
 
 
@@ -115,5 +115,10 @@ public class DetailsController extends BaseController<Materia> implements Initia
         txtClave.textProperty().bind(materia.claveProperty());
         txtCreditos.textProperty().bind(materia.creditosProperty());
         comboCarreras.getSelectionModel().select(materia.getCarreraModelo());
+    }
+
+    @Override
+    protected void cleanData() {
+
     }
 }

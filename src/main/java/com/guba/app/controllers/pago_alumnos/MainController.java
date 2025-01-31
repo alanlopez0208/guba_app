@@ -1,33 +1,53 @@
 package com.guba.app.controllers.pago_alumnos;
 
 
-import com.guba.app.dao.DAOPagoAlumnos;
-import com.guba.app.conexion.Config;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Mediador;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.PagoAlumno;
-import com.guba.app.presentation.utils.Constants;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.layout.StackPane;
+import com.guba.app.data.dao.DAOPagoAlumnos;
+import com.guba.app.utils.*;
+import com.guba.app.domain.models.PagoAlumno;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
-public class MainController implements Mediador<PagoAlumno>, Initializable {
+public class MainController extends BaseMainController<PagoAlumno> {
 
-    @FXML
+    private DAOPagoAlumnos pagoAlumnos = new DAOPagoAlumnos();
+
+
+    @Override
+    protected void registrarPaginas() {
+        registrarPagina(Paginas.LIST, "/pago_alumnos/List");
+        registrarPagina(Paginas.ADD, "/pago_alumnos/Add");
+        registrarPagina(Paginas.EDIT, "/pago_alumnos/Edit");
+        registrarPagina(Paginas.DETAILS, "/pago_alumnos/Details");
+        stack.getChildren().addAll(paginas.values());
+        paginas.get(Paginas.LIST).setVisible(true);
+    }
+
+    @Override
+    protected List<PagoAlumno> fetchData() {
+        return pagoAlumnos.getPagos();
+    }
+
+    @Override
+    public boolean actualizar(PagoAlumno pagoAlumno) {
+        return false;
+    }
+
+    @Override
+    public boolean eliminar(PagoAlumno pagoAlumno) {
+        return false;
+    }
+
+    @Override
+    public boolean guardar(PagoAlumno pagoAlumno) {
+        return false;
+    }
+
+    @Override
+    public PagoAlumno ver(PagoAlumno pagoAlumno) {
+        return null;
+    }
+
+    /*@FXML
     private StackPane stack;
     private Map<Paginas, Node> paginas;
     private Map<Paginas, BaseController<PagoAlumno>> controladores;
@@ -49,26 +69,6 @@ public class MainController implements Mediador<PagoAlumno>, Initializable {
         paginas.get(Paginas.LIST).setVisible(true);
     }
 
-    @Override
-    public void changePane(Paginas pagina) {
-        paginas.values().forEach(p->p.setVisible(false));
-        paginas.get(pagina).setVisible(true);
-    }
-
-    @Override
-    public void loadData(Paginas pagina, PagoAlumno c) {
-        Loadable<PagoAlumno> controller = (Loadable<PagoAlumno>) controladores.get(pagina);
-        if (controller != null) {
-            controller.loadData(c);
-        }
-        changePane(pagina);
-    }
-
-    @Override
-    public List<PagoAlumno> loadData() {
-        return null;
-    }
-
 
     private void registrarPagina(Paginas pagina, String rutaVista) {
         try {
@@ -85,4 +85,33 @@ public class MainController implements Mediador<PagoAlumno>, Initializable {
         }
     }
 
+    @Override
+    public boolean actualizar(PagoAlumno pagoAlumno) {
+        return false;
+    }
+
+    @Override
+    public boolean eliminar(PagoAlumno pagoAlumno) {
+        return false;
+    }
+
+    @Override
+    public Optional<PagoAlumno> guardar(PagoAlumno pagoAlumno) {
+        return Optional.empty();
+    }
+
+    @Override
+    public PagoAlumno ver(PagoAlumno pagoAlumno) {
+        return null;
+    }
+
+    @Override
+    public void loadContent(Paginas nueva, PagoAlumno data) {
+
+    }
+
+    @Override
+    public void loadBD() {
+
+    }*/
 }

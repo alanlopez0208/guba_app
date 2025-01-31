@@ -1,11 +1,11 @@
 package com.guba.app.controllers.pagos_docentes;
 
-import com.guba.app.dao.DAOMaestro;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Maestro;
-import com.guba.app.models.PagoDocente;
+import com.guba.app.data.dao.DAOMaestro;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Maestro;
+import com.guba.app.domain.models.PagoDocente;
 import com.guba.app.presentation.utils.ComboCell;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
@@ -100,7 +100,7 @@ public class DetailsController extends BaseController<PagoDocente> implements In
 
     @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
-        mediador.changePane(Paginas.LIST);
+        paginasProperty.set(Paginas.LIST);
     }
 
 
@@ -112,5 +112,10 @@ public class DetailsController extends BaseController<PagoDocente> implements In
         txtFactura.textProperty().bindBidirectional(pagoDocente.facturaProperty());
         Bindings.bindBidirectional(dateFeha.valueProperty(), pagoDocente.dateProperty());
         loadAlumnosAsync(pagoDocente.getMaestro());
+    }
+
+    @Override
+    protected void cleanData() {
+
     }
 }

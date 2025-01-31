@@ -1,15 +1,13 @@
 package com.guba.app.controllers.configuracion;
 
-import com.guba.app.dao.DAOAcuerdo;
-import com.guba.app.dao.DAOPeriodo;
-import com.guba.app.models.Acuerdo;
-import com.guba.app.models.Periodo;
-import com.guba.app.models.Personal;
+import com.guba.app.data.dao.DAOAcuerdo;
+import com.guba.app.data.dao.DAOPeriodo;
+import com.guba.app.domain.models.Acuerdo;
+import com.guba.app.domain.models.Periodo;
 import com.guba.app.presentation.dialogs.DialogAcuerdo;
 import com.guba.app.presentation.dialogs.DialogPeriodo;
-import com.guba.app.service.local.database.Service;
+import com.guba.app.data.local.database.Service;
 import com.jfoenix.controls.JFXButton;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
@@ -21,9 +19,7 @@ import javafx.scene.control.TextField;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 
 public class ConfiguracionController implements Initializable {
     @FXML

@@ -1,34 +1,28 @@
 package com.guba.app.controllers.cursos;
 
 import com.dlsc.gemsfx.CalendarPicker;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.dao.DAOAseor;
-import com.guba.app.dao.DAOParticipante;
-import com.guba.app.models.Asesor;
-import com.guba.app.models.Curso;
-import com.guba.app.models.Participante;
-import javafx.beans.binding.Bindings;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.data.dao.DAOAseor;
+import com.guba.app.data.dao.DAOParticipante;
+import com.guba.app.domain.models.Asesor;
+import com.guba.app.domain.models.Curso;
+import com.guba.app.domain.models.Participante;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
-import javafx.util.converter.IntegerStringConverter;
-import javafx.util.converter.NumberStringConverter;
 
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 public class DetailsController extends BaseController<Curso> implements Initializable, Loadable<Curso> {
@@ -65,7 +59,7 @@ public class DetailsController extends BaseController<Curso> implements Initiali
 
     @FXML
     public void backPanel(ActionEvent event) {
-        mediador.changePane(Paginas.LIST);
+       paginasProperty.set(Paginas.LIST);
     }
 
     @Override
@@ -173,4 +167,8 @@ public class DetailsController extends BaseController<Curso> implements Initiali
         new Thread(particpanteTask).start();
     }
 
+    @Override
+    protected void cleanData() {
+
+    }
 }

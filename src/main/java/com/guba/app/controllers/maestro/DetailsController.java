@@ -1,26 +1,20 @@
 package com.guba.app.controllers.maestro;
 
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Carrera;
-import com.guba.app.models.Maestro;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Maestro;
 import com.guba.app.presentation.utils.Constants;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 
 import java.io.File;
 import java.net.URL;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 public class DetailsController extends BaseController<Maestro> implements Initializable, Loadable<Maestro> {
@@ -63,8 +57,7 @@ public class DetailsController extends BaseController<Maestro> implements Initia
 
     @FXML
     private void backPanel(){
-        mediador.changePane(Paginas.LIST);
-
+        paginasProperty.set(Paginas.LIST);
     }
 
     @Override
@@ -87,5 +80,10 @@ public class DetailsController extends BaseController<Maestro> implements Initia
         txtPathCurriculo.textProperty().bind(maestro.cvProperty());
         txtCurp.textProperty().bind(maestro.curpProperty());
         comboSexo.setValue(maestro.getGenero());
+    }
+
+    @Override
+    protected void cleanData() {
+
     }
 }

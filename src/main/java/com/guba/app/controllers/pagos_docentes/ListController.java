@@ -1,15 +1,13 @@
 package com.guba.app.controllers.pagos_docentes;
 
 import com.dlsc.gemsfx.YearMonthPicker;
-import com.guba.app.dao.DAOPagoDocentes;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.*;
+import com.guba.app.data.dao.DAOPagoDocentes;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.*;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.jfoenix.controls.JFXButton;
 import javafx.beans.binding.Bindings;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -27,7 +25,6 @@ import javafx.util.Callback;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -59,12 +56,12 @@ public class ListController extends BaseController<PagoDocente> implements Initi
     public void initialize(URL url, ResourceBundle resourceBundle) {
         cargarPagoAlumnos();
         setCellColumns();
-        setFiltro();
+        //setFiltro();
     }
 
     @FXML
     private void openPaneAddAlumno(ActionEvent event){
-        mediador.loadData(Paginas.ADD, new PagoDocente());
+        mediador.loadContent(Paginas.ADD, new PagoDocente());
     }
 
     @FXML
@@ -72,7 +69,7 @@ public class ListController extends BaseController<PagoDocente> implements Initi
         busquedaSearch.setText("");
         yearmMonthPicker.getEditor().setText(null);
         toggleFiltroNormal.selectToggle(null);
-        getLista().setAll(pagoList);
+        //getLista().setAll(pagoList);
     }
 
 
@@ -88,8 +85,8 @@ public class ListController extends BaseController<PagoDocente> implements Initi
                 label.setVisible(false);
                 pagoList = task.get();
                 listaFiltros.setAll(pagoList);
-                getLista().setAll(listaFiltros);
-                tableView.setItems(getLista());
+                //getLista().setAll(listaFiltros);
+                //tableView.setItems(getLista());
                 tableView.setVisible(true);
                 tableView.setVisible(true);
             } catch (Exception e) {
@@ -168,14 +165,14 @@ public class ListController extends BaseController<PagoDocente> implements Initi
                             openIcon.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent actionEvent) {
-                                    mediador.loadData(Paginas.DETAILS, pagoDocente);
+                                    mediador.loadContent(Paginas.DETAILS, pagoDocente);
                                 }
                             });
 
                             editIcon.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent event) {
-                                    mediador.loadData(Paginas.EDIT, pagoDocente);
+                                    mediador.loadContent(Paginas.EDIT, pagoDocente);
                                 }
                             });
 
@@ -190,7 +187,7 @@ public class ListController extends BaseController<PagoDocente> implements Initi
                                         public void accept(Integer integer) {
                                             if (integer.equals(1)){
                                                 daoPagoDocentes.deletePago(pagoDocente.getIdPago());
-                                                getLista().remove(pagoDocente);
+                                                //getLista().remove(pagoDocente);
                                             }
                                         }
                                     });
@@ -209,6 +206,8 @@ public class ListController extends BaseController<PagoDocente> implements Initi
             }
         });
     }
+
+    /*
     private void setFiltro(){
         yearmMonthPicker.getEditor().setText(null);
         busquedaSearch.textProperty().addListener(new ChangeListener<String>() {
@@ -280,6 +279,11 @@ public class ListController extends BaseController<PagoDocente> implements Initi
             getLista().setAll(listaFiltros);
 
         });
+    }*/
+
+    @Override
+    protected void cleanData() {
+
     }
 }
 enum Filtros{

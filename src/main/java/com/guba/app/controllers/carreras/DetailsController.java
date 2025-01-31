@@ -1,9 +1,9 @@
 package com.guba.app.controllers.carreras;
 
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Carrera;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Carrera;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -77,7 +77,7 @@ public class DetailsController extends BaseController<Carrera> implements Initia
 
     @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
-        mediador.changePane(Paginas.LIST);
+        paginasProperty.setValue(Paginas.LIST);
     }
 
     @Override
@@ -93,4 +93,8 @@ public class DetailsController extends BaseController<Carrera> implements Initia
         txtTotalAsignaturas.textProperty().bind(carrera.totalAsignaturasProperty());
     }
 
+    @Override
+    protected void cleanData() {
+
+    }
 }

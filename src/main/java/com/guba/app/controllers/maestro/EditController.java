@@ -1,11 +1,11 @@
 package com.guba.app.controllers.maestro;
 
-import com.guba.app.dao.DAOMaestro;
-import com.guba.app.conexion.Config;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Maestro;
+import com.guba.app.data.dao.DAOMaestro;
+import com.guba.app.data.local.database.conexion.Config;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Maestro;
 import com.guba.app.presentation.dialogs.DialogCamara;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.utils.Constants;
@@ -78,8 +78,7 @@ public class EditController extends BaseController<Maestro> implements Initializ
 
     @FXML
     private void backPanel(){
-        mediador.changePane(Paginas.LIST);
-
+        paginasProperty.set(Paginas.LIST);
     }
 
     @FXML
@@ -126,7 +125,7 @@ public class EditController extends BaseController<Maestro> implements Initializ
             Alert alert = new Alert(seActualizo ? Alert.AlertType.CONFIRMATION : Alert.AlertType.ERROR);
             alert.setContentText(seActualizo ? "Se ha registrado el alumno con exito" : "Hay un error al guardar al Alumno intente mas tarde porfavor");
             alert.showAndWait();
-            mediador.changePane(Paginas.LIST);
+            paginasProperty.set(Paginas.LIST);
         });
     }
 
@@ -233,4 +232,8 @@ public class EditController extends BaseController<Maestro> implements Initializ
         comboSexo.setValue(maestro.getGenero());
     }
 
+    @Override
+    protected void cleanData() {
+
+    }
 }

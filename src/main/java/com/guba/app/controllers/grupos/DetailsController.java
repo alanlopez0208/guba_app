@@ -1,13 +1,13 @@
 package com.guba.app.controllers.grupos;
 
-import com.guba.app.dao.DAOAlumno;
-import com.guba.app.dao.DAOCalificiaciones;
-import com.guba.app.dao.DAOGrupoMateria;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.dao.DAOPeriodo;
-import com.guba.app.models.*;
+import com.guba.app.data.dao.DAOAlumno;
+import com.guba.app.data.dao.DAOCalificiaciones;
+import com.guba.app.data.dao.DAOGrupoMateria;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.data.dao.DAOPeriodo;
+import com.guba.app.domain.models.*;
 import com.guba.app.presentation.dialogs.DialogAlumnos;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.dialogs.DialogMaterias;
@@ -113,7 +113,7 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
 
     @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
-        mediador.changePane(Paginas.LIST);
+        paginasProperty.set(Paginas.LIST);
     }
 
     @FXML
@@ -577,5 +577,10 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
                 }
             }
         });
+    }
+
+    @Override
+    protected void cleanData() {
+
     }
 }

@@ -1,17 +1,15 @@
 package com.guba.app.controllers.estudiantes;
 
-import com.guba.app.dao.DAOAlumno;
-import com.guba.app.conexion.Config;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.dao.DAOCarreras;
-import com.guba.app.models.Carrera;
-import com.guba.app.models.Estudiante;
+import com.guba.app.data.local.database.conexion.Config;
+import com.guba.app.utils.Estado;
+import com.guba.app.utils.*;
+import com.guba.app.data.dao.DAOCarreras;
+import com.guba.app.domain.models.Carrera;
+import com.guba.app.domain.models.Estudiante;
 import com.guba.app.presentation.dialogs.DialogCamara;
 import com.guba.app.presentation.utils.Constants;
-import com.guba.app.service.local.database.Service;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -44,6 +42,14 @@ public class EditController extends BaseController<Estudiante> implements Loadab
 
     @FXML
     private Button backButton;
+    @FXML
+    private Button btnEdit;
+    @FXML
+    private Button btnCamara;
+    @FXML
+    private Button btnArchivos;
+    @FXML
+    private Button btnBorrarFoto;
     @FXML
     private VBox panelDatos;
     @FXML
@@ -87,19 +93,28 @@ public class EditController extends BaseController<Estudiante> implements Loadab
     private Estudiante estudiante;
     private BufferedImage bufferedImage;
 
+
+    public EditController(Mediador<Estudiante> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super("/estudiantes/EditEstudiante", mediador, estadoProperty, paginasProperty);
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        backButton.setOnAction(this::regresarAPanel);
+        btnEdit.setOnAction(this::guardarEstudiante);
+        btnCamara.setOnAction(this::abrirCamara);
+        btnArchivos.setOnAction(this::abrirArchivos);
+        btnBorrarFoto.setOnAction(this::borrarFoto);
         txtCelular.setTextFormatter(new TextFormatter<>(change -> {
             if (change.getControlNewText().matches("\\d*")){
                 return change;
             }
             return null;
         }));
+
     }
 
-
-    @FXML
-    private void abrirCamara() {
+    private void abrirCamara(ActionEvent event) {
         DialogCamara dialogCamara = new DialogCamara();
         Optional<BufferedImage> optionBuffer = dialogCamara.showAndWait();
         optionBuffer.ifPresent(bufferedImage -> {
@@ -108,7 +123,6 @@ public class EditController extends BaseController<Estudiante> implements Loadab
             fotoEstudiante.setFill(new ImagePattern(writableImage));
         });
     }
-
 
     private String guardarFoto() {
         try {
@@ -120,9 +134,7 @@ public class EditController extends BaseController<Estudiante> implements Loadab
         }
     }
 
-
-    @FXML
-    private void abrirArchivos() {
+    private void abrirArchivos(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Archivos de imagen", "*.jpg")
@@ -135,7 +147,7 @@ public class EditController extends BaseController<Estudiante> implements Loadab
                     return ImageIO.read(file);
                 }
             };
-            task.setOnSucceeded(event ->
+            task.setOnSucceeded(workerStateEvent ->
                     Platform.runLater(() -> {
                         try {
                             this.bufferedImage = task.get();
@@ -155,7 +167,6 @@ public class EditController extends BaseController<Estudiante> implements Loadab
         }
     }
 
-    @FXML
     public void guardarEstudiante(ActionEvent event) {
         if (!esValido()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -190,7 +201,7 @@ public class EditController extends BaseController<Estudiante> implements Loadab
         if (bufferedImage != null) {
             estudiante.setFoto(guardarFoto());
         }
-        boolean seGuardo = Service.getService().actualizarAlumno(estudiante);
+        boolean seGuardo = mediador.actualizar(estudiante);
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setContentText(seGuardo ? "Se ha Actualizado el alumno con exito":  "Hay un error al guardar al Alumno intente mas tarde porfavor" );
 
@@ -198,27 +209,23 @@ public class EditController extends BaseController<Estudiante> implements Loadab
             @Override
             public void accept(ButtonType buttonType) {
                 if (buttonType == ButtonType.OK){
-                    mediador.changePane(Paginas.LIST);
+                    paginasProperty.set(Paginas.LIST);
                 }
             }
         });
 
     }
 
-    @FXML
-    private void borrarFoto(){
+    private void borrarFoto(ActionEvent event){
         bufferedImage = null;
         fotoEstudiante.setFill(new ImagePattern(new Image(Objects.requireNonNull(getClass().getResource(Constants.URL_FOTO_PREDETERMINADA)).toString())));
         estudiante.setFoto(null);
         estudiante.setFotoPerfil(null);
     }
 
-    @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
-        mediador.changePane(Paginas.LIST);
+        paginasProperty.set(Paginas.LIST);
     }
-
-
 
     @Override
     public void loadData(Estudiante data) {
@@ -296,5 +303,28 @@ public class EditController extends BaseController<Estudiante> implements Loadab
             }
         });
         new Thread(task).start();
+    }
+
+    @Override
+    protected void cleanData() {
+        fotoEstudiante.setFill(null);
+        txtMatricula.setText(null);
+        txtNombre.setText(null);
+        txtApMat.setText(null);
+        txtApPat.setText(null);
+        txtCorreoInst.setText(null);
+        txtCorreoPer.setText(null);
+        txtGeneracion.setText(null);
+        txtDireccion.setText(null);
+        txtEscuelaProc.setText(null);
+        txtGrado.setText(null);
+        txtMunicipio.setText(null);
+        txtEstado.setText(null);
+        txtCelular.setText(null);
+        comboCarrera.setValue(null);
+        comboStatus.setValue(null);
+        comboSemestre.setValue(null);
+        comboSexo.setValue(null);
+        comboNacimiento.setValue(null);
     }
 }

@@ -1,10 +1,10 @@
 package com.guba.app.controllers.carreras;
 
-import com.guba.app.dao.DAOCarreras;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Carrera;
+import com.guba.app.data.dao.DAOCarreras;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Carrera;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -100,7 +100,7 @@ public class EditController extends BaseController<Carrera> implements Initializ
     @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
         carrera = null;
-        mediador.changePane(Paginas.LIST);
+        paginasProperty.setValue(Paginas.LIST);
     }
 
     @FXML
@@ -116,7 +116,7 @@ public class EditController extends BaseController<Carrera> implements Initializ
             carrera.setTotalAsignaturas(txtTotalAsignaturas.getText());
             daoCarreras.updateCarrera(carrera);
             carrera = null;
-            mediador.changePane(Paginas.LIST);
+            paginasProperty.setValue(Paginas.LIST);
         }
     }
 
@@ -125,4 +125,8 @@ public class EditController extends BaseController<Carrera> implements Initializ
         return dialogConfirmacion.showAndWait().orElse(0) == 1;
     }
 
+    @Override
+    protected void cleanData() {
+
+    }
 }

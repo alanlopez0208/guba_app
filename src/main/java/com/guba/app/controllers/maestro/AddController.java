@@ -1,11 +1,11 @@
 package com.guba.app.controllers.maestro;
 
-import com.guba.app.dao.DAOMaestro;
-import com.guba.app.conexion.Config;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Maestro;
+import com.guba.app.data.dao.DAOMaestro;
+import com.guba.app.data.local.database.conexion.Config;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Maestro;
 import com.guba.app.presentation.dialogs.DialogCamara;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.utils.Constants;
@@ -80,8 +80,8 @@ public class AddController extends BaseController<Maestro> implements Initializa
 
     @FXML
     private void backPanel(){
-        mediador.changePane(Paginas.LIST);
 
+        paginasProperty.set(Paginas.LIST);
     }
 
     @FXML
@@ -114,11 +114,11 @@ public class AddController extends BaseController<Maestro> implements Initializa
             Optional<Integer> optionalId = daoMaestro.crearDocenteId(maestro);
             optionalId.ifPresentOrElse(integer -> {
                 maestro.setId(integer.toString());
-                getLista().add(maestro);
+                //getLista().add(maestro);
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setContentText("Maestro creado Correctamente");
                 alert.showAndWait();
-                mediador.changePane(Paginas.LIST);
+                paginasProperty.set(Paginas.LIST);
             }, () -> {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setContentText("Error al crear intente contactase por favor");
@@ -228,4 +228,8 @@ public class AddController extends BaseController<Maestro> implements Initializa
         comboSexo.valueProperty().bindBidirectional(maestro.generoProperty());
     }
 
+    @Override
+    protected void cleanData() {
+
+    }
 }

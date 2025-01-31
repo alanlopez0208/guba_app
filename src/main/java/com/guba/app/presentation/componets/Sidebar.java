@@ -1,24 +1,14 @@
 package com.guba.app.presentation.componets;
 
+import com.guba.app.utils.Modulo;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.kordamp.ikonli.javafx.FontIcon;
-
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import static com.guba.app.presentation.utils.Constants.URL_COMPONENTS;
 
@@ -28,7 +18,7 @@ public class Sidebar extends VBox {
     VBox itemsContainer;
 
     private ObjectProperty<ItemButton> itemButtonObjectProperty;
-    private OnItemPressed onItemPressed;
+    private ObjectProperty<Modulo> moduleObjectProperty;
 
     public Sidebar(){
         try {
@@ -45,6 +35,7 @@ public class Sidebar extends VBox {
 
     public void initElements(){
         itemButtonObjectProperty = new SimpleObjectProperty<>();
+        moduleObjectProperty = new SimpleObjectProperty<>();
         createItem("mdi-home", "Inicio");
         createItem("mdi-account", "Estudiantes");
         createItem("mdi-projector-screen","Cursos");
@@ -57,20 +48,12 @@ public class Sidebar extends VBox {
         createItem("mdi-cash-usd","Pago Maestros");
         createItem("mdi-cloud","Sistema Web");
         createItem("mdi-settings","Configuracion");
-
         itemButtonObjectProperty.setValue((ItemButton)itemsContainer.getChildren().get(0));
-        itemButtonObjectProperty.addListener((observableValue, oldValue, newValue) -> {
-            int index = newValue.getIndex();
-            int oldIndex = oldValue.getIndex();
-            onItemPressed.onItemPressed(index, oldIndex);
+        itemButtonObjectProperty.addListener((observableValue, itemButton, t1) -> {
+            Modulo modulo = Modulo.values()[t1.getIndex()];
+            moduleObjectProperty.setValue(modulo);
         });
     }
-
-    public void setOnItemPressed(OnItemPressed onItemPressed) {
-        this.onItemPressed = onItemPressed;
-    }
-
-
     private void createItem(String iconCode, String label){
         ItemButton it1 = new ItemButton(itemButtonObjectProperty);
         it1.setIcono(new FontIcon(iconCode));
@@ -78,5 +61,13 @@ public class Sidebar extends VBox {
         it1.setTextButton(label);
         it1.setIndex(itemsContainer.getChildren().size());
         itemsContainer.getChildren().add(it1);
+    }
+
+    public Modulo getModuleObjectProperty() {
+        return moduleObjectProperty.get();
+    }
+
+    public ObjectProperty<Modulo> moduleObjectPropertyProperty() {
+        return moduleObjectProperty;
     }
 }

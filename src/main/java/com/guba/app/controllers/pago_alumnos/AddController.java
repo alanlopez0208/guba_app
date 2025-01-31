@@ -1,12 +1,12 @@
 package com.guba.app.controllers.pago_alumnos;
 
-import com.guba.app.dao.DAOAlumno;
-import com.guba.app.dao.DAOPagoAlumnos;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Estudiante;
-import com.guba.app.models.PagoAlumno;
+import com.guba.app.data.dao.DAOAlumno;
+import com.guba.app.data.dao.DAOPagoAlumnos;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Estudiante;
+import com.guba.app.domain.models.PagoAlumno;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.utils.ComboCell;
 import javafx.beans.binding.Bindings;
@@ -86,7 +86,7 @@ public class AddController extends BaseController<PagoAlumno> implements Initial
     @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
         pagoAlumno = null;
-        mediador.changePane(Paginas.LIST);
+        paginasProperty.set(Paginas.LIST);
     }
 
     @FXML
@@ -98,13 +98,13 @@ public class AddController extends BaseController<PagoAlumno> implements Initial
                 public void accept(Integer integer) {
                     pagoAlumno.setIdPago(integer.toString());
                     System.out.println(pagoAlumno.getAlumno().getMatricula());
-                    getLista().add(pagoAlumno);
+                    //getLista().add(pagoAlumno);
                     pagoAlumno = null;
-                    mediador.changePane(Paginas.LIST);
+                    paginasProperty.set(Paginas.LIST);
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                     alert.setContentText("Se agrego Correctamente");
                     alert.showAndWait();
-                    mediador.changePane(Paginas.LIST);
+                    paginasProperty.set(Paginas.LIST);
                 }
             }, new Runnable() {
                 @Override
@@ -112,7 +112,7 @@ public class AddController extends BaseController<PagoAlumno> implements Initial
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setContentText("Error al guardar contecta con soporte");
                     alert.showAndWait();
-                    mediador.changePane(Paginas.LIST);
+                    paginasProperty.set(Paginas.LIST);
                 }
             });
 
@@ -154,4 +154,8 @@ public class AddController extends BaseController<PagoAlumno> implements Initial
         return dialogConfirmacion.showAndWait().orElse(0) == 1;
     }
 
+    @Override
+    protected void cleanData() {
+
+    }
 }

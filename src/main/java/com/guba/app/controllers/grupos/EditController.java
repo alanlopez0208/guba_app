@@ -1,12 +1,12 @@
 package com.guba.app.controllers.grupos;
 
-import com.guba.app.dao.DAOCarreras;
-import com.guba.app.dao.DAOMaterias;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Carrera;
-import com.guba.app.models.Materia;
+import com.guba.app.data.dao.DAOCarreras;
+import com.guba.app.data.dao.DAOMaterias;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Carrera;
+import com.guba.app.domain.models.Materia;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.utils.ComboCell;
 import javafx.concurrent.Task;
@@ -120,7 +120,7 @@ public class EditController extends BaseController<Materia> implements Initializ
     @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
         materia= null;
-        mediador.changePane(Paginas.LIST);
+        paginasProperty.set(Paginas.LIST);
     }
 
     @FXML
@@ -135,7 +135,7 @@ public class EditController extends BaseController<Materia> implements Initializ
             materia.setCreditos(txtCreditos.getText());
             materia.setCarreraModelo(comboCarreras.getSelectionModel().getSelectedItem());
             daoMaterias.updateMateria(materia);
-            mediador.changePane(Paginas.LIST);
+            paginasProperty.set(Paginas.LIST);
             materia = null;
         }
     }
@@ -145,4 +145,8 @@ public class EditController extends BaseController<Materia> implements Initializ
         return dialogConfirmacion.showAndWait().orElse(0) == 1;
     }
 
+    @Override
+    protected void cleanData() {
+
+    }
 }

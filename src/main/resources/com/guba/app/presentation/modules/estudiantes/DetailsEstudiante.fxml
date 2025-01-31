@@ -25,24 +25,23 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import javafx.scene.control.PasswordField?>
 <?import com.dlsc.gemsfx.skins.TimePickerPopup?>
-<VBox spacing="10.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.guba.app.controllers.estudiantes.DetailsController">
-
+<fx:root type="VBox" spacing="10.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" >
    <HBox alignment="CENTER" spacing="30.0">
       <padding>
          <Insets bottom="10.0" left="20.0" right="10.0" top="10.0" />
       </padding>
-      <Button fx:id="backButton" onAction="#backPanel" styleClass="btn, btnBack">
+      <Button fx:id="backButton" styleClass="btn, btnBack">
          <graphic>
             <FontIcon fill="white" iconLiteral="mdi-arrow-left-bold" iconSize="15" />
          </graphic>
       </Button>
       <Region HBox.hgrow="ALWAYS" />
-      <Button styleClass="btnDetails, seleccionado" text="General" fx:id="btnDetals" onAction="#openDatos">
+      <Button  styleClass="btnDetails, seleccionado" text="General" fx:id="btnDetals" >
       </Button>
-      <Button styleClass="btnDetails" text="Calificaciones" fx:id="btnCalificaciones" onAction="#openCalificaciones">
+      <Button styleClass="btnDetails" text="Calificaciones" fx:id="btnCalificaciones">
       </Button>
-      <Button styleClass="btnDetails" text="Titulacion" fx:id="btnTitulacion" onAction="#openTitulo" />
-      <Button styleClass="btnDetails" text=" Adicionales" fx:id="btnAdicionales" onAction="#openAdicionales"/>
+      <Button styleClass="btnDetails" text="Titulacion" fx:id="btnTitulacion" />
+      <Button styleClass="btnDetails" text=" Adicionales" fx:id="btnAdicionales"/>
       <Region HBox.hgrow="ALWAYS" />
    </HBox>
    <StackPane VBox.vgrow="ALWAYS">
@@ -238,12 +237,12 @@
             </VBox>
          </HBox>
          <StackPane>
-            <JFXButton text="Guardar Titulo" fx:id="btnGuardarTitulo" onAction="#guardarTitulo" styleClass="btnsAgregar">
+            <JFXButton text="Guardar Titulo" fx:id="btnGuardarTitulo"  styleClass="btnsAgregar">
                <padding>
                   <Insets top="10" bottom="10" right="40" left="40"/>
                </padding>
             </JFXButton>
-            <JFXButton text="Editar Titulo" fx:id="btnEditarTitulo" onAction="#editarTitulo" styleClass="btnEdit">
+            <JFXButton text="Editar Titulo" fx:id="btnEditarTitulo" styleClass="btnEdit">
                <padding>
                   <Insets top="10" bottom="10" right="40" left="40"/>
                </padding>
@@ -262,7 +261,7 @@
                   <Label text="Fecha:" />
                   <CalendarPicker fx:id="dateFechaDoc"/>
                </VBox>
-               <JFXButton text="Generar Docuemento" styleClass="btnsAgregar"  onAction="#generarDocumentos" minWidth="-Infinity" maxWidth="Infinity"/>
+               <JFXButton fx:id="btnGenerarDocumento" text="Generar Docuemento" styleClass="btnsAgregar" minWidth="-Infinity" maxWidth="Infinity"/>
             </VBox>
             <VBox styleClass="panelShadow" spacing="20">
                <Label text="Usuario y Contraseña" styleClass="subtitulo"/>
@@ -274,7 +273,7 @@
                   <Label text="Contraseña:" />
                   <PasswordField fx:id="paswordField" disable="true" styleClass="textField" />
                </VBox>
-               <JFXButton styleClass="btnVer" minWidth="-Infinity" onAction="#verPassword" maxWidth="Infinity">
+               <JFXButton fx:id="btnPassword" styleClass="btnVer" minWidth="-Infinity" maxWidth="Infinity">
                   <graphic>
                      <FontIcon iconLiteral="mdi-eye" fill="white"/>
                   </graphic>
@@ -287,4 +286,4 @@
          <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
       </padding>
    </StackPane>
-</VBox>
+</fx:root>

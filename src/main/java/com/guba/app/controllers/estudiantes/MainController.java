@@ -1,92 +1,59 @@
 package com.guba.app.controllers.estudiantes;
 
-import com.guba.app.dao.DAOAlumno;
-import com.guba.app.conexion.Config;
-import com.guba.app.controllers.*;
-import com.guba.app.models.Estudiante;
-import com.guba.app.presentation.utils.Constants;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
+import com.guba.app.data.dao.DAOAlumno;
+import com.guba.app.domain.models.Estudiante;
+import com.guba.app.utils.*;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
-public class MainController implements  Mediador<Estudiante> {
+public class MainController extends BaseMainController<Estudiante> {
 
-    @FXML
-    private BorderPane panel;
-    @FXML
-    private StackPane stack;
-    private Map<Paginas, Node> paginas;
-    private Map<Paginas, BaseController<Estudiante>> controladores;
-    private ObservableList<Estudiante> observableList;
-    private Config config;
-    private DAOAlumno daoAlumno;
+    private DAOAlumno daoAlumno = new DAOAlumno();
 
-
-    
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        paginas = new HashMap<>();
-        controladores = new HashMap<>();
-        observableList = FXCollections.observableArrayList();
-        daoAlumno = new DAOAlumno();
-        Platform.runLater(() -> {
-            registrarPagina(Paginas.LIST, "/estudiantes/ListEstudiantes");
-            //registrarPagina(Paginas.ADD, "/estudiantes/AddEstudiante");
-            //registrarPagina(Paginas.EDIT, "/estudiantes/EditEstudiante");
-            //registrarPagina(Paginas.DETAILS, "/estudiantes/DetailsEstudiante");
-            stack.getChildren().addAll(paginas.values());
-            paginas.get(Paginas.LIST).setVisible(true);
-        });
-    }
-
-    private void registrarPagina(Paginas pagina, String rutaVista) {
-        try {
-            FXMLLoader loader = new FXMLLoader(this.getClass().getResource(Constants.URL_MODULES+rutaVista+".fxml"));
-            Parent parent =  loader.load();
-            parent.setVisible(false);
-            BaseController<Estudiante> controller= loader.getController();
-            controller.setMediador(this);
-            controller.setLista(observableList);
-            controladores.put(pagina, controller);
-            paginas.put(pagina, parent);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    protected void registrarPaginas(){
+        registrarPagina(Paginas.LIST, new ListController( this, this.estadoProperty, this.paginaProperty, this.dataList));
+        registrarPagina(Paginas.ADD,  new AddController(this , this.estadoProperty, this.paginaProperty));
+        registrarPagina(Paginas.EDIT, new EditController(this, this.estadoProperty, this.paginaProperty));
+        registrarPagina(Paginas.DETAILS,new DetailsController(this, this.estadoProperty, this.paginaProperty));
+        stack.getChildren().addAll(nodos.values());
+        nodos.get(Paginas.LIST).setVisible(true);
     }
 
     @Override
-    public void changePane(Paginas pagina) {
-        paginas.values().forEach(p->p.setVisible(false));
-        paginas.get(pagina).setVisible(true);
-    }
-
-    @Override
-    public void loadData(Paginas pagina, Estudiante c) {
-        Loadable<Estudiante> controller = (Loadable<Estudiante>) controladores.get(pagina);
-        if (controller != null) {
-            controller.loadData(c);
-        }
-       changePane(pagina);
-    }
-
-
-    @Override
-    public List<Estudiante> loadData() {
+    protected List<Estudiante> fetchData() {
         return daoAlumno.getEstudiantes();
     }
 
+
+    @Override
+    public boolean actualizar(Estudiante estudiante) {
+        return daoAlumno.updateAlumno(estudiante);
+    }
+
+    @Override
+    public boolean eliminar(Estudiante estudiante) {
+        boolean eliminar =  daoAlumno.deleteAlumno(estudiante.getId());
+        if (eliminar){
+            dataList.remove(estudiante);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean guardar(Estudiante estudiante) {
+        var optional = daoAlumno.crearAlumno(estudiante);
+        if (optional.isPresent()){
+            estudiante.setId(optional.get().toString());
+            dataList.add(estudiante);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Estudiante ver(Estudiante estudiante) {
+        return daoAlumno.getEstudiante(estudiante.getId());
+    }
 }

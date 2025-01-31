@@ -1,12 +1,12 @@
 package com.guba.app.controllers.pagos_docentes;
 
-import com.guba.app.dao.DAOMaestro;
-import com.guba.app.dao.DAOPagoDocentes;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Maestro;
-import com.guba.app.models.PagoDocente;
+import com.guba.app.data.dao.DAOMaestro;
+import com.guba.app.data.dao.DAOPagoDocentes;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Maestro;
+import com.guba.app.domain.models.PagoDocente;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.utils.ComboCell;
 import javafx.beans.value.ChangeListener;
@@ -118,7 +118,7 @@ public class EditController extends BaseController<PagoDocente> implements Initi
     @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
         pagoDocente = null;
-        mediador.changePane(Paginas.LIST);
+        paginasProperty.set(Paginas.LIST);
     }
 
     @FXML
@@ -129,12 +129,13 @@ public class EditController extends BaseController<PagoDocente> implements Initi
             pagoDocente.setDate(dateFeha.getValue());
             pagoDocente.setMaestro(comboMaestros.getSelectionModel().getSelectedItem());
             pagoDocente.setDate(dateFeha.getValue());
-            mediador.changePane(Paginas.LIST);
+            paginasProperty.set(Paginas.LIST);
             boolean seActualizo = daoPagoDocentes.updatePago(pagoDocente);
             Alert alert = new Alert(seActualizo ? Alert.AlertType.CONFIRMATION : Alert.AlertType.ERROR);
             alert.setContentText(seActualizo ? "Se actulizo Correctamente" : "Error al actualizar contacte con soporte");
             alert.showAndWait();
-            mediador.changePane(Paginas.LIST);
+            //mediador.changePane(Paginas.LIST);
+            paginasProperty.set(Paginas.LIST);
         }
     }
 
@@ -143,4 +144,8 @@ public class EditController extends BaseController<PagoDocente> implements Initi
         return dialogConfirmacion.showAndWait().orElse(0) == 1;
     }
 
+    @Override
+    protected void cleanData() {
+
+    }
 }

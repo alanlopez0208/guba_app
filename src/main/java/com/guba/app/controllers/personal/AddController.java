@@ -1,11 +1,11 @@
 package com.guba.app.controllers.personal;
 
-import com.guba.app.dao.DAOPersonal;
-import com.guba.app.conexion.Config;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Personal;
+import com.guba.app.data.dao.DAOPersonal;
+import com.guba.app.data.local.database.conexion.Config;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Personal;
 import com.guba.app.presentation.dialogs.DialogCamara;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.utils.Constants;
@@ -75,8 +75,7 @@ public class AddController extends BaseController<Personal> implements Initializ
 
     @FXML
     private void backPanel(){
-        mediador.changePane(Paginas.LIST);
-
+        paginasProperty.set(Paginas.LIST);
     }
 
     @FXML
@@ -94,11 +93,11 @@ public class AddController extends BaseController<Personal> implements Initializ
             Optional<Integer> optionalId = daoPersonal.crearPersonal(personal);
             optionalId.ifPresentOrElse(integer -> {
                 personal.setId(integer.toString());
-                getLista().add(personal);
+                //getLista().add(personal);
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setContentText("Personal creado Correctamente");
                 alert.showAndWait();
-                mediador.changePane(Paginas.LIST);
+                paginasProperty.set(Paginas.LIST);
             }, () -> {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setContentText("Error al crear intente contactase por favor");
@@ -198,4 +197,8 @@ public class AddController extends BaseController<Personal> implements Initializ
         comboSexo.valueProperty().bindBidirectional(personal.generoProperty());
     }
 
+    @Override
+    protected void cleanData() {
+
+    }
 }

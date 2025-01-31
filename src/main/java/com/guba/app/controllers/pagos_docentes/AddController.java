@@ -1,12 +1,12 @@
 package com.guba.app.controllers.pagos_docentes;
 
-import com.guba.app.dao.DAOMaestro;
-import com.guba.app.dao.DAOPagoDocentes;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Maestro;
-import com.guba.app.models.PagoDocente;
+import com.guba.app.data.dao.DAOMaestro;
+import com.guba.app.data.dao.DAOPagoDocentes;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Maestro;
+import com.guba.app.domain.models.PagoDocente;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.utils.ComboCell;
 import javafx.beans.binding.Bindings;
@@ -84,7 +84,8 @@ public class AddController extends BaseController<PagoDocente> implements Initia
     @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
         pagoDocente = null;
-        mediador.changePane(Paginas.LIST);
+        //mediador.changePane(Paginas.LIST);
+        paginasProperty.set(Paginas.LIST);
     }
 
     @FXML
@@ -92,10 +93,10 @@ public class AddController extends BaseController<PagoDocente> implements Initia
         if (mostrarConfirmacion()){
             daoPagoDocentes.crearPago(pagoDocente).ifPresentOrElse(integer -> {
                 pagoDocente.setIdPago(integer.toString());
-                getLista().add(pagoDocente);
+                //getLista().add(pagoDocente);
                 System.out.println(pagoDocente.getFecha());
                 pagoDocente = null;
-                mediador.changePane(Paginas.LIST);
+                paginasProperty.set(Paginas.LIST);
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setContentText("Se actulizo Correctamente");
                 //alert.showAndWait();
@@ -104,7 +105,7 @@ public class AddController extends BaseController<PagoDocente> implements Initia
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setContentText( "Error al actualizar contacte con soporte");
                 alert.showAndWait();
-                mediador.changePane(Paginas.LIST);
+                paginasProperty.set(Paginas.LIST);
             });
         }
     }
@@ -145,4 +146,8 @@ public class AddController extends BaseController<PagoDocente> implements Initia
         return dialogConfirmacion.showAndWait().orElse(0) == 1;
     }
 
+    @Override
+    protected void cleanData() {
+
+    }
 }

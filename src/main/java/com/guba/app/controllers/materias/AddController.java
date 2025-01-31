@@ -1,12 +1,12 @@
 package com.guba.app.controllers.materias;
 
-import com.guba.app.dao.DAOCarreras;
-import com.guba.app.dao.DAOMaterias;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Carrera;
-import com.guba.app.models.Materia;
+import com.guba.app.data.dao.DAOCarreras;
+import com.guba.app.data.dao.DAOMaterias;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Carrera;
+import com.guba.app.domain.models.Materia;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.utils.ComboCell;
 import javafx.beans.binding.Bindings;
@@ -87,16 +87,16 @@ public class AddController extends BaseController<Materia> implements Initializa
     @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
         materia = null;
-        mediador.changePane(Paginas.LIST);
+        paginasProperty.set(Paginas.LIST);
     }
 
     @FXML
     private void guardar(ActionEvent event){
         if (mostrarConfirmacion()){
             daoMaterias.insertMateria(materia);
-            getLista().add(materia);
+            //getLista().add(materia);
             materia = null;
-            mediador.changePane(Paginas.LIST);
+            paginasProperty.set(Paginas.LIST);
         }
     }
 
@@ -140,4 +140,8 @@ public class AddController extends BaseController<Materia> implements Initializa
         return dialogConfirmacion.showAndWait().orElse(0) == 1;
     }
 
+    @Override
+    protected void cleanData() {
+
+    }
 }

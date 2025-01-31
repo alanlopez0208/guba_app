@@ -1,12 +1,12 @@
 package com.guba.app.controllers.pago_alumnos;
 
-import com.guba.app.dao.DAOAlumno;
-import com.guba.app.dao.DAOPagoAlumnos;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Estudiante;
-import com.guba.app.models.PagoAlumno;
+import com.guba.app.data.dao.DAOAlumno;
+import com.guba.app.data.dao.DAOPagoAlumnos;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Loadable;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Estudiante;
+import com.guba.app.domain.models.PagoAlumno;
 import com.guba.app.presentation.utils.ComboCell;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
@@ -111,7 +111,7 @@ public class DetailsController extends BaseController<PagoAlumno> implements Ini
 
     @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
-        mediador.changePane(Paginas.LIST);
+        paginasProperty.set(Paginas.LIST);
     }
 
 
@@ -123,5 +123,10 @@ public class DetailsController extends BaseController<PagoAlumno> implements Ini
         txtFactura.textProperty().bindBidirectional(pagoAlumno.facturaProperty());
         Bindings.bindBidirectional(dateFeha.valueProperty(),pagoAlumno.dateProperty());
         loadAlumnosAsync(pagoAlumno.getAlumno());
+    }
+
+    @Override
+    protected void cleanData() {
+
     }
 }

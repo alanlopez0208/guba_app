@@ -1,22 +1,19 @@
 package com.guba.app.controllers.estudiantes;
 
-import com.guba.app.dao.DAOAlumno;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.dao.DAOCarreras;
-import com.guba.app.models.Carrera;
-import com.guba.app.models.Estudiante;
-import com.guba.app.service.local.database.Service;
+import com.guba.app.utils.Estado;
+import com.guba.app.utils.*;
+import com.guba.app.data.dao.DAOCarreras;
+import com.guba.app.domain.models.Carrera;
+import com.guba.app.domain.models.Estudiante;
 import com.jfoenix.controls.JFXButton;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -28,16 +25,18 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-import java.net.URL;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
-public class ListController extends BaseController<Estudiante> implements Initializable {
+public class ListController extends BaseController<Estudiante> {
     @FXML
     private Label label;
     @FXML
-    private HBox filtrosContainer;
+    private Button btnAgregar;
+    @FXML
+    private Button btnBorrarFiltros;
+    @FXML
+    private JFXButton btnActualizar;
     @FXML
     private TableView<Estudiante> tableView;
     @FXML
@@ -50,54 +49,52 @@ public class ListController extends BaseController<Estudiante> implements Initia
     private ContextMenu contextMenu;
     @FXML
     private ToggleGroup toggleFiltroNormal;
-    private ToggleGroup toggleCarreras = new ToggleGroup();
-    private Filtros filtros = Filtros.NOMBRE;
-    private List<Estudiante> estudiantesList = new ArrayList<>();
-    private ObservableList<Estudiante> listaFiltros = FXCollections.observableArrayList();
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    private ToggleGroup toggleCarreras;
+    private FilteredList<Estudiante> filteredList;
+    private ObservableList<Estudiante> list;
+    private Filtros filtroSeleccioado = Filtros.MATRICULA;
+    private Carrera carreraSeleccionada;
+
+
+    public ListController(Mediador<Estudiante> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty, ObservableList<Estudiante> list) {
+        super("/estudiantes/ListEstudiantes", mediador, estadoProperty, paginasProperty);
+        this.list = list;
+        toggleCarreras = new ToggleGroup();
+        btnAgregar.setOnAction(this::openPaneAddAlumno);
+        btnBorrarFiltros.setOnAction(this::borrarFiltros);
+        btnActualizar.setOnAction(event -> {
+            loadEstudiantesFromBD();
+        });
         loadEstudiantesFromBD();
         setCollumnCell();
         setFiltro();
-    }
-
-    @FXML
-    private void openPaneAddAlumno(ActionEvent event){
-        mediador.loadData(Paginas.ADD, new Estudiante());
-    }
-
-    @FXML
-    private void borrarFiltros(ActionEvent event){
-        busquedaSearch.setText("");
-        Service.getService().getEstudiantes().setAll(estudiantesList);
-        toggleCarreras.selectToggle(null);
-        toggleFiltroNormal.selectToggle(null);
-
-    }
-
-
-    private void loadEstudiantesFromBD(){
-       Task<List<Estudiante>> task = new Task<List<Estudiante>>() {
-           @Override
-           protected List<Estudiante> call() throws Exception {
-               return Service.getService().cargarEstudiantes();
-           }
-       };
-       task.setOnSucceeded(event -> {
-            try {
+        estadoProperty.addListener((observableValue, oldValue, newValue) -> {
+            if (newValue.equals(Estado.CARGANDO)){
+                label.setVisible(true);
+                tableView.setVisible(false);
+            } else if (newValue.equals(Estado.CARGADO)) {
+                filteredList = new FilteredList<>(list, estudiante -> true);
                 label.setVisible(false);
-                estudiantesList = task.get();
-                listaFiltros.setAll(estudiantesList);
-                tableView.setItems(Service.service.getEstudiantes());
                 tableView.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
+                tableView.setItems(filteredList);
             }
         });
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
+    }
+
+    private void openPaneAddAlumno(ActionEvent event){
+        mediador.loadContent(Paginas.ADD, new Estudiante());
+    }
+
+    private void borrarFiltros(ActionEvent event){
+        busquedaSearch.setText("");
+        loadEstudiantesFromBD();
+        toggleCarreras.selectToggle(null);
+        toggleFiltroNormal.selectToggle(null);
+    }
+
+    private void loadEstudiantesFromBD(){
+        mediador.loadBD();
     }
 
     private void setCollumnCell(){
@@ -116,13 +113,11 @@ public class ListController extends BaseController<Estudiante> implements Initia
                             setText(null);
                             setGraphic(null);
                         } else {
-                            Estudiante estudiante = getTableView().getItems().get(getIndex());
+                            Estudiante estudiante = tableView.getItems().get(getIndex());
 
                             Button openIcon = new Button();
                             Button deletIcon = new Button();
                             Button editIcon = new Button();
-
-
 
                             FontIcon open = new FontIcon("mdi-eye");
                             open.setFill(Color.WHITE);
@@ -143,14 +138,14 @@ public class ListController extends BaseController<Estudiante> implements Initia
                             openIcon.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent actionEvent) {
-                                   mediador.loadData(Paginas.DETAILS, estudiante);
+                                   mediador.loadContent(Paginas.DETAILS, estudiante);
                                 }
                             });
 
                             editIcon.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent event) {
-                                   mediador.loadData(Paginas.EDIT, estudiante);
+                                    mediador.loadContent(Paginas.EDIT, estudiante);
                                 }
                             });
 
@@ -168,11 +163,9 @@ public class ListController extends BaseController<Estudiante> implements Initia
                                         return 0;
                                     });
 
-                                    Optional<Integer> option = dialog.showAndWait();
-
-                                    if (option.isPresent() && option.get().equals(1)){
-                                        Service.getService().eliminarAlumno(estudiante);
-                                    }
+                                    dialog.showAndWait().ifPresent(integer -> {
+                                        mediador.eliminar(estudiante);
+                                    });
                                 }
                             });
                             HBox hBox = new HBox();
@@ -193,105 +186,65 @@ public class ListController extends BaseController<Estudiante> implements Initia
         busquedaSearch.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-                if (t1.isEmpty()){
-                    Service.getService().getEstudiantes().setAll(listaFiltros);
-                    return;
-                }
-                System.out.println(filtros);
-                switch (filtros){
-
-                    case NOMBRE -> {
-                        System.out.println("SE VA A BUSCAR POR EL NOMBRE PA");
-                        List<Estudiante> filtro = listaFiltros.stream()
-                                .filter(estudiante -> estudiante.getNombre().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-
-                        Service.getService().getEstudiantes().setAll(filtro);
-                    }
-                    case MATRICULA -> {
-                        List<Estudiante> filtro = listaFiltros.stream()
-                                .filter(estudiante -> estudiante.getMatricula().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-                        Service.getService().getEstudiantes().setAll(filtro);
-                    }
-                    case APELLIDOS -> {
-                        List<Estudiante> filtro = listaFiltros.stream()
-                                .filter(estudiante -> estudiante.getApPaterno().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-                        Service.getService().getEstudiantes().setAll(filtro);
-                    }
-                }
+                aplicarFiltros();
             }
         });
 
-
-
-        loadCarrerasAsync(carreras -> {
-            carreras.forEach(carrera -> {
-                RadioMenuItem radioButton = new RadioMenuItem();
-                radioButton.setText(carrera.getNombre() + " " + carrera.getModalidad());
-                radioButton.setToggleGroup(toggleCarreras);
-                radioButton.setUserData(carrera);
-                contextMenu.getItems().add(radioButton);
-            });
-        });
-
+        Utils.loadAsync(
+                () -> new DAOCarreras().getAllCarreras(),
+                carreras -> {
+                    carreras.forEach(carrera -> {
+                        RadioMenuItem radioButton = new RadioMenuItem();
+                        radioButton.setText(carrera.getNombre() + " " + carrera.getModalidad());
+                        radioButton.setToggleGroup(toggleCarreras);
+                        radioButton.setUserData(carrera);
+                        contextMenu.getItems().add(radioButton);
+                    });
+                });
 
         toggleCarreras.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
             RadioMenuItem rb = (RadioMenuItem) toggleCarreras.getSelectedToggle();
-            if (rb == null){
-                return;
-            }
-            Carrera carrera = (Carrera) rb.getUserData();
-            listaFiltros.setAll(estudiantesList.stream()
-                    .filter(e-> e.getCarrera().getIdCarrera().equals(carrera.getIdCarrera()))
-                    .toList());
-
-            Service.getService().getEstudiantes().setAll(listaFiltros);
+            carreraSeleccionada = (rb != null) ? (Carrera) rb.getUserData() : null;
+            aplicarFiltros();
         });
 
 
-        toggleFiltroNormal.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
-
-            RadioMenuItem rb = (RadioMenuItem) toggleFiltroNormal.getSelectedToggle();
-            if (rb == null){
-                filtros = Filtros.NOMBRE;
-                return;
-            }
-            int index = Integer.parseInt(rb.getUserData().toString());
-            switch (index){
-                case 1->{
-                    filtros = Filtros.MATRICULA;
-                }
-                case 2->{
-                    filtros = Filtros.NOMBRE;
-                }
-                case 3->{
-                    filtros = Filtros.APELLIDOS;
-                }
+        toggleFiltroNormal.selectedToggleProperty().addListener((observableValue, oldValue, newValue) -> {
+            if (newValue instanceof RadioMenuItem rb) {
+                filtroSeleccioado = Filtros.valueOf(rb.getUserData().toString().toUpperCase());
+                aplicarFiltros();
             }
         });
     }
-    private void loadCarrerasAsync(Consumer<List<Carrera>> cosumer) {
-        Task<List<Carrera>> task = new Task<>() {
-            @Override
-            protected List<Carrera> call() throws Exception {
-                return new DAOCarreras().getAllCarreras();
-            }
+
+
+    private void aplicarFiltros() {
+        filteredList.setPredicate(estudiante -> {
+            boolean coincideCarrera = (carreraSeleccionada == null || estudiante.getCarrera().getIdCarrera().equals(carreraSeleccionada.getIdCarrera()));
+            boolean coincideTexto = busquedaSearch.getText().isEmpty() || cumpleFiltroTexto(estudiante);
+            return coincideCarrera && coincideTexto;
+        });
+    }
+
+    private boolean cumpleFiltroTexto(Estudiante estudiante) {
+        String filtro = busquedaSearch.getText().toLowerCase();
+        return switch (filtroSeleccioado){
+            case NOMBRE  -> estudiante.getNombre().toLowerCase().contains(filtro);
+            case MATRICULA -> estudiante.getMatricula().toLowerCase().contains(filtro);
+            case APELLIDOS -> estudiante.getApPaterno().toLowerCase().contains(filtro);
         };
-        task.setOnSucceeded(event -> {
-            try {
-                cosumer.accept(task.get());
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        new Thread(task).start();
+    }
+
+
+    @Override
+    protected void cleanData() {
+        mediador.loadBD();
+    }
+
+    enum Filtros{
+        NOMBRE,
+        MATRICULA,
+        APELLIDOS
     }
 }
 
-enum Filtros{
-    NOMBRE,
-    MATRICULA,
-    APELLIDOS
-}

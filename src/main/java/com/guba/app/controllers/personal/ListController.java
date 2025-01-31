@@ -1,14 +1,10 @@
 package com.guba.app.controllers.personal;
 
-import com.guba.app.dao.DAOPersonal;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Carrera;
-import com.guba.app.models.Estudiante;
-import com.guba.app.models.Personal;
+import com.guba.app.data.dao.DAOPersonal;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Personal;
 import com.jfoenix.controls.JFXButton;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -36,7 +32,7 @@ public class ListController extends BaseController<Personal> implements Initiali
     @FXML
     private TableView<Personal> tableView;
     @FXML
-    TableColumn<Personal, String> rfc, nombre, apPaterno,apMaterno,acciones;
+    TableColumn<Personal, String> rfc, nombre, apPaterno, apMaterno, acciones;
     @FXML
     private TextField busquedaSearch;
     @FXML
@@ -50,33 +46,34 @@ public class ListController extends BaseController<Personal> implements Initiali
     private List<Personal> personalList = new ArrayList<>();
     private ObservableList<Personal> listaFiltros = FXCollections.observableArrayList();
     private DAOPersonal daoPerosnal = new DAOPersonal();
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setColumns();
         loadAsyncPersonal(personals -> {
             personalList = personals;
             listaFiltros.setAll(personalList);
-            getLista().setAll(listaFiltros);
-            tableView.setItems(getLista());
+            //getLista().setAll(listaFiltros);
+            //tableView.setItems(getLista());
         });
-        setFiltro();
+        //setFiltro();
     }
 
     @FXML
-    private void openPanelAdd(){
-        mediador.loadData(Paginas.ADD, new Personal());
+    private void openPanelAdd() {
+        mediador.loadContent(Paginas.ADD, new Personal());
     }
 
     @FXML
-    private void borrarFiltros(ActionEvent event){
+    private void borrarFiltros(ActionEvent event) {
         busquedaSearch.setText("");
-        getLista().setAll(personalList);
+        //getLista().setAll(personalList);
         toggleCarreras.selectToggle(null);
         toggleFiltroNormal.selectToggle(null);
 
     }
 
-    private void setColumns(){
+    private void setColumns() {
         rfc.setCellValueFactory(new PropertyValueFactory<>("rfc"));
         nombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         apPaterno.setCellValueFactory(new PropertyValueFactory<>("apPat"));
@@ -99,7 +96,6 @@ public class ListController extends BaseController<Personal> implements Initiali
                             Button editIcon = new Button();
 
 
-
                             FontIcon open = new FontIcon("mdi-eye");
                             open.setFill(Color.WHITE);
                             openIcon.setGraphic(open);
@@ -119,14 +115,14 @@ public class ListController extends BaseController<Personal> implements Initiali
                             openIcon.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent actionEvent) {
-                                    mediador.loadData(Paginas.DETAILS, personal);
+                                    mediador.loadContent(Paginas.DETAILS, personal);
                                 }
                             });
 
                             editIcon.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent event) {
-                                    mediador.loadData(Paginas.EDIT, personal);
+                                    mediador.loadContent(Paginas.EDIT, personal);
                                 }
                             });
 
@@ -134,11 +130,11 @@ public class ListController extends BaseController<Personal> implements Initiali
                                 @Override
                                 public void handle(ActionEvent event) {
                                     Dialog<Integer> dialog = new Dialog<Integer>();
-                                    dialog.setContentText("¿Estas Seguro de eliminar al personal: "+  personal.getNombre());
+                                    dialog.setContentText("¿Estas Seguro de eliminar al personal: " + personal.getNombre());
                                     ButtonType okButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
                                     dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
                                     dialog.setResultConverter(buttonType -> {
-                                        if (buttonType == okButtonType){
+                                        if (buttonType == okButtonType) {
                                             return 1;
                                         }
                                         return 0;
@@ -146,18 +142,18 @@ public class ListController extends BaseController<Personal> implements Initiali
 
                                     Optional<Integer> option = dialog.showAndWait();
 
-                                    if (option.isPresent() && option.get().equals(1)){
+                                    if (option.isPresent() && option.get().equals(1)) {
                                         System.out.println(personal.getId());
-                                        boolean seElimnio= daoPerosnal.deletePersonal(personal.getId());
+                                        boolean seElimnio = daoPerosnal.deletePersonal(personal.getId());
                                         System.out.println(seElimnio);
-                                        if (seElimnio){
-                                            getLista().remove(personal);
+                                        if (seElimnio) {
+                                            //getLista().remove(personal);
                                         }
                                     }
                                 }
                             });
                             HBox hBox = new HBox();
-                            hBox.getChildren().addAll(openIcon,editIcon, deletIcon);
+                            hBox.getChildren().addAll(openIcon, editIcon, deletIcon);
                             hBox.setSpacing(10);
                             hBox.setPrefWidth(320);
                             hBox.setAlignment(Pos.CENTER);
@@ -170,6 +166,7 @@ public class ListController extends BaseController<Personal> implements Initiali
         });
     }
 
+    /*
     private void setFiltro(){
         busquedaSearch.textProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -217,7 +214,7 @@ public class ListController extends BaseController<Personal> implements Initiali
             }
         });
     }
-
+*/
     private void loadAsyncPersonal(Consumer<List<Personal>> callBack){
         Task<List<Personal>> task = new Task<List<Personal>>() {
             @Override
@@ -235,6 +232,11 @@ public class ListController extends BaseController<Personal> implements Initiali
         Thread thread = new Thread(task);
         thread.setDaemon(true);
         thread.start();
+    }
+
+    @Override
+    protected void cleanData() {
+
     }
 }
 

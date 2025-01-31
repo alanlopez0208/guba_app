@@ -1,6 +1,6 @@
 package com.guba.app.presentation.dialogs;
 
-import com.guba.app.models.Periodo;
+import com.guba.app.domain.models.Periodo;
 import com.guba.app.presentation.utils.Constants;
 import javafx.scene.Node;
 import javafx.scene.control.*;

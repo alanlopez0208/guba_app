@@ -1,13 +1,10 @@
 package com.guba.app.controllers.maestro;
 
 
-import com.guba.app.dao.DAOAlumno;
-import com.guba.app.dao.DAOMaestro;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Maestro;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import com.guba.app.data.dao.DAOMaestro;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Maestro;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -47,25 +44,25 @@ public class ListController extends BaseController<Maestro> implements Initializ
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setColumns();
-        loadAsyncMaestros(maestros -> {
+        /*loadAsyncMaestros(maestros -> {
             maestroList = maestros;
             listaFiltros.setAll(maestros);
             getLista().setAll(listaFiltros);
             tableView.setItems(getLista());
         });
-        setFiltro();
+        setFiltro();*/
     }
 
     @FXML
     private void openPanelAdd(){
-        mediador.loadData(Paginas.ADD, new Maestro());
+        mediador.loadContent(Paginas.ADD, new Maestro());
     }
 
 
     @FXML
     private void borrarFiltros(ActionEvent event){
         busquedaSearch.setText("");
-        getLista().setAll(maestroList);
+        //getLista().setAll(maestroList);
         toggleFiltroNormal.selectToggle(null);
     }
 
@@ -114,14 +111,14 @@ public class ListController extends BaseController<Maestro> implements Initializ
                             openIcon.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent actionEvent) {
-                                    mediador.loadData(Paginas.DETAILS, maestro);
+                                    mediador.loadContent(Paginas.DETAILS, maestro);
                                 }
                             });
 
                             editIcon.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent event) {
-                                    mediador.loadData(Paginas.EDIT, maestro);
+                                    mediador.loadContent(Paginas.EDIT, maestro);
                                 }
                             });
 
@@ -145,7 +142,7 @@ public class ListController extends BaseController<Maestro> implements Initializ
                                         boolean seElimnio= daoMaestro.deleteDocente(maestro.getId());
                                         System.out.println(seElimnio);
                                         if (seElimnio){
-                                            getLista().remove(maestro);
+                                            //getLista().remove(maestro);
                                         }
                                     }
                                 }
@@ -164,6 +161,7 @@ public class ListController extends BaseController<Maestro> implements Initializ
         });
     }
 
+    /*
     private void setFiltro(){
         busquedaSearch.textProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -218,7 +216,7 @@ public class ListController extends BaseController<Maestro> implements Initializ
             }
         });
     }
-
+*/
 
     private void loadAsyncMaestros(Consumer<List<Maestro>> callBack){
         Task<List<Maestro>> task = new Task<List<Maestro>>() {
@@ -237,6 +235,11 @@ public class ListController extends BaseController<Maestro> implements Initializ
         Thread thread = new Thread(task);
         thread.setDaemon(true);
         thread.start();
+    }
+
+    @Override
+    protected void cleanData() {
+
     }
 }
 

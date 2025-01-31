@@ -1,16 +1,20 @@
 package com.guba.app.controllers.cursos;
 
 import com.dlsc.gemsfx.YearMonthPicker;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.dao.DAOCurso;
-import com.guba.app.models.Curso;
-import com.guba.app.models.Estudiante;
+import com.guba.app.domain.models.Estudiante;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Estado;
+import com.guba.app.utils.Mediador;
+import com.guba.app.utils.Paginas;
+import com.guba.app.data.dao.DAOCurso;
+import com.guba.app.domain.models.Curso;
 import com.jfoenix.controls.JFXButton;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -22,64 +26,81 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
-import org.apache.xmlbeans.impl.store.Cur;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
-public class ListController extends BaseController<Curso> implements Initializable {
+public class ListController extends BaseController<Curso> {
 
+    @FXML
+    private Button btnAgregar;
     @FXML
     private TableView<Curso> tableView;
     @FXML
-    TableColumn<Curso, String> nombre, fechaInicio , fechaFinalizacion,modalidad,acciones;
+    private TableColumn<Curso, String> nombre, fechaInicio , fechaFinalizacion,modalidad,acciones;
     @FXML
     private TextField busquedaSearch;
     @FXML
     private JFXButton btnFiltros;
     @FXML
-    private ContextMenu contextMenu;
+    private JFXButton btnActualizar;
     @FXML
-    private ToggleGroup toggleFiltroNormal;
+    private Button btnBorrarFiltros;
     @FXML
     private YearMonthPicker yearmMonthPicker;
-    private List<Curso> cursosList;
-    private ObservableList<Curso> listaFiltros = FXCollections.observableArrayList();
-    private ToggleGroup toggleCarreras = new ToggleGroup();
-    private DAOCurso daoCurso = new DAOCurso();
+
+    private ObservableList<Curso> list;
+    private FilteredList<Curso> filteredList;
+    private YearMonth fechaSeleccionada = null;
+
+
+    public ListController( Mediador<Curso> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty, ObservableList<Curso> list) {
+        super("/cursos/List", mediador, estadoProperty, paginasProperty);
+        this.list = list;
+        setColumns();
+        setFilter();
+        loadAsyncCursos();
+        estadoProperty.addListener((observableValue, oldValue, newValue) -> {
+            if (newValue.equals(Estado.CARGANDO)){
+                tableView.setVisible(false);
+            } else if (newValue.equals(Estado.CARGADO)) {
+                filteredList = new FilteredList<>(list, curso -> true);
+                tableView.setVisible(true);
+                tableView.setItems(filteredList);
+            }
+        });
+        btnAgregar.setOnAction(this::openPanelAdd);
+        btnBorrarFiltros.setOnAction(this::borrarFiltros);
+        btnActualizar.setOnAction(this::actualizar);
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        setColumns();
-        loadAsyncCursos(cursos -> {
-            getLista().setAll(cursos);
-            cursosList = cursos;
-            listaFiltros.setAll(cursos);
-            getLista().setAll(listaFiltros);
-            tableView.setItems(getLista());
-        });
-        setFilter();
-
     }
 
-    @FXML
-    private void openPanelAdd(){
-        mediador.loadData(Paginas.ADD, new Curso());
+
+    private void loadAsyncCursos(){
+        mediador.loadBD();
     }
 
-    @FXML
+    private void openPanelAdd(ActionEvent actionEvent){
+        mediador.loadContent(Paginas.ADD, new Curso());
+    }
+
     private void borrarFiltros(ActionEvent event){
         busquedaSearch.setText("");
         yearmMonthPicker.getEditor().setText(null);
-        //toggleFiltroNormal.selectToggle(null);
-        getLista().setAll(cursosList);
+        filteredList.setPredicate(null);
+    }
+
+    private void actualizar(ActionEvent event){
+        mediador.loadBD();
     }
 
     private void setColumns(){
@@ -119,7 +140,7 @@ public class ListController extends BaseController<Curso> implements Initializab
                             openIcon.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent actionEvent) {
-                                    mediador.loadData(Paginas.DETAILS, curso);
+                                    mediador.loadContent(Paginas.DETAILS, curso);
                                 }
                             });
                             deletIcon.setOnAction(new EventHandler<ActionEvent>() {
@@ -139,11 +160,7 @@ public class ListController extends BaseController<Curso> implements Initializab
                                     Optional<Integer> option = dialog.showAndWait();
 
                                     if (option.isPresent() && option.get().equals(1)){
-                                        boolean seElimnio= daoCurso.eliminarCurso(curso.getIdCurso());
-                                        System.out.println(seElimnio);
-                                        if (seElimnio){
-                                            getLista().remove(curso);
-                                        }
+                                        mediador.eliminar(curso);
                                     }
                                 }
                             });
@@ -163,55 +180,25 @@ public class ListController extends BaseController<Curso> implements Initializab
 
     private void setFilter(){
         yearmMonthPicker.getEditor().setText(null);
-        busquedaSearch.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-                if (t1.isEmpty()){
-                    getLista().setAll(listaFiltros);
-                    return;
-                }
-                List<Curso> filtro = listaFiltros.stream()
-                        .filter(curso -> curso.getNombre().toLowerCase().contains(t1.toLowerCase()))
-                        .toList();
-
-                getLista().setAll(filtro);
-            }
-        });
-
-
+        busquedaSearch.textProperty().addListener((observableValue, s, t1) -> aplicarFiltros());
         yearmMonthPicker.valueProperty().addListener((observableValue, yearMonth, t1) -> {
-            if (t1 == null){
-                return;
-            }
-            listaFiltros.setAll(cursosList.stream()
-                            .filter(c->{
-                                YearMonth yearMonth1 = YearMonth.from(c.getDateInicio());
-                                return t1.equals(yearMonth1);
-                            })
-                    .toList());
-
-            getLista().setAll(listaFiltros);
-
+            aplicarFiltros();
         });
     }
 
-    private void loadAsyncCursos(Consumer<List<Curso>> callBack){
-        Task<List<Curso>> task = new Task<List<Curso>>() {
-            @Override
-            protected List<Curso> call() throws Exception {
-                return daoCurso.obtenerTodosLosCursos();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            try {
-               callBack.accept(task.get());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    private void aplicarFiltros(){
+        filteredList.setPredicate(curso->{
+           boolean coincideFecha = yearmMonthPicker.getValue() == null || yearmMonthPicker.getValue().equals(YearMonth.from(curso.getDateInicio()));
+           boolean coincideTexto = busquedaSearch.getText().isEmpty() || busquedaSearch.getText().equalsIgnoreCase(curso.getNombre());
+
+            System.out.println(coincideFecha && coincideTexto);
+            return coincideFecha && coincideTexto;
         });
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
+    }
+
+    @Override
+    protected void cleanData() {
+
     }
 }
 

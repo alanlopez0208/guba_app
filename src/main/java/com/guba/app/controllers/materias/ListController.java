@@ -1,17 +1,13 @@
 package com.guba.app.controllers.materias;
 
-import com.guba.app.dao.DAOCarreras;
-import com.guba.app.dao.DAOMaterias;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Carrera;
-import com.guba.app.models.Estudiante;
-import com.guba.app.models.Materia;
+import com.guba.app.data.dao.DAOMaterias;
+import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Carrera;
+import com.guba.app.domain.models.Materia;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.jfoenix.controls.JFXButton;
 import javafx.beans.binding.Bindings;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -33,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 public class ListController extends BaseController<Materia> implements Initializable {
@@ -64,19 +59,19 @@ public class ListController extends BaseController<Materia> implements Initializ
     public void initialize(URL url, ResourceBundle resourceBundle) {
         cargarMaterias();
         setCellColumns();
-        setFiltro();
+        //setFiltro();
     }
 
     @FXML
     private void openPaneAddAlumno(ActionEvent event){
-        mediador.loadData(Paginas.ADD, new Materia());
+        mediador.loadContent(Paginas.ADD, new Materia());
     }
 
 
     @FXML
     private void borrarFiltros(ActionEvent event){
         busquedaSearch.setText("");
-        getLista().setAll(materiaList);
+        //getLista().setAll(materiaList);
         toggleSemestre.selectToggle(null);
         toggleCarreras.selectToggle(null);
         toggleFiltroNormal.selectToggle(null);
@@ -95,8 +90,8 @@ public class ListController extends BaseController<Materia> implements Initializ
                 label.setVisible(false);
                 materiaList = task.get();
                 listaFiltros.setAll(materiaList);
-                getLista().setAll(listaFiltros);
-                tableView.setItems(getLista());
+                //getLista().setAll(listaFiltros);
+                //tableView.setItems(getLista());
                 tableView.setVisible(true);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -169,14 +164,14 @@ public class ListController extends BaseController<Materia> implements Initializ
                             openIcon.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent actionEvent) {
-                                    mediador.loadData(Paginas.DETAILS, materia);
+                                    mediador.loadContent(Paginas.DETAILS, materia);
                                 }
                             });
 
                             editIcon.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent event) {
-                                    mediador.loadData(Paginas.EDIT, materia);
+                                    mediador.loadContent(Paginas.EDIT, materia);
                                 }
                             });
 
@@ -191,7 +186,7 @@ public class ListController extends BaseController<Materia> implements Initializ
                                         public void accept(Integer integer) {
                                             if (integer.equals(1)){
                                                 daoMaterias.eliminarMateria(materia.getIdMateria());
-                                                getLista().remove(materia);
+                                                //getLista().remove(materia);
                                             }
                                         }
                                     });
@@ -211,7 +206,7 @@ public class ListController extends BaseController<Materia> implements Initializ
         });
     }
 
-
+    /*
     private void setFiltro(){
         busquedaSearch.textProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -319,6 +314,11 @@ public class ListController extends BaseController<Materia> implements Initializ
             }
         });
         new Thread(task).start();
+    }
+*/
+    @Override
+    protected void cleanData() {
+
     }
 }
 enum Filtros{

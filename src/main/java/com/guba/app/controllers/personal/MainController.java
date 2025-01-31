@@ -1,31 +1,51 @@
 package com.guba.app.controllers.personal;
 
-import com.guba.app.dao.DAOAlumno;
-import com.guba.app.conexion.Config;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Mediador;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Personal;
-import com.guba.app.presentation.utils.Constants;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.layout.StackPane;
+import com.guba.app.data.dao.DAOPersonal;
+import com.guba.app.utils.*;
+import com.guba.app.domain.models.Personal;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
-public class MainController implements Initializable, Mediador<Personal> {
-    @FXML
+public class MainController extends BaseMainController<Personal> {
+
+    private DAOPersonal daoPersonal = new DAOPersonal();
+
+
+    @Override
+    protected void registrarPaginas() {
+        registrarPagina(Paginas.LIST, "/personal/List");
+        registrarPagina(Paginas.ADD, "/personal/Add");
+        registrarPagina(Paginas.EDIT, "/personal/Edit");
+        registrarPagina(Paginas.DETAILS, "/personal/Details");
+        stack.getChildren().addAll(paginas.values());
+        paginas.get(Paginas.LIST).setVisible(true);
+    }
+
+    @Override
+    protected List<Personal> fetchData() {
+        return daoPersonal.getPersonales();
+    }
+
+    @Override
+    public boolean actualizar(Personal personal) {
+        return false;
+    }
+
+    @Override
+    public boolean eliminar(Personal personal) {
+        return false;
+    }
+
+    @Override
+    public boolean guardar(Personal personal) {
+        return false;
+    }
+
+    @Override
+    public Personal ver(Personal personal) {
+        return null;
+    }
+    /*@FXML
     private StackPane stack;
     private Map<Paginas, Node> paginas;
     private Map<Paginas, BaseController<Personal>> controladores;
@@ -79,4 +99,33 @@ public class MainController implements Initializable, Mediador<Personal> {
         return null;
     }
 
+    @Override
+    public boolean actualizar(Personal personal) {
+        return false;
+    }
+
+    @Override
+    public boolean eliminar(Personal personal) {
+        return false;
+    }
+
+    @Override
+    public Optional<Personal> guardar(Personal personal) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Personal ver(Personal personal) {
+        return null;
+    }
+
+    @Override
+    public void loadContent(Paginas anterior, Paginas nueva, Personal data) {
+
+    }
+
+    @Override
+    public void loadBD() {
+
+    }*/
 }

@@ -1,31 +1,22 @@
 package com.guba.app.controllers.web;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.guba.app.dao.DAOAlumno;
-import com.guba.app.dao.DAOCalificiaciones;
-import com.guba.app.dao.DAOMaestro;
-import com.guba.app.dto.CalificacionDTO;
-import com.guba.app.models.Calificacion;
-import com.guba.app.service.remote.Converter;
-import com.guba.app.service.remote.FTPUploader;
-import com.guba.app.service.remote.Http;
+import com.guba.app.data.dao.DAOCalificiaciones;
+import com.guba.app.domain.dto.CalificacionDTO;
+import com.guba.app.domain.models.Calificacion;
+import com.guba.app.data.remote.Converter;
+import com.guba.app.data.remote.FTPUploader;
+import com.guba.app.data.remote.Http;
 import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-import javax.swing.text.PlainDocument;
-import java.net.URL;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -48,7 +39,6 @@ public class WebController {
     private FTPUploader ftpUploader = new FTPUploader();
     private Converter converter = new Converter();
     private DAOCalificiaciones daoCalificiaciones = new DAOCalificiaciones();
-
 
 
     @FXML

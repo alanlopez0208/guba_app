@@ -10,8 +10,6 @@ module com.guba.app {
     requires org.kordamp.ikonli.bootstrapicons;
     requires org.kordamp.ikonli.core;
     requires org.kordamp.ikonli.javafx;
-
-
     requires webcam.capture;
     requires org.slf4j;
     requires com.fasterxml.jackson.annotation;
@@ -19,7 +17,6 @@ module com.guba.app {
     requires com.fasterxml.jackson.databind;
     requires com.dlsc.gemsfx;
     requires n2w;
-
     requires org.controlsfx.controls;
     requires java.sql;
     requires java.desktop;
@@ -30,7 +27,7 @@ module com.guba.app {
 
     opens com.guba.app to javafx.fxml;
     opens com.guba.app.presentation.componets to javafx.fxml;
-    opens com.guba.app.controllers to javafx.fxml;
+    opens com.guba.app.utils to javafx.fxml;
     opens com.guba.app.controllers.estudiantes to javafx.fxml;
     opens com.guba.app.controllers.carreras to javafx.fxml;
     opens com.guba.app.controllers.materias to javafx.fxml;
@@ -43,12 +40,12 @@ module com.guba.app {
     opens com.guba.app.controllers.cursos to javafx.fxml;
     opens com.guba.app.controllers.configuracion to javafx.fxml;
     opens com.guba.app.presentation.dialogs to javafx.fxml;
-    opens com.guba.app.models to javafx.fxml;
-
+    opens com.guba.app.domain.models to javafx.fxml;
+    opens com.guba.app.controllers.app to javafx.fxml;
 
     exports com.guba.app;
     exports com.guba.app.presentation.componets;
-    exports com.guba.app.models;
+    exports com.guba.app.domain.models;
     exports com.guba.app.presentation.dialogs;
-    exports com.guba.app.dto;
+    exports com.guba.app.domain.dto;
 }

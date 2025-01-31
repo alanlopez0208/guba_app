@@ -1,8 +1,8 @@
 package com.guba.app.presentation.dialogs;
 
 
-import com.guba.app.dao.DAOMaestro;
-import com.guba.app.models.Maestro;
+import com.guba.app.data.dao.DAOMaestro;
+import com.guba.app.domain.models.Maestro;
 import com.guba.app.presentation.utils.ComboCell;
 import com.guba.app.presentation.utils.Constants;
 import javafx.concurrent.Task;

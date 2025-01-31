@@ -1,27 +1,26 @@
 package com.guba.app.controllers.estudiantes;
 
-import com.guba.app.dao.DAOAlumno;
-import com.guba.app.dao.DAOCarreras;
-import com.guba.app.conexion.Config;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.models.Carrera;
-import com.guba.app.models.Estudiante;
+
+import com.guba.app.data.dao.DAOCarreras;
+import com.guba.app.data.local.database.conexion.Config;
+import com.guba.app.utils.Estado;
+import com.guba.app.utils.*;
+import com.guba.app.domain.models.Carrera;
+import com.guba.app.domain.models.Estudiante;
 import com.guba.app.presentation.dialogs.DialogCamara;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.utils.ComboCell;
 import com.guba.app.presentation.utils.Constants;
-import com.guba.app.service.local.database.Service;
+import com.guba.app.data.local.database.Service;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -38,22 +37,26 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
-
-public class AddController extends BaseController implements Initializable, Loadable<Estudiante> {
+public class AddController extends BaseController<Estudiante> implements Loadable<Estudiante> {
 
     @FXML
     private Button backButton;
+    @FXML
+    private Button btnGuardar;
+    @FXML
+    private Button btnCamera;
+    @FXML
+    private Button btnArchivos;
+    @FXML
+    private Button btnBorrar;
     @FXML
     private VBox panelDatos;
     @FXML
@@ -98,21 +101,37 @@ public class AddController extends BaseController implements Initializable, Load
     private Estudiante estudiante;
 
 
+
+    public AddController(Mediador<Estudiante> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super("/estudiantes/AddEstudiante", mediador, estadoProperty, paginasProperty);
+    }
+
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void initialize() {
         initializeCombos();
+        backButton.setOnAction(this::regresarAPanel);
+        btnGuardar.setOnAction(this::guardarEstudiante);
+        btnCamera.setOnAction(this::abrirCamara);
+        btnArchivos.setOnAction(this::abrirArchivos);
+        btnBorrar.setOnAction(this::borrarFoto);
+        comboNacimiento.valueProperty().addListener(new ChangeListener<LocalDate>() {
+            @Override
+            public void changed(ObservableValue<? extends LocalDate> observableValue, LocalDate localDate, LocalDate t1) {
+                if (t1 == null){
+                    return;
+                }
+                DateTimeFormatter format =  DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                estudiante.nacimientoProperty().set(format.format(t1));
+            }
+        });
     }
 
-    @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
-        estudiante = null;
-        mediador.changePane(Paginas.LIST);
+        cleanData();
+        paginasProperty.setValue(Paginas.LIST);
     }
 
-
-
-    @FXML
-    private void abrirCamara() {
+    private void abrirCamara(ActionEvent actionEvent) {
         DialogCamara dialogCamara = new DialogCamara();
         Optional<BufferedImage> optionBuffer = dialogCamara.showAndWait();
         optionBuffer.ifPresent(bufferedImage -> {
@@ -121,7 +140,6 @@ public class AddController extends BaseController implements Initializable, Load
             fotoEstudiante.setFill(new ImagePattern(writableImage));
         });
     }
-
 
     private String guardarFoto() {
         try {
@@ -134,8 +152,7 @@ public class AddController extends BaseController implements Initializable, Load
     }
 
 
-    @FXML
-    private void abrirArchivos() {
+    private void abrirArchivos(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Archivos de imagen", "*.jpg")
@@ -168,15 +185,12 @@ public class AddController extends BaseController implements Initializable, Load
         }
     }
 
-
-    @FXML
-    private void borrarFoto(){
+    private void borrarFoto(ActionEvent actionEvent){
         bufferedImage = null;
         fotoEstudiante.setFill(new ImagePattern(new Image(Objects.requireNonNull(getClass().getResource(Constants.URL_FOTO_PREDETERMINADA)).toString())));
         estudiante.setFoto(null);
     }
 
-    @FXML
     public void guardarEstudiante(ActionEvent event) {
         if (!esValido()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -189,14 +203,14 @@ public class AddController extends BaseController implements Initializable, Load
             if (bufferedImage != null) {
                 estudiante.setFoto(guardarFoto());
             }
-
-            boolean seAgrego = Service.getService().agregarAlumno(estudiante, integer);
+            boolean seAgrego = mediador.guardar(estudiante);
 
             if (seAgrego){
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setContentText("Alumno creado Correctamente");
                 alert.showAndWait();
-                mediador.changePane(Paginas.LIST);
+                cleanData();
+                paginasProperty.setValue(Paginas.LIST);
             }else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setContentText("Error al crear intente contactase por favor");
@@ -275,7 +289,6 @@ public class AddController extends BaseController implements Initializable, Load
     @Override
     public void loadData(Estudiante data) {
         this.estudiante = data;
-        System.out.println(estudiante);
         ImagePattern imagePattern = new ImagePattern(estudiante.getFotoPerfil() != null ? estudiante.fotoPerfilProperty().get() : new Image(Objects.requireNonNull(getClass().getResource(Constants.URL_FOTO_PREDETERMINADA)).toString()));
         fotoEstudiante.setFill(imagePattern);
         txtMatricula.textProperty().bindBidirectional(estudiante.matriculaProperty());
@@ -294,14 +307,15 @@ public class AddController extends BaseController implements Initializable, Load
         Bindings.bindBidirectional(comboStatus.valueProperty(), estudiante.statusProperty());
         Bindings.bindBidirectional(comboCarrera.valueProperty(), estudiante.carreraProperty());
         Bindings.bindBidirectional(comboSemestre.valueProperty(), estudiante.semestreProperty());
+        Bindings.bindBidirectional(comboSexo.valueProperty(), estudiante.sexoProperty());
         estudiante.passwordTemporalProperty().bind(txtMatricula.textProperty());
-        comboNacimiento.valueProperty().addListener(new ChangeListener<LocalDate>() {
-            @Override
-            public void changed(ObservableValue<? extends LocalDate> observableValue, LocalDate localDate, LocalDate t1) {
-                DateTimeFormatter format =  DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                estudiante.nacimientoProperty().set(format.format(t1));
-            }
-        });
         loadCarrerasAsync();
+    }
+
+    @Override
+    protected void cleanData() {
+        estudiante = null;
+        comboSexo.setValue(null);
+        comboNacimiento.setValue(null);
     }
 }

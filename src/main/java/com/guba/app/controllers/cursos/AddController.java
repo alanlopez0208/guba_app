@@ -1,24 +1,25 @@
 package com.guba.app.controllers.cursos;
 
 import com.dlsc.gemsfx.CalendarPicker;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.dao.DAOCurso;
-import com.guba.app.models.Curso;
+import com.guba.app.utils.*;
+import com.guba.app.data.dao.DAOCurso;
+import com.guba.app.domain.models.Curso;
 import com.guba.app.presentation.dialogs.DialogParticipantes;
-import com.guba.app.models.Participante;
-import com.guba.app.service.local.poi.PPTModifier;
+import com.guba.app.domain.models.Participante;
+import com.guba.app.data.local.poi.PPTModifier;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -32,9 +33,15 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
 
-public class AddController extends BaseController<Curso> implements Initializable, Loadable<Curso> {
+public class AddController extends BaseController<Curso> implements Loadable<Curso> {
     @FXML
     private VBox panel;
+    @FXML
+    private Button backButton;
+    @FXML
+    private Button btnGuardad;
+    @FXML
+    private Button btnAgregarAlumnos;
     @FXML
     private TextField nombreField;
     @FXML
@@ -55,14 +62,12 @@ public class AddController extends BaseController<Curso> implements Initializabl
     private ListView<Participante> listParticipantes;
     @FXML
     private ObservableList<Participante> participanteObservableList = FXCollections.observableArrayList();
-    private Window window;
     private Curso curso;
     private PPTModifier pptModifier = new PPTModifier();
-    private DAOCurso daoCurso = new DAOCurso();
     private DirectoryChooser directoryChooser = new DirectoryChooser();
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public AddController( Mediador<Curso> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super("/cursos/Add", mediador, estadoProperty, paginasProperty);
         setListView();
         setComboBox();
         duracionField.setTextFormatter(new TextFormatter<>(change -> {
@@ -71,6 +76,14 @@ public class AddController extends BaseController<Curso> implements Initializabl
             }
             return null;
         }));
+        backButton.setOnAction(this::backPanel);
+        btnGuardad.setOnAction(this::guardarCurso);
+        btnAgregarAlumnos.setOnAction(this::agregarAlumnos);
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
     }
 
     @Override
@@ -87,9 +100,9 @@ public class AddController extends BaseController<Curso> implements Initializabl
 
     }
 
-    @FXML
-    private void backPanel(){
-        mediador.changePane(Paginas.LIST);
+    private void backPanel(ActionEvent actionEvent){
+        cleanData();
+        paginasProperty.set(Paginas.LIST);
     }
 
     @FXML
@@ -98,28 +111,21 @@ public class AddController extends BaseController<Curso> implements Initializabl
             return;
         }
         File file = directoryChooser.showDialog(new Stage());
-        if (file == null && !file.exists()){
+        if (file == null || !file.exists()){
             return;
         }
-
         curso.getParticipantes().setAll(participanteObservableList);
         curso.setDateRealizacion(LocalDate.now());
 
 
-        daoCurso.insertarCurso(curso).ifPresentOrElse(key -> {
+        boolean guardar = mediador.guardar(curso);
+        if (guardar){
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setContentText("Curso Guardado");
             alert.showAndWait();
-            curso.setIdCurso(key);
-            getLista().add(curso);
-            mediador.changePane(Paginas.LIST);
-            pptModifier.modificarPpt(curso, file.getPath()+"\\" );
-            curso.getParticipantes().setAll(participanteObservableList);
-        }, () -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText("Error al guardar el curso porfavor intentelo más tarde");
-            alert.show();
-        });
+            pptModifier.modificarPpt(curso, file.getPath()+"\\");
+            paginasProperty.set(Paginas.LIST);
+        }
     }
 
     @FXML
@@ -166,15 +172,21 @@ public class AddController extends BaseController<Curso> implements Initializabl
                             setText(null);
                             setGraphic(null);
                         }else{
-
                             Participante participante = item;
                             VBox vBox = new VBox();
 
                             Label nombre = new Label();
                             nombre.getStyleClass().add("textoNegritas");
                             nombre.setText(participante.getNombre().toUpperCase());
+
+                            Button deleteButton = new Button();
+                            deleteButton.setText("Eliminar Alumno");
+                            deleteButton.getStyleClass().add("btnBorrar");
+                            deleteButton.setOnAction(event -> {
+                               participanteObservableList.remove(participante);
+                            });
                             vBox.setAlignment(Pos.CENTER);
-                            vBox.getChildren().addAll(nombre);
+                            vBox.getChildren().addAll(nombre,deleteButton);
                             vBox.getStyleClass().add("panelShadow");
                             vBox.setSpacing(15);
                             setGraphic(vBox);
@@ -193,5 +205,13 @@ public class AddController extends BaseController<Curso> implements Initializabl
 
     private void setUpWindow(){
         System.out.println(panel.getScene());
+    }
+
+    @Override
+    protected void cleanData() {
+        participanteObservableList.clear();
+        curso = null;
+        daeFechaInico.setValue(null);
+        fechaFin.setValue(null);
     }
 }

@@ -1,8 +1,8 @@
 package com.guba.app.presentation.dialogs;
 
-import com.guba.app.dao.DAOCarreras;
-import com.guba.app.models.Carrera;
-import com.guba.app.models.Grupo;
+import com.guba.app.data.dao.DAOCarreras;
+import com.guba.app.domain.models.Carrera;
+import com.guba.app.domain.models.Grupo;
 import com.guba.app.presentation.utils.ComboCell;
 import com.guba.app.presentation.utils.Constants;
 import javafx.beans.value.ChangeListener;

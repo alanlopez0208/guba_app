@@ -1,25 +1,22 @@
 package com.guba.app.controllers.estudiantes;
 
 import com.dlsc.gemsfx.CalendarPicker;
-import com.dlsc.gemsfx.DurationPicker;
 import com.dlsc.gemsfx.TimePicker;
-import com.guba.app.dao.DAOAlumno;
-import com.guba.app.dao.DAOCalificiaciones;
-import com.guba.app.dao.DAOCarreras;
-import com.guba.app.controllers.BaseController;
-import com.guba.app.controllers.Loadable;
-import com.guba.app.controllers.Paginas;
-import com.guba.app.dao.DAOTitulo;
-import com.guba.app.dto.AlumnoDto;
-import com.guba.app.models.*;
-import com.guba.app.presentation.dialogs.DialogConfirmacion;
+import com.guba.app.data.dao.DAOAlumno;
+import com.guba.app.data.dao.DAOCalificiaciones;
+import com.guba.app.data.dao.DAOCarreras;
+import com.guba.app.utils.Estado;
+import com.guba.app.utils.*;
+import com.guba.app.data.dao.DAOTitulo;
+import com.guba.app.domain.dto.AlumnoDto;
+import com.guba.app.domain.models.*;
 import com.guba.app.presentation.dialogs.DialogLogin;
 import com.guba.app.presentation.utils.ComboCell;
 import com.guba.app.presentation.utils.Constants;
-import com.guba.app.service.local.poi.Documentos;
-import com.guba.app.service.local.poi.WordModifier;
-import com.guba.app.service.remote.Converter;
-import com.guba.app.service.remote.Http;
+import com.guba.app.data.local.poi.Documentos;
+import com.guba.app.data.local.poi.WordModifier;
+import com.guba.app.data.remote.Converter;
+import com.guba.app.data.remote.Http;
 import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -33,23 +30,18 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.util.Callback;
-import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.File;
 import java.net.URL;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -59,7 +51,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
-public class DetailsController extends BaseController<Estudiante> implements Initializable, Loadable<Estudiante> {
+public class DetailsController extends BaseController<Estudiante> implements Loadable<Estudiante> {
 
     @FXML
     private VBox panelDatos;
@@ -156,7 +148,13 @@ public class DetailsController extends BaseController<Estudiante> implements Ini
     @FXML
     private JFXButton btnEditarTitulo;
     @FXML
-    private Button btnDetals,btnCalificaciones,btnTitulacion,btnAdicionales;
+    private JFXButton btnGenerarDocumento;
+    @FXML
+    private JFXButton btnPassword;
+    @FXML
+    private Button btnDetals,btnCalificaciones,btnTitulacion,btnAdicionales,backButton;
+
+
     private Estudiante estudiante;
     private Titulo titulo;
     private DAOTitulo daoTitulo = new DAOTitulo();
@@ -167,6 +165,9 @@ public class DetailsController extends BaseController<Estudiante> implements Ini
     private Http http = new Http();
     private Converter converter = new Converter();
 
+    public DetailsController(Mediador<Estudiante> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super(  "/estudiantes/DetailsEstudiante", mediador, estadoProperty, paginasProperty);
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -175,15 +176,22 @@ public class DetailsController extends BaseController<Estudiante> implements Ini
         setColumns();
         settimePickers();
         setColumnsTableCalificaciones();
+        backButton.setOnAction(this::backPanel);
+        btnDetals.setOnAction(this::openDatos);
+        btnCalificaciones.setOnAction(this::openCalificaciones);
+        btnTitulacion.setOnAction(this::openTitulo);
+        btnAdicionales.setOnAction(this::openAdicionales);
+        btnGuardarTitulo.setOnAction(this::guardarTitulo);
+        btnEditarTitulo.setOnAction(this::editarTitulo);
+        btnGenerarDocumento.setOnAction(this::generarDocumentos);
+        btnPassword.setOnAction(this::verPassword);
     }
 
-    @FXML
     private void backPanel(ActionEvent event){
-        mediador.changePane(Paginas.LIST);
+        paginasProperty.set(Paginas.LIST);
     }
 
-    @FXML
-    private void openDatos() {
+    private void openDatos(ActionEvent event) {
         if (panelDatos.isVisible()){
             return;
         }
@@ -193,8 +201,7 @@ public class DetailsController extends BaseController<Estudiante> implements Ini
         actualizarSeleccion(btnAdicionales, panelAdicionales, false);
     }
 
-    @FXML
-    private void openCalificaciones() {
+    private void openCalificaciones(ActionEvent event) {
         if (panelCalificaciones.isVisible()){
             return;
         }
@@ -204,8 +211,7 @@ public class DetailsController extends BaseController<Estudiante> implements Ini
         actualizarSeleccion(btnAdicionales, panelAdicionales, false);
     }
 
-    @FXML
-    private void openTitulo() {
+    private void openTitulo(ActionEvent event) {
         if (panelTitulo.isVisible()){
             return;
         }
@@ -215,8 +221,8 @@ public class DetailsController extends BaseController<Estudiante> implements Ini
         actualizarSeleccion(btnAdicionales, panelAdicionales, false);
     }
 
-    @FXML
-    private void openAdicionales() {
+
+    private void openAdicionales(ActionEvent event) {
         if (panelAdicionales.isVisible()){
             return;
         }
@@ -237,18 +243,7 @@ public class DetailsController extends BaseController<Estudiante> implements Ini
         }
     }
 
-
-    @FXML
-    private void generarDocumentos(){
-        if (!comboDocumentos.getSelectionModel().isEmpty() && dateFechaDoc.getValue() != null){
-            Documentos documento = comboDocumentos.getSelectionModel().getSelectedItem();
-            DateTimeFormatter formatterEspañol = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", new Locale.Builder().setLanguage("es").setRegion("MX").build());
-            wordModifier.modifyDocument(documento,estudiante,formatterEspañol.format(dateFechaDoc.getValue()));
-        }
-    }
-
-    @FXML
-    private void guardarTitulo(){
+    private void guardarTitulo(ActionEvent event){
         loadDataToTiulo();
         System.out.println("ESTE ES EL ACTA DEL TITULO: " + titulo.getActa());
         boolean seCreo = daoTitulo.crearTitulacion(titulo);
@@ -275,8 +270,7 @@ public class DetailsController extends BaseController<Estudiante> implements Ini
         }
     }
 
-    @FXML
-    private void editarTitulo(){
+    private void editarTitulo(ActionEvent event){
         loadDataToTiulo();
         boolean seCreo = daoTitulo.updateTitulacionByIdAlumno(titulo);
         if (seCreo){
@@ -289,8 +283,17 @@ public class DetailsController extends BaseController<Estudiante> implements Ini
             alert.show();
         }
     }
-    @FXML
-    private void verPassword(){
+
+    private void generarDocumentos(ActionEvent event){
+        if (!comboDocumentos.getSelectionModel().isEmpty() && dateFechaDoc.getValue() != null){
+            Documentos documento = comboDocumentos.getSelectionModel().getSelectedItem();
+            DateTimeFormatter formatterEsp = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", new Locale.Builder().setLanguage("es").setRegion("MX").build());
+            wordModifier.modifyDocument(documento,estudiante,formatterEsp.format(dateFechaDoc.getValue()));
+        }
+    }
+
+
+    private void verPassword(ActionEvent event){
            DialogLogin dialogLogin = new DialogLogin();
            dialogLogin.showAndWait().ifPresent(aBoolean -> {
                Task<Estudiante> task = new Task<Estudiante>() {
@@ -301,7 +304,7 @@ public class DetailsController extends BaseController<Estudiante> implements Ini
                        return new Estudiante(alumnoDto);
                    }
                };
-               task.setOnSucceeded(event -> {
+               task.setOnSucceeded(workerStateEvent -> {
                    try {
                        daoAlumno.updatePassword(task.get());
                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -454,12 +457,7 @@ public class DetailsController extends BaseController<Estudiante> implements Ini
                 throw new RuntimeException(e);
             }
         });
-        task.setOnFailed(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                System.out.println("Error al obtener el titulo" + task.getException());
-            }
-        });
+        task.setOnFailed(event -> System.out.println("Error al obtener el titulo" + task.getException()));
         Thread thread = new Thread(task);
         thread.setDaemon(true);
         thread.start();
@@ -473,23 +471,15 @@ public class DetailsController extends BaseController<Estudiante> implements Ini
             }
         };
 
-        task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                try {
-                    callback.accept(task.get());
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
+        task.setOnSucceeded(event -> {
+            try {
+                callback.accept(task.get());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
             }
         });
 
-        task.setOnFailed(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                System.out.println("ERROR: "+ task.getException());
-            }
-        });
+        task.setOnFailed(event -> System.out.println("ERROR: "+ task.getException()));
 
         Thread thread = new Thread(task);
         thread.setDaemon(true);
@@ -497,25 +487,24 @@ public class DetailsController extends BaseController<Estudiante> implements Ini
     }
 
 
-
-
     private void loadDataToTiulo(){
-            titulo.setIdAlumno(estudiante.getId());
-            titulo.setActa(actaField.getText());
-            titulo.setRegistro(registroField.getText());
-            titulo.setLibro(libroField.getText());
-            titulo.setFoja(fojaField.getText());
-            titulo.setFolio(folioFiled.getText());
-            titulo.setTipoExamen(tipoField.getText());
-            titulo.setFechaAplicacion(titulo.toStringDate(dateAplicacion.getValue()));
-            titulo.setHoraAplicacion(timeInicio.getTime().toString());
-            titulo.setHoraFinalizacion(timeFinal.getTime().toString());
-            titulo.setDuracion(String.valueOf(timeInicio.getTime().until(timeFinal.getTime(), ChronoUnit.MINUTES)));
-            titulo.setSecretario(secretarioField.getText());
-            titulo.setPresidente(presidenteField.getText());
-            titulo.setVocal(vocalField.getText());
-            titulo.setNombre(nombreField.getText());
+        titulo.setIdAlumno(estudiante.getId());
+        titulo.setActa(actaField.getText());
+        titulo.setRegistro(registroField.getText());
+        titulo.setLibro(libroField.getText());
+        titulo.setFoja(fojaField.getText());
+        titulo.setFolio(folioFiled.getText());
+        titulo.setTipoExamen(tipoField.getText());
+        titulo.setFechaAplicacion(titulo.toStringDate(dateAplicacion.getValue()));
+        titulo.setHoraAplicacion(timeInicio.getTime().toString());
+        titulo.setHoraFinalizacion(timeFinal.getTime().toString());
+        titulo.setDuracion(String.valueOf(timeInicio.getTime().until(timeFinal.getTime(), ChronoUnit.MINUTES)));
+        titulo.setSecretario(secretarioField.getText());
+        titulo.setPresidente(presidenteField.getText());
+        titulo.setVocal(vocalField.getText());
+        titulo.setNombre(nombreField.getText());
     }
+
 
     private void setFieldTitulo(){
         actaField.setText(titulo.getActa());
@@ -534,107 +523,83 @@ public class DetailsController extends BaseController<Estudiante> implements Ini
 
 
     private void setColumnsTableCalificaciones(){
-        columnNombreMateria.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Calificacion, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Calificacion, String> calificacionStringCellDataFeatures) {
-                Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
-                return Bindings.createStringBinding(new Callable<String>() {
-                    @Override
-                    public String call() throws Exception {
-                        if (calificacion.getMateria() != null){
-                            return calificacion.getMateria().getNombre();
-                        }
-                        return null;
+        columnNombreMateria.setCellValueFactory(calificacionStringCellDataFeatures -> {
+            Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
+            return Bindings.createStringBinding(new Callable<String>() {
+                @Override
+                public String call() throws Exception {
+                    if (calificacion.getMateria() != null){
+                        return calificacion.getMateria().getNombre();
                     }
-                },calificacion.materiaProperty());
-            }
+                    return null;
+                }
+            },calificacion.materiaProperty());
         });
-        columnClaveMateria.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Calificacion, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Calificacion, String> calificacionStringCellDataFeatures) {
-                Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
-                return Bindings.createStringBinding(new Callable<String>() {
-                    @Override
-                    public String call() throws Exception {
-                        if (calificacion.getMateria() != null){
-                            return calificacion.getMateria().getClave();
+        columnClaveMateria.setCellValueFactory(calificacionStringCellDataFeatures -> {
+            Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
+            return Bindings.createStringBinding(() -> {
+                if (calificacion.getMateria() != null){
+                    return calificacion.getMateria().getClave();
+                }
+                return null;
+            },calificacion.materiaProperty());
+        });
+        columnU1PM.setCellValueFactory(calificacionStringCellDataFeatures -> {
+            Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
+            return Bindings.createStringBinding(
+                    () -> {
+                        if (calificacion.getPromedioU1() != null){
+                            return String.format("%.2f", calificacion.getPromedioU1());
                         }
-                        return null;
-                    }
-                },calificacion.materiaProperty());
-            }
+                        return "";
+                    }, calificacion.promedioU1Property()
+            );
         });
-        columnU1PM.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Calificacion, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Calificacion, String> calificacionStringCellDataFeatures) {
-                Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
-                return Bindings.createStringBinding(
-                        () -> {
-                            if (calificacion.getPromedioU1() != null){
-                                return String.format("%.2f", calificacion.getPromedioU1());
-                            }
-                            return "";
-                        }, calificacion.promedioU1Property()
-                );
-            }
+        columnU2PM.setCellValueFactory(calificacionStringCellDataFeatures -> {
+            Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
+            return Bindings.createStringBinding(
+                    () -> {
+                        if (calificacion.getPromedioU2() != null){
+                            return String.format("%.2f", calificacion.getPromedioU2());
+                        }
+                        return "";
+                    }, calificacion.promedioU2Property()
+            );
         });
-        columnU2PM.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Calificacion, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Calificacion, String> calificacionStringCellDataFeatures) {
-                Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
-                return Bindings.createStringBinding(
-                        () -> {
-                            if (calificacion.getPromedioU2() != null){
-                                return String.format("%.2f", calificacion.getPromedioU2());
-                            }
-                            return "";
-                        }, calificacion.promedioU2Property()
-                );
-            }
-        });
-        columnU3PM.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Calificacion, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Calificacion, String> calificacionStringCellDataFeatures) {
-                Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
-                return Bindings.createStringBinding(
-                        () -> {
-                            if (calificacion.getPromedioU3() != null){
-                                return String.format("%.2f", calificacion.getPromedioU3());
-                            }
-                            return "";
-                        }, calificacion.promedioU3Property()
-                );
-            }
+        columnU3PM.setCellValueFactory(calificacionStringCellDataFeatures -> {
+            Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
+            return Bindings.createStringBinding(
+                    () -> {
+                        if (calificacion.getPromedioU3() != null){
+                            return String.format("%.2f", calificacion.getPromedioU3());
+                        }
+                        return "";
+                    }, calificacion.promedioU3Property()
+            );
         });
 
-        columnU4PM.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Calificacion, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Calificacion, String> calificacionStringCellDataFeatures) {
-                Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
-                return Bindings.createStringBinding(
-                        () -> {
-                            if (calificacion.getPromedioU4() != null){
-                                return String.format("%.2f", calificacion.getPromedioU4());
-                            }
-                            return "";
-                        }, calificacion.promedioU4Property()
-                );
-            }
+        columnU4PM.setCellValueFactory(calificacionStringCellDataFeatures -> {
+            Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
+            return Bindings.createStringBinding(
+                    () -> {
+                        if (calificacion.getPromedioU4() != null){
+                            return String.format("%.2f", calificacion.getPromedioU4());
+                        }
+                        return "";
+                    }, calificacion.promedioU4Property()
+            );
         });
 
-        columnPromedio.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Calificacion, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Calificacion, String> calificacionStringCellDataFeatures) {
-                Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
-                return Bindings.createStringBinding(
-                        () -> {
-                            if (calificacion.getPromedioFinal() != null){
-                                return String.format("%.2f", calificacion.getPromedioFinal());
-                            }
-                            return "";
-                        }, calificacion.promedioFinalProperty()
-                );
-            }
+        columnPromedio.setCellValueFactory(calificacionStringCellDataFeatures -> {
+            Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
+            return Bindings.createStringBinding(
+                    () -> {
+                        if (calificacion.getPromedioFinal() != null){
+                            return String.format("%.2f", calificacion.getPromedioFinal());
+                        }
+                        return "";
+                    }, calificacion.promedioFinalProperty()
+            );
         });
 
         setUpColumnsEditable(columnU1P1, Calificacion::p1U1Property);
@@ -660,22 +625,18 @@ public class DetailsController extends BaseController<Estudiante> implements Ini
     private void setUpColumnsEditable(TableColumn<Calificacion,String> tableColumn,
                                       Callback<Calificacion, ObjectProperty<Float>> propertyCellDataFeatures){
 
-
-        tableColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Calificacion, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Calificacion, String> calificacionStringCellDataFeatures) {
-                Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
-                ObjectProperty<Float> property = propertyCellDataFeatures.call(calificacion);
-                return Bindings.createStringBinding(new Callable<String>() {
-                    @Override
-                    public String call() throws Exception {
-                        if (property.get() != null){
-                            return String.valueOf(property.get());
-                        }
-                        return "";
+        tableColumn.setCellValueFactory(calificacionStringCellDataFeatures -> {
+            Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
+            ObjectProperty<Float> property = propertyCellDataFeatures.call(calificacion);
+            return Bindings.createStringBinding(new Callable<String>() {
+                @Override
+                public String call() throws Exception {
+                    if (property.get() != null){
+                        return String.valueOf(property.get());
                     }
-                },property);
-            }
+                    return "";
+                }
+            },property);
         });
         tableColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         tableColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Calificacion, String>>() {
@@ -702,6 +663,11 @@ public class DetailsController extends BaseController<Estudiante> implements Ini
     private void setUserAndPasword(){
         usuarioField.setText(estudiante.getMatricula());
         paswordField.setText(estudiante.getMatricula());
+    }
+
+    @Override
+    protected void cleanData() {
+
     }
 }
 

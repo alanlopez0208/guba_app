@@ -1,15 +1,11 @@
 package com.guba.app.presentation.dialogs;
 
 
-import com.guba.app.models.Acuerdo;
+import com.guba.app.domain.models.Acuerdo;
 import com.guba.app.presentation.utils.Constants;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.util.StringConverter;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 public class DialogAcuerdo extends Dialog<Acuerdo> {
 
