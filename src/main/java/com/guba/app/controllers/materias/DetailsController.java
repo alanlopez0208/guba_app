@@ -1,12 +1,11 @@
 package com.guba.app.controllers.materias;
 
 import com.guba.app.data.dao.DAOCarreras;
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Loadable;
-import com.guba.app.utils.Paginas;
+import com.guba.app.utils.*;
 import com.guba.app.domain.models.Carrera;
 import com.guba.app.domain.models.Materia;
 import com.guba.app.presentation.utils.ComboCell;
+import javafx.beans.property.ObjectProperty;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -20,35 +19,30 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 
 public class DetailsController extends BaseController<Materia> implements Initializable, Loadable<Materia> {
+
+    @FXML
+    private Button backButton;
     @FXML
     private TextField txtNombre;
-
     @FXML
     private TextField txtModalidad;
-
     @FXML
     private TextField txtHbca;
-
     @FXML
     private TextField txtHti;
-
     @FXML
     private TextField txtSemestre;
-
     @FXML
     private TextField txtClave;
-
     @FXML
     private TextField txtCreditos;
-
     @FXML
     private ComboBox<Carrera> comboCarreras;
 
     private Materia materia;
 
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public DetailsController( Mediador<Materia> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super("/materias/Details", mediador, estadoProperty, paginasProperty);
         txtCreditos.setTextFormatter(new TextFormatter<>(change -> {
             if (change.getControlNewText().matches("\\d*")){
                 return change;
@@ -75,30 +69,21 @@ public class DetailsController extends BaseController<Materia> implements Initia
         });
         comboCarreras.setButtonCell(new ComboCell<>());
         loadCarrerasAsync();
+        backButton.setOnAction(this::regresarAPanel);
     }
 
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
+    }
 
     private void loadCarrerasAsync() {
-        Task<List<Carrera>> task = new Task<>() {
-            @Override
-            protected List<Carrera> call() throws Exception {
-                return new DAOCarreras().getAllCarreras();
-            }
-        };
-
-        task.setOnSucceeded(event -> {
-            try {
-                comboCarreras.getItems().addAll(task.get());
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
+        Utils.loadAsync(()-> new DAOCarreras().getAllCarreras(), carreras -> {
+            comboCarreras.getItems().addAll(carreras);
         });
-
-        new Thread(task).start();
     }
 
 
-    @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
         paginasProperty.set(Paginas.LIST);
     }
@@ -119,6 +104,6 @@ public class DetailsController extends BaseController<Materia> implements Initia
 
     @Override
     protected void cleanData() {
-
+        materia = null;
     }
 }

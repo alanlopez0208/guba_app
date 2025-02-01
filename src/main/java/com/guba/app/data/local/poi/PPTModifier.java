@@ -88,7 +88,7 @@ public class PPTModifier {
         if (duracionHoras == 0){
             return "";
         }
-        return " con una duracion de " + duracionHoras + (duracionHoras > 1 ? "horas" : "hora");
+        return " con una duracion de " + duracionHoras + (duracionHoras > 1 ? " horas" : " hora");
     }
 
     private String generarNombreArchivo(String nombre, String tipo, String fechaRealizacion) {

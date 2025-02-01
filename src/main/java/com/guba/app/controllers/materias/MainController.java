@@ -13,12 +13,12 @@ public class MainController extends BaseMainController<Materia> {
 
     @Override
     protected void registrarPaginas() {
-        registrarPagina(Paginas.LIST, "/materias/List");
-        registrarPagina(Paginas.ADD, "/materias/Add");
-        registrarPagina(Paginas.EDIT, "/materias/Edit");
-        registrarPagina(Paginas.DETAILS, "/materias/Details");
-        stack.getChildren().addAll(paginas.values());
-        paginas.get(Paginas.LIST).setVisible(true);
+        registrarPagina(Paginas.LIST,new ListController(this, this.estadoProperty,this.paginaProperty,dataList));
+        registrarPagina(Paginas.ADD, new AddController(this, this.estadoProperty,this.paginaProperty));
+        registrarPagina(Paginas.EDIT,new EditController(this, this.estadoProperty, this.paginaProperty) );
+        registrarPagina(Paginas.DETAILS, new DetailsController(this, this.estadoProperty, this.paginaProperty));
+        stack.getChildren().addAll(nodos.values());
+        nodos.get(Paginas.LIST).setVisible(true);
     }
 
     @Override
@@ -28,22 +28,33 @@ public class MainController extends BaseMainController<Materia> {
 
     @Override
     public boolean actualizar(Materia materia) {
-        return false;
+        return daoMaterias.updateMateria(materia);
     }
 
     @Override
     public boolean eliminar(Materia materia) {
-        return false;
+        boolean eliminado = daoMaterias.eliminarMateria(materia.getIdMateria());
+        if (!eliminado) {
+            return false;
+        }
+        dataList.remove(materia);
+        return true;
     }
 
     @Override
     public boolean guardar(Materia materia) {
-        return false;
+        var optional = daoMaterias.insertMateria(materia);
+        if (optional.isEmpty()){
+            return false;
+        }
+        materia.setId(optional.get().toString());
+        dataList.add(materia);
+        return true;
     }
 
     @Override
     public Materia ver(Materia materia) {
-        return null;
+        return daoMaterias.getMateria(materia.getId());
     }
 
 }

@@ -2,16 +2,16 @@ package com.guba.app.controllers.maestro;
 
 import com.guba.app.data.dao.DAOMaestro;
 import com.guba.app.data.local.database.conexion.Config;
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Loadable;
-import com.guba.app.utils.Paginas;
+import com.guba.app.utils.*;
 import com.guba.app.domain.models.Maestro;
 import com.guba.app.presentation.dialogs.DialogCamara;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.utils.Constants;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -66,23 +66,44 @@ public class EditController extends BaseController<Maestro> implements Initializ
     private TextField txtPathCurriculo;
     @FXML
     private ComboBox<String> comboSexo;
+    @FXML
+    private Button backButton;
+    @FXML
+    private Button btnGuardar;
+    @FXML
+    private Button btnCamara;
+    @FXML
+    private Button btnArchivos;
+    @FXML
+    private Button btnBorrarFoto;
+    @FXML
+    private Button btnAddCurriculo;
+
     private Maestro maestro;
     private BufferedImage bufferedImage;
     private File file;
-    private DAOMaestro daoMaestro = new DAOMaestro();
+
+
+    public EditController( Mediador<Maestro> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super( "/maestros/Edit", mediador, estadoProperty, paginasProperty);
+        comboSexo.getItems().addAll("Hombre", "Mujer");
+        backButton.setOnAction(this::backPanel);
+        btnGuardar.setOnAction(this::actualizarMaestro);
+        btnCamara.setOnAction(this::abrirCamara);
+        btnArchivos.setOnAction(this::abrirArchivos);
+        btnBorrarFoto.setOnAction(this::borrarFoto);
+        btnAddCurriculo.setOnAction(this::addCurriculo);
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        comboSexo.getItems().addAll("Hombre", "Mujer");
     }
 
-    @FXML
-    private void backPanel(){
+    private void backPanel(ActionEvent actionEvent){
         paginasProperty.set(Paginas.LIST);
     }
 
-    @FXML
-    private void actualizarMaestro(){
+    private void actualizarMaestro(ActionEvent actionEvent){
         DialogConfirmacion dialogConfirmacion = new DialogConfirmacion("¿Esta seguro de actualizar?");
         dialogConfirmacion.showAndWait().ifPresent(integer1 -> {
             if (!validar()) {
@@ -104,7 +125,10 @@ public class EditController extends BaseController<Maestro> implements Initializ
             maestro.setCelular(txtCelular.getText());
             maestro.setGenero(comboSexo.getValue());
             if (bufferedImage != null) {
-                maestro.setFoto(guardarFoto());
+                maestro.setFoto(Utils.guardarFoto(
+                        Config.getConif().obtenerConfiguracion("04 RUTA IMAGENES PROFESORES") + "\\" + maestro.getRfc() + ".jpg",
+                        bufferedImage
+                ));
             }
             if (file != null) {
                 String destino = Config.getConif().obtenerConfiguracion("05 RUTA PDF PROFESORES") + "\\" + maestro.getRfc() + ".pdf";
@@ -121,9 +145,9 @@ public class EditController extends BaseController<Maestro> implements Initializ
                     throw new RuntimeException(ex);
                 }
             }
-            boolean seActualizo = daoMaestro.updateDocente(maestro);
+            boolean seActualizo = mediador.actualizar(maestro);
             Alert alert = new Alert(seActualizo ? Alert.AlertType.CONFIRMATION : Alert.AlertType.ERROR);
-            alert.setContentText(seActualizo ? "Se ha registrado el alumno con exito" : "Hay un error al guardar al Alumno intente mas tarde porfavor");
+            alert.setContentText(seActualizo ? "Se ha registrado el docente con exito" : "Hay un error al guardar al docente, intente mas tarde porfavor");
             alert.showAndWait();
             paginasProperty.set(Paginas.LIST);
         });
@@ -133,8 +157,7 @@ public class EditController extends BaseController<Maestro> implements Initializ
         return !txtRfc.getText().isEmpty();
     }
 
-    @FXML
-    private void abrirCamara() {
+    private void abrirCamara(ActionEvent actionEvent) {
         DialogCamara dialogCamara = new DialogCamara();
         Optional<BufferedImage> optionBuffer = dialogCamara.showAndWait();
         optionBuffer.ifPresent(bufferedImage -> {
@@ -144,27 +167,7 @@ public class EditController extends BaseController<Maestro> implements Initializ
         });
     }
 
-    private String guardarFoto() {
-        try {
-            File outputFile = new File(Config.getConif().obtenerConfiguracion("04 RUTA IMAGENES PROFESORES") + "\\" + maestro.getRfc() + ".jpg");
-            ImageIO.write(bufferedImage, "jpg", outputFile);
-            return  outputFile.getAbsolutePath();
-        } catch (IOException ex) {
-            return null;
-        }
-    }
-
-
-
-    @FXML
-    private void borrarFoto(){
-        bufferedImage = null;
-        foto.setFill(new ImagePattern(new Image(Objects.requireNonNull(getClass().getResource(Constants.URL_FOTO_PREDETERMINADA)).toString())));
-        maestro.setFoto(null);
-    }
-
-    @FXML
-    private void abrirArchivos() {
+    private void abrirArchivos(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Archivos de imagen", "*.jpg")
@@ -197,9 +200,13 @@ public class EditController extends BaseController<Maestro> implements Initializ
         }
     }
 
+    private void borrarFoto(ActionEvent actionEvent){
+        bufferedImage = null;
+        foto.setFill(new ImagePattern(new Image(Objects.requireNonNull(getClass().getResource(Constants.URL_FOTO_PREDETERMINADA)).toString())));
+        maestro.setFoto(null);
+    }
 
-    @FXML
-    private void addCurriculo(){
+    private void addCurriculo(ActionEvent actionEvent){
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Archivos pdf", "*.pdf")
@@ -234,6 +241,18 @@ public class EditController extends BaseController<Maestro> implements Initializ
 
     @Override
     protected void cleanData() {
-
+        txtNombre.setText(null);
+        txtApPat.setText(null);
+        txtApMat.setText(null);
+        txtCorreoInst.setText(null);
+        txtCorreoPer.setText(null);
+        txtDireccion.setText(null);
+        txtGrado.setText(null);
+        txtMunicipio.setText(null);
+        txtEstado.setText(null);
+        txtCelular.setText(null);
+        txtPathCurriculo.setText(null);
+        txtCurp.setText(null);
+        comboSexo.setValue(null);
     }
 }

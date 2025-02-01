@@ -16,13 +16,13 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <?import javafx.scene.control.ScrollPane?>
-<VBox spacing="10.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.guba.app.controllers.maestro.DetailsController">
+<fx:root type="VBox" spacing="10.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1">
 
    <HBox alignment="CENTER_LEFT" spacing="30.0">
       <padding>
          <Insets bottom="10.0" left="20.0" right="10.0" top="10.0" />
       </padding>
-      <Button fx:id="backButton" onAction="#backPanel" styleClass="btn, btnBack">
+      <Button fx:id="backButton" styleClass="btn, btnBack">
          <graphic>
             <FontIcon fill="white" iconLiteral="mdi-arrow-left-bold" iconSize="15" />
          </graphic>
@@ -98,4 +98,4 @@
          </VBox>
       </HBox>
    </VBox>
-</VBox>
+</fx:root>

@@ -1,14 +1,13 @@
 package com.guba.app.controllers.cursos;
 
 import com.dlsc.gemsfx.CalendarPicker;
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Loadable;
-import com.guba.app.utils.Paginas;
+import com.guba.app.utils.*;
 import com.guba.app.data.dao.DAOAseor;
 import com.guba.app.data.dao.DAOParticipante;
 import com.guba.app.domain.models.Asesor;
 import com.guba.app.domain.models.Curso;
 import com.guba.app.domain.models.Participante;
+import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -23,9 +22,14 @@ import javafx.util.Callback;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 
-public class DetailsController extends BaseController<Curso> implements Initializable, Loadable<Curso> {
+public class DetailsController extends BaseController<Curso> implements Loadable<Curso> {
+
+    @FXML
+    private Button backButton;
     @FXML
     private TextField nombreField;
     @FXML
@@ -43,21 +47,24 @@ public class DetailsController extends BaseController<Curso> implements Initiali
     @FXML
     private TextField impartdiorLugarField;
     @FXML
-    private ListView<Participante> listParticipantes;
-    @FXML
-    private ObservableList<Participante> participanteObservableList = FXCollections.observableArrayList();
+    private ListView<Participante> listviewParticipanetes;
     private Curso curso;
     private DAOAseor daoAseor = new DAOAseor();
     private DAOParticipante daoParticipante = new DAOParticipante();
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+
+    public DetailsController( Mediador<Curso> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super("/cursos/Details", mediador, estadoProperty, paginasProperty);
         setListView();
         setComboBox();
+        backButton.setOnAction(this::backPanel);
+    };
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
     }
 
-
-    @FXML
     public void backPanel(ActionEvent event) {
        paginasProperty.set(Paginas.LIST);
     }
@@ -71,16 +78,13 @@ public class DetailsController extends BaseController<Curso> implements Initiali
         this.daeFechaInico.setValue(curso.stringToDateBd(curso.getFechaInicio()));
         this.fechaFin.setValue(curso.stringToDateBd(curso.getFechaFin()));
         //this.comboModalidades.setValue(curso.getModalidad());
-        this.listParticipantes.setItems(curso.getParticipantes());
         loadAsesorAsync(curso.getIdCurso());
         loadParticipantes(curso.getIdCurso());
     }
 
-
-
     private void setListView(){
-        listParticipantes.setSelectionModel(null);
-        listParticipantes.setCellFactory(new Callback<>() {
+        listviewParticipanetes.setSelectionModel(null);
+        listviewParticipanetes.setCellFactory(new Callback<>() {
             @Override
             public ListCell<Participante> call(ListView<Participante> asesorListView) {
                 return new ListCell<>() {
@@ -108,7 +112,6 @@ public class DetailsController extends BaseController<Curso> implements Initiali
                 };
             }
         });
-        listParticipantes.setItems(participanteObservableList);
 
     }
 
@@ -118,57 +121,24 @@ public class DetailsController extends BaseController<Curso> implements Initiali
 
 
     public void loadAsesorAsync(int idcurso){
-        Task<Asesor> asesorTask = new Task<Asesor>() {
-            @Override
-            protected Asesor call() throws Exception {
-                return daoAseor.obtenerAsesorPorCurso(idcurso);
-            }
-        };
-
-        asesorTask.setOnSucceeded(event -> {
-            try {
-                Asesor asesor = asesorTask.get();
-                this.impartidorNombreField.setText(asesor.getNombre());
-                this.impartdiorLugarField.setText(asesor.getLugar());
-                this.impartidorPuestoFlied.setText(asesor.getPuesto());
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
-            }
+        Utils.loadAsync(() -> daoAseor.obtenerAsesorPorCurso(idcurso), asesor -> {
+            this.impartidorNombreField.setText(asesor.getNombre());
+            this.impartdiorLugarField.setText(asesor.getLugar());
+            this.impartidorPuestoFlied.setText(asesor.getPuesto());
         });
-
-        asesorTask.setOnFailed(event -> {
-            System.out.println("Error al obtener al impartidor: "+ asesorTask.getException());
-        });
-
-        new Thread(asesorTask).start();
     }
 
 
     public void loadParticipantes(int idcurso){
-        Task<List<Participante>> particpanteTask = new Task<List<Participante>>() {
-            @Override
-            protected List<Participante> call() throws Exception {
-                return daoParticipante.obtenerParticipantesPorCurso(idcurso);
-            }
-        };
-
-        particpanteTask.setOnSucceeded(event -> {
-            try {
-                curso.getParticipantes().setAll(particpanteTask.get());
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
-            }
+        Utils.loadAsync(() -> daoParticipante.obtenerParticipantesPorCurso(idcurso), participantes -> {
+            curso.getParticipantes().setAll(participantes);
+            listviewParticipanetes.getItems().setAll(participantes);
         });
-
-        new Thread(particpanteTask).start();
     }
 
     @Override
     protected void cleanData() {
-
+        this.curso = null;
+        listviewParticipanetes.getItems().clear();
     }
 }

@@ -2,13 +2,12 @@ package com.guba.app.controllers.materias;
 
 import com.guba.app.data.dao.DAOCarreras;
 import com.guba.app.data.dao.DAOMaterias;
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Loadable;
-import com.guba.app.utils.Paginas;
+import com.guba.app.utils.*;
 import com.guba.app.domain.models.Carrera;
 import com.guba.app.domain.models.Materia;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.utils.ComboCell;
+import javafx.beans.property.ObjectProperty;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,34 +21,36 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 
 public class EditController extends BaseController<Materia> implements Initializable, Loadable<Materia> {
+
+    @FXML
+    private Button backButton;
+    @FXML
+    private Button btnActualizar;
     @FXML
     private TextField txtNombre;
-
     @FXML
     private TextField txtModalidad;
-
     @FXML
     private TextField txtHbca;
-
     @FXML
     private TextField txtHti;
-
     @FXML
     private TextField txtSemestre;
-
     @FXML
     private TextField txtClave;
-
     @FXML
     private TextField txtCreditos;
-
     @FXML
     private ComboBox<Carrera> comboCarreras;
 
     private Materia materia;
 
     private DAOCarreras daoCarreras = new DAOCarreras();
-    private DAOMaterias daoMaterias = new DAOMaterias();
+
+
+    public EditController(Mediador<Materia> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super("/materias/Edit", mediador, estadoProperty, paginasProperty);
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -71,9 +72,9 @@ public class EditController extends BaseController<Materia> implements Initializ
             }
             return null;
         }));
-
+        backButton.setOnAction(this::regresarAPanel);
+        btnActualizar.setOnAction(this::actualizar);
     }
-
 
     private void loadCarrerasAsync(Carrera carrera) {
         comboCarreras.setDisable(true);
@@ -116,14 +117,11 @@ public class EditController extends BaseController<Materia> implements Initializ
         loadCarrerasAsync(materia.getCarreraModelo());
     }
 
-
-    @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
         materia= null;
         paginasProperty.set(Paginas.LIST);
     }
 
-    @FXML
     private void actualizar(ActionEvent event){
         if (mostrarConfirmacion()){
             materia.setNombre(txtNombre.getText());
@@ -134,7 +132,7 @@ public class EditController extends BaseController<Materia> implements Initializ
             materia.setClave(txtClave.getText());
             materia.setCreditos(txtCreditos.getText());
             materia.setCarreraModelo(comboCarreras.getSelectionModel().getSelectedItem());
-            daoMaterias.updateMateria(materia);
+            mediador.actualizar(materia);
             paginasProperty.set(Paginas.LIST);
             materia = null;
         }
@@ -147,6 +145,13 @@ public class EditController extends BaseController<Materia> implements Initializ
 
     @Override
     protected void cleanData() {
-
+        txtNombre.setText(null);
+        txtModalidad.setText(null);
+        txtHbca.setText(null);
+        txtHti.setText(null);
+        txtSemestre.setText(null);
+        txtClave.setText(null);
+        txtCreditos.setText(null);
+        comboCarreras.getSelectionModel().select(null);
     }
 }

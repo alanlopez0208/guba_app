@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.guba.app.data.local.database.DataConsumer;
 import com.guba.app.domain.models.Carrera;
@@ -60,9 +61,9 @@ public class DAOMaterias {
         });
     }
 
-    public boolean insertMateria(Materia materia) {
+    public Optional<Integer> insertMateria(Materia materia) {
         String sentencia = "INSERT INTO MATERIAS (Nombre, HBCA, HTI, Semestre, Creditos, IdCarrera, Clave, Modalidad ) VALUES (?,?,?,?,?,?,?,?)";
-        return dataConsumer.executeUpdate(sentencia, pstmt->{
+        return dataConsumer.executeUpdateWithGeneratedKeys(sentencia, pstmt->{
             pstmt.setString(1, materia.getNombre());
             pstmt.setString(2, materia.getHcba());
             pstmt.setString(3, materia.getHti());

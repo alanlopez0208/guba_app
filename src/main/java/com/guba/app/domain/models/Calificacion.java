@@ -646,4 +646,46 @@ public class Calificacion {
     public int hashCode() {
         return Objects.hash(getIdCalificacion(), getIdAlumno(), getIdDocente(), getIdPerido(), getIdMateria(), getMateria(), getEstudiante(), getPerido(), getMaestro(), getGrupo(), getP1U1(), getP2U1(), getP3U1(), getP4U1(), getP1U2(), getP2U2(), getP3U2(), getP4U2(), getP1U3(), getP2U3(), getP3U3(), getP4U3(), getP1U4(), getP2U4(), getP3U4(), getP4U4(), getTrabjoFinal(), getPromedioU1(), getPromedioU2(), getPromedioU3(), getPromedioU4(), getPromedioFinal(), getPeriodo(), getFecha(), getTipo(), getModulo());
     }
+
+    @Override
+    public String toString() {
+        return "Calificacion{" +
+                "idCalificacion=" + idCalificacion +
+                ", idAlumno=" + idAlumno +
+                ", idDocente=" + idDocente +
+                ", idPerido=" + idPerido +
+                ", idMateria=" + idMateria +
+                ", materia=" + materia +
+                ", estudiante=" + estudiante +
+                ", perido=" + perido +
+                ", maestro=" + maestro +
+                ", grupo=" + grupo +
+                ", p1U1=" + p1U1 +
+                ", p2U1=" + p2U1 +
+                ", p3U1=" + p3U1 +
+                ", p4U1=" + p4U1 +
+                ", p1U2=" + p1U2 +
+                ", p2U2=" + p2U2 +
+                ", p3U2=" + p3U2 +
+                ", p4U2=" + p4U2 +
+                ", p1U3=" + p1U3 +
+                ", p2U3=" + p2U3 +
+                ", p3U3=" + p3U3 +
+                ", p4U3=" + p4U3 +
+                ", p1U4=" + p1U4 +
+                ", p2U4=" + p2U4 +
+                ", p3U4=" + p3U4 +
+                ", p4U4=" + p4U4 +
+                ", trabjoFinal=" + trabjoFinal +
+                ", promedioU1=" + promedioU1 +
+                ", promedioU2=" + promedioU2 +
+                ", promedioU3=" + promedioU3 +
+                ", promedioU4=" + promedioU4 +
+                ", promedioFinal=" + promedioFinal +
+                ", periodo=" + periodo +
+                ", fecha=" + fecha +
+                ", tipo=" + tipo +
+                ", modulo=" + modulo +
+                '}';
+    }
 }

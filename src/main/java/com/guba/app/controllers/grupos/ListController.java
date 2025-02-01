@@ -1,22 +1,21 @@
 package com.guba.app.controllers.grupos;
 
 import com.guba.app.data.dao.DAOCarreras;
-import com.guba.app.data.dao.DAOGrupoMateria;
-import com.guba.app.data.dao.DAOMaterias;
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Paginas;
+import com.guba.app.utils.*;
 import com.guba.app.domain.models.Carrera;
 import com.guba.app.domain.models.Grupo;
 import com.guba.app.presentation.dialogs.DialogGrupo;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.data.local.database.Service;
+import com.jfoenix.controls.JFXButton;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -40,6 +39,12 @@ import java.util.function.Consumer;
 public class ListController extends BaseController<Grupo> implements Initializable {
 
     @FXML
+    private Button btnAgregar;
+    @FXML
+    private JFXButton btnActualizar;
+    @FXML
+    private JFXButton btnBorrarFiltros;
+    @FXML
     private Label label;
     @FXML
     private TableView<Grupo> tableView;
@@ -52,73 +57,59 @@ public class ListController extends BaseController<Grupo> implements Initializab
     @FXML
     private ToggleGroup toggleFiltroNormal;
     private ToggleGroup toggleCarreras = new ToggleGroup();
-    private Filtros filtros = Filtros.NOMBRE;
-    private List<Grupo> grupoList = new ArrayList<>();
-    private ObservableList<Grupo> listaFiltros = FXCollections.observableArrayList();
 
-    private DAOCarreras daoCarreras = new DAOCarreras();
-    private DAOGrupoMateria daoGrupoMateria = new DAOGrupoMateria();
-    private DAOMaterias daoMaterias = new DAOMaterias();
+    private FilteredList<Grupo> filteredList;
+    private Filtros filtroSeleccionado = Filtros.NOMBRE;
+    private Carrera carreraSeleccionada;
     private Dialog<Grupo> addDialog;
 
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public ListController(Mediador<Grupo> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty, ObservableList<Grupo> list) {
+        super("/grupos/List", mediador, estadoProperty, paginasProperty);
         cargarGruposBd();
         setCellColumns();
         setFiltro();
+        estadoProperty.addListener((observableValue, oldValue, newValue) -> {
+            if (newValue.equals(Estado.CARGANDO)){
+                label.setVisible(true);
+                tableView.setVisible(false);
+            } else if (newValue.equals(Estado.CARGADO)) {
+                label.setVisible(false);
+                filteredList = new FilteredList<>(list, estudiante -> true);
+                tableView.setVisible(true);
+                tableView.setItems(filteredList);
+            }
+        });
+        btnAgregar.setOnAction(this::openPaneAdd);
+        btnBorrarFiltros.setOnAction(this::borrarFiltros);
+        btnActualizar.setOnAction(actionEvent -> {
+            mediador.loadBD();
+        });
     }
 
-    @FXML
-    private void openPaneAddAlumno(ActionEvent event){
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
+    }
+
+    private void openPaneAdd(ActionEvent event){
         DialogGrupo dialogGrupo = new DialogGrupo(new Grupo());
         Optional<Grupo> optionalGrupo = dialogGrupo.showAndWait();
         optionalGrupo.ifPresent(new Consumer<Grupo>() {
             @Override
             public void accept(Grupo grupo) {
-                boolean seAgrego = Service.getService().agregarGrupo(grupo);
-
+                boolean seAgrego = mediador.guardar(grupo);
             }
         });
     }
 
-    @FXML
     private void borrarFiltros(ActionEvent event){
         busquedaSearch.setText("");
-        Service.getService().getGrupos().setAll(grupoList);
         toggleCarreras.selectToggle(null);
         toggleFiltroNormal.selectToggle(null);
-
     }
 
     private void cargarGruposBd(){
-        Task<List<Grupo>> task = new Task<List<Grupo>>() {
-            @Override
-            protected List<Grupo> call() throws Exception {
-                return Service.getService().cargarGrupos();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            try {
-                label.setVisible(false);
-                grupoList = task.get();
-                listaFiltros.setAll(task.get());
-                tableView.setItems(Service.service.getGrupos());
-                tableView.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-        task.setOnFailed(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                System.out.println("Error al carrgar las materias" +task.getException());
-            }
-        });
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
+       mediador.loadBD();
     }
 
     private void setCellColumns(){
@@ -181,7 +172,7 @@ public class ListController extends BaseController<Grupo> implements Initializab
                                 public void handle(ActionEvent event) {
                                     DialogGrupo dialogAddGrupo = new DialogGrupo(grupo);
                                     dialogAddGrupo.showAndWait().ifPresent(g -> {
-                                        Service.getService().actualizarGrupo(grupo);
+                                        mediador.actualizar(grupo);
                                     });
                                 }
                             });
@@ -191,12 +182,11 @@ public class ListController extends BaseController<Grupo> implements Initializab
                                 public void handle(ActionEvent event) {
                                     DialogConfirmacion dialogConfirmacion = new DialogConfirmacion("¿Estas Seguro de eliminar el grupo:"+  grupo.getNombre()+" " + "?");
                                     Optional<Integer> option = dialogConfirmacion.showAndWait();
-
                                     option.ifPresent(new Consumer<Integer>() {
                                         @Override
                                         public void accept(Integer integer) {
                                             if (integer.equals(1)){
-                                                boolean seElimino = Service.getService().eliminarCurso(grupo);
+                                                boolean seElimino = mediador.eliminar(grupo);
                                             }
                                         }
                                     });
@@ -217,35 +207,23 @@ public class ListController extends BaseController<Grupo> implements Initializab
     }
 
     private void setFiltro(){
-        busquedaSearch.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-                if (t1.isEmpty()){
-                    Service.getService().getGrupos().setAll(grupoList);
-                    return;
-                }
-
-                switch (filtros){
-
-                    case NOMBRE -> {
-                        List<Grupo> filtro = listaFiltros.stream()
-                                .filter(grupo -> grupo.getNombre().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-
-                        Service.getService().getGrupos().setAll(filtro);
-                    }
-                    case SEMESTRE -> {
-                        List<Grupo> filtro = listaFiltros.stream()
-                                .filter(grupo -> grupo.getSemestre().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-                        Service.getService().getGrupos().setAll(filtro);
-                    }
-                }
-            }
+        busquedaSearch.textProperty().addListener((observableValue, s, t1) -> {
+            aplicarFiltros();
         });
 
+        toggleCarreras.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
+            RadioMenuItem rb = (RadioMenuItem) toggleCarreras.getSelectedToggle();
+            carreraSeleccionada = rb == null ? null : (Carrera) rb.getUserData();
+            aplicarFiltros();
+        });
 
-        loadCarrerasAsync(carreras -> {
+        toggleFiltroNormal.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
+            RadioMenuItem rb = (RadioMenuItem) toggleFiltroNormal.getSelectedToggle();
+            filtroSeleccionado = (rb == null ) ? Filtros.NOMBRE : Filtros.valueOf(rb.getUserData().toString());
+            aplicarFiltros();
+        });
+
+        Utils.loadAsync(()-> new DAOCarreras().getAllCarreras(),carreras -> {
             carreras.forEach(carrera -> {
                 RadioMenuItem radioButton = new RadioMenuItem();
                 radioButton.setText(carrera.getNombre() + " " + carrera.getModalidad());
@@ -254,64 +232,36 @@ public class ListController extends BaseController<Grupo> implements Initializab
                 contextMenu.getItems().add(radioButton);
             });
         });
+    }
 
-        toggleCarreras.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
-            RadioMenuItem rb = (RadioMenuItem) toggleCarreras.getSelectedToggle();
-            if (rb == null){
-                return;
-            }
-            Carrera carrera = (Carrera) rb.getUserData();
-            listaFiltros.setAll(grupoList.stream()
-                    .filter(e-> e.getCarrera().getIdCarrera().equals(carrera.getIdCarrera()))
-                    .toList());
+    private void aplicarFiltros() {
+        filteredList.setPredicate(grupo->{
+            boolean carreraCompatible = carreraSeleccionada == null || grupo.getCarrera().getIdCarrera().equals(carreraSeleccionada.getIdCarrera());
+            boolean textoCompatible = busquedaSearch.getText().isEmpty() || cumpleFiltroTexto(grupo);
 
-            Service.getService().getGrupos().setAll(listaFiltros);
-        });
-
-
-        toggleFiltroNormal.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
-            RadioMenuItem rb = (RadioMenuItem) toggleFiltroNormal.getSelectedToggle();
-            if (rb == null){
-                return;
-            }
-            int index = Integer.parseInt(rb.getUserData().toString());
-            switch (index){
-                case 1->{
-                    filtros = Filtros.NOMBRE;
-                }
-                case 2->{
-                    filtros = Filtros.SEMESTRE;
-                }
-            }
+            return carreraCompatible && textoCompatible;
         });
     }
 
-    private void loadCarrerasAsync(Consumer<List<Carrera>> cosumer) {
-        Task<List<Carrera>> task = new Task<>() {
-            @Override
-            protected List<Carrera> call() throws Exception {
-                return new DAOCarreras().getAllCarreras();
-            }
+    private boolean cumpleFiltroTexto(Grupo grupo){
+        String texto = busquedaSearch.getText().toLowerCase();
+        return switch (filtroSeleccionado){
+            case NOMBRE -> grupo.getNombre().toLowerCase().contains(texto);
+            case SEMESTRE -> grupo.getSemestre().equals(texto);
         };
-        task.setOnSucceeded(event -> {
-            try {
-                cosumer.accept(task.get());
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        new Thread(task).start();
     }
 
     @Override
     protected void cleanData() {
+        cargarGruposBd();
+    }
 
+    enum Filtros{
+        NOMBRE,
+        SEMESTRE,
     }
 }
 
 
-enum Filtros{
-    NOMBRE,
-    SEMESTRE,
-}
+
 

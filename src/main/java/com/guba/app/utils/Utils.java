@@ -1,7 +1,12 @@
 package com.guba.app.utils;
 
+import com.guba.app.data.local.database.conexion.Config;
 import javafx.concurrent.Task;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
@@ -25,4 +30,13 @@ public class Utils {
         thread.start();
     }
 
+    public static String guardarFoto(String ruta, BufferedImage bufferedImage) {
+        try {
+            File outputFile = new File(ruta);
+            ImageIO.write(bufferedImage, "jpg", outputFile);
+            return  outputFile.getAbsolutePath();
+        } catch (IOException ex) {
+            return null;
+        }
+    }
 }

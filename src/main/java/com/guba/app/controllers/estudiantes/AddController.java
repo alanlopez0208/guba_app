@@ -42,7 +42,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 public class AddController extends BaseController<Estudiante> implements Loadable<Estudiante> {
@@ -100,8 +102,6 @@ public class AddController extends BaseController<Estudiante> implements Loadabl
     private BufferedImage bufferedImage;
     private Estudiante estudiante;
 
-
-
     public AddController(Mediador<Estudiante> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
         super("/estudiantes/AddEstudiante", mediador, estadoProperty, paginasProperty);
     }
@@ -141,17 +141,6 @@ public class AddController extends BaseController<Estudiante> implements Loadabl
         });
     }
 
-    private String guardarFoto() {
-        try {
-            File outputFile = new File(Config.getConif().obtenerConfiguracion("04 RUTA IMAGENES PROFESORES") + "\\" + estudiante.getMatricula() + ".jpg");
-            ImageIO.write(bufferedImage, "jpg", outputFile);
-            return  outputFile.getAbsolutePath();
-        } catch (IOException ex) {
-            return null;
-        }
-    }
-
-
     private void abrirArchivos(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
@@ -159,29 +148,11 @@ public class AddController extends BaseController<Estudiante> implements Loadabl
         );
         File file = fileChooser.showOpenDialog(new Stage());
         if (file != null) {
-            Task<BufferedImage> task = new Task<BufferedImage>() {
-                @Override
-                protected BufferedImage call() throws Exception {
-                    return ImageIO.read(file);
-                }
-            };
-            task.setOnSucceeded(event ->
-                    Platform.runLater(() -> {
-                        try {
-                            this.bufferedImage = task.get();
-                            WritableImage writableImage = SwingFXUtils.toFXImage(bufferedImage, new WritableImage(bufferedImage.getWidth(), bufferedImage.getHeight()));
-                            fotoEstudiante.setFill(new ImagePattern(writableImage));
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        } catch (ExecutionException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                    })
-            );
-            Thread thread = new Thread(task);
-            thread.setDaemon(true);
-            thread.start();
+            Utils.loadAsync(() -> ImageIO.read(file), bufferedImage -> {
+                this.bufferedImage = bufferedImage;
+                WritableImage writableImage = SwingFXUtils.toFXImage(bufferedImage, new WritableImage(bufferedImage.getWidth(), bufferedImage.getHeight()));
+                fotoEstudiante.setFill(new ImagePattern(writableImage));
+            });
         }
     }
 
@@ -201,7 +172,11 @@ public class AddController extends BaseController<Estudiante> implements Loadabl
         DialogConfirmacion dialogConfirmacion = new DialogConfirmacion("¿Estas Seguro de Añadir al Estudiate?");
         dialogConfirmacion.showAndWait().ifPresent(integer -> {
             if (bufferedImage != null) {
-                estudiante.setFoto(guardarFoto());
+                estudiante.setFoto(
+                        Utils.guardarFoto(
+                                Config.getConif().obtenerConfiguracion("04 RUTA IMAGENES PROFESORES") + "\\" + estudiante.getMatricula() + ".jpg",
+                                bufferedImage)
+                );
             }
             boolean seAgrego = mediador.guardar(estudiante);
 
@@ -219,7 +194,6 @@ public class AddController extends BaseController<Estudiante> implements Loadabl
         });
 
     }
-
 
     private void initializeCombos() {
         comboSemestre.getItems().addAll(IntStream.range(1, 10).boxed().map(Object::toString).toList());
@@ -239,6 +213,7 @@ public class AddController extends BaseController<Estudiante> implements Loadabl
     }
 
     private void loadCarrerasAsync() {
+
         Task<List<Carrera>> task = new Task<>() {
             @Override
             protected List<Carrera> call() throws Exception {
@@ -283,8 +258,6 @@ public class AddController extends BaseController<Estudiante> implements Loadabl
         DialogConfirmacion dialogConfirmacion = new DialogConfirmacion("¿Estás seguro de añadir al alumno: " + txtNombre.getText() + " con matrícula: " + txtMatricula.getText() + "?");
         return dialogConfirmacion.showAndWait().orElse(0) == 1;
     }
-
-
 
     @Override
     public void loadData(Estudiante data) {

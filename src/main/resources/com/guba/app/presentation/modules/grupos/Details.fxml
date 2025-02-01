@@ -13,8 +13,8 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <?import com.jfoenix.controls.JFXButton?>
-<VBox alignment="CENTER_LEFT" spacing="30" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.guba.app.controllers.grupos.DetailsController">
-    <Button fx:id="backButton" onAction="#regresarAPanel" styleClass="btn, btnBack">
+<fx:root type="VBox" alignment="CENTER_LEFT" spacing="30" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1">
+    <Button fx:id="backButton" styleClass="btn, btnBack">
         <graphic>
             <FontIcon fill="white" iconLiteral="mdi-arrow-left-bold" iconSize="15" />
         </graphic>
@@ -38,12 +38,12 @@
    </HBox>
    <HBox alignment="CENTER" spacing="40.0">
       <children>
-         <JFXButton text="Materias" styleClass="btnVer" onAction="#verMaterias">
+         <JFXButton fx:id="btnVerMaterias" text="Materias" styleClass="btnVer">
              <padding>
                  <Insets top="10" bottom="10" left="20" right="20"/>
              </padding>
          </JFXButton>
-         <JFXButton  text="Estudiantes" styleClass="btnVer" onAction="#verEstudiantes" >
+         <JFXButton  fx:id="btnVerEstudiantes" text="Estudiantes" styleClass="btnVer">
              <padding>
                  <Insets top="10" bottom="10" left="20" right="20"/>
              </padding>
@@ -62,7 +62,7 @@
                       <TableColumn prefWidth="300" text="Acciones" fx:id="columnAcciones"/>
                   </columns>
               </TableView>
-              <Button text="Agregar Materias" styleClass="btnsAgregar" onAction="#addMaterias">
+              <Button fx:id="btnAddMaterias" text="Agregar Materias" styleClass="btnsAgregar">
                   <padding>
                       <Insets top="10" bottom="10" left="20" right="20"/>
                   </padding>
@@ -101,11 +101,11 @@
                         </TableColumn>
                         <TableColumn prefWidth="75.0" text="Unidad 3">
                             <columns>
-                                <TableColumn prefWidth="75.0" text="Parcial 1" fx:id="columnU3P1"  />
-                                <TableColumn prefWidth="75.0" text="Parcial 2" fx:id="columnU3P2"  />
-                                <TableColumn prefWidth="75.0" text="Parcial 3" fx:id="columnU3P3" />
-                                <TableColumn prefWidth="75.0" text="Parcial 4" fx:id="columnU3P4"  />
-                                <TableColumn prefWidth="75.0" text="Promedio" fx:id="columnU3PM" />
+                                <TableColumn prefWidth="75.0" text="Parcial 1" fx:id="columnU3P1"/>
+                                <TableColumn prefWidth="75.0" text="Parcial 2" fx:id="columnU3P2"/>
+                                <TableColumn prefWidth="75.0" text="Parcial 3" fx:id="columnU3P3"/>
+                                <TableColumn prefWidth="75.0" text="Parcial 4" fx:id="columnU3P4"/>
+                                <TableColumn prefWidth="75.0" text="Promedio" fx:id="columnU3PM"/>
                             </columns>
                         </TableColumn>
                         <TableColumn prefWidth="75.0" text="Unidad 4">
@@ -122,7 +122,7 @@
                         <TableColumn text="Acciones" fx:id="columnAccionesEstudiantes"/>
                     </columns>
                 </TableView>
-                <Button text="Agregar Estudiantes" styleClass="btnsAgregar" onAction="#agregarAlumnos">
+                <Button fx:id="btnAddAlumnos" text="Agregar Estudiantes" styleClass="btnsAgregar">
                     <padding>
                         <Insets top="10" bottom="10" left="20" right="20"/>
                     </padding>
@@ -134,4 +134,4 @@
     <padding>
         <Insets left="50" right="50" />
     </padding>
-</VBox>
+</fx:root>

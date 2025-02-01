@@ -45,7 +45,7 @@ public class DialogAlumnos extends Dialog<List<Estudiante>> {
 
     public void initUi(){
         this.getDialogPane().getScene().getStylesheets().add(getClass().getResource(Constants.URL_PRESENTATION+"/styles.css").toExternalForm());
-        this.getDialogPane().getContent().getStyleClass().add("panel");
+        this.getDialogPane().getStyleClass().add("panel");
         tableView = new TableView<>();
         tableView.getStyleClass().add("table");
         TableColumn<AlumnoSeleccion, Boolean> selectColumn = new TableColumn<>("Seleccionar");
@@ -100,7 +100,7 @@ public class DialogAlumnos extends Dialog<List<Estudiante>> {
         VBox content = new VBox(tableView, button);
         content.setSpacing(10);
         getDialogPane().setContent(content);
-        setWidth(800);
+        setWidth(1000);
         tableView.setEditable(true);
     }
 

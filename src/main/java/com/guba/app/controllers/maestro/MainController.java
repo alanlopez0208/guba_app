@@ -8,18 +8,16 @@ import java.util.*;
 
 public class MainController extends BaseMainController<Maestro> {
 
-
     private DAOMaestro daoMaestro = new DAOMaestro();
-
 
     @Override
     protected void registrarPaginas() {
-        registrarPagina(Paginas.LIST, "/maestros/List");
-        registrarPagina(Paginas.ADD, "/maestros/Add");
-        registrarPagina(Paginas.EDIT, "/maestros/Edit");
-        registrarPagina(Paginas.DETAILS, "/maestros/Details");
-        stack.getChildren().addAll(paginas.values());
-        paginas.get(Paginas.LIST).setVisible(true);
+        registrarPagina(Paginas.LIST, new ListController(this, this.estadoProperty, this.paginaProperty, dataList));
+        registrarPagina(Paginas.ADD, new AddController(this,this.estadoProperty, this.paginaProperty));
+        registrarPagina(Paginas.EDIT,new EditController(this, this.estadoProperty, this.paginaProperty));
+        registrarPagina(Paginas.DETAILS, new DetailsController(this, this.estadoProperty, this.paginaProperty));
+        stack.getChildren().addAll(nodos.values());
+        nodos.get(Paginas.LIST).setVisible(true);
     }
 
     @Override
@@ -29,21 +27,31 @@ public class MainController extends BaseMainController<Maestro> {
 
     @Override
     public boolean actualizar(Maestro maestro) {
-        return false;
+        return daoMaestro.updateDocente(maestro);
     }
 
     @Override
     public boolean eliminar(Maestro maestro) {
-        return false;
+        boolean seElimino = daoMaestro.deleteDocente(maestro.getId());
+        if (!seElimino) {
+            return false;
+        }
+        dataList.remove(maestro);
+        return true;
     }
 
     @Override
     public boolean guardar(Maestro maestro) {
-        return false;
+        boolean seAgrego = daoMaestro.crearDocente(maestro);
+        if (!seAgrego) {
+            return false;
+        }
+        dataList.add(maestro);
+        return true;
     }
 
     @Override
     public Maestro ver(Maestro maestro) {
-        return null;
+        return daoMaestro.obtenerDocente(maestro.getId());
     }
 }

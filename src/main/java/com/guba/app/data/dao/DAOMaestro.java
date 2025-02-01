@@ -57,7 +57,7 @@ public class DAOMaestro {
 
     public boolean updateDocente(Maestro docenteModelo) {
         String sqlDocente = "UPDATE Docentes SET CURP = ?, Nombre = ?, ApellidoPaterno = ?, ApellidoMaterno = ?, Genero = ?, "
-                + "CorreoPersonal = ?, CorreoInstitucional = ?, Domicilio = ?, Celular = ?, Estado = ?, Municipio = ?, CV = ?, GradoEstudios = ?, Foto = ? "
+                + "CorreoPersonal = ?, CorreoInstitucional = ?, Domicilio = ?, Celular = ?, Estado = ?, Municipio = ?, CV = ?, GradoEstudios = ?, Foto = ?, PasswordTemporal = ?"
                 + " WHERE IdDocente = ?";
         return dataConsumer.executeUpdate(sqlDocente,pstmt-> {
             pstmt.setString(1, docenteModelo.getCurp());
@@ -74,7 +74,8 @@ public class DAOMaestro {
             pstmt.setString(12, docenteModelo.getCv());
             pstmt.setString(13, docenteModelo.getGrado());
             pstmt.setString(14, docenteModelo.getFoto());
-            pstmt.setString(15, docenteModelo.getId());
+            pstmt.setString(15, docenteModelo.getRfc());
+            pstmt.setString(16, docenteModelo.getId());
         });
     }
 

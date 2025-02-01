@@ -13,10 +13,10 @@ public class MainController extends BaseMainController<Grupo> {
 
     @Override
     protected void registrarPaginas() {
-        registrarPagina(Paginas.LIST, "/grupos/List");
-        registrarPagina(Paginas.DETAILS, "/grupos/Details");
-        stack.getChildren().addAll(paginas.values());
-        paginas.get(Paginas.LIST).setVisible(true);
+        registrarPagina(Paginas.LIST, new ListController(this, this.estadoProperty, this.paginaProperty, dataList));
+        registrarPagina(Paginas.DETAILS, new DetailsController(this, this.estadoProperty, this.paginaProperty));
+        stack.getChildren().addAll(nodos.values());
+        nodos.get(Paginas.LIST).setVisible(true);
     }
 
     @Override
@@ -26,17 +26,28 @@ public class MainController extends BaseMainController<Grupo> {
 
     @Override
     public boolean actualizar(Grupo grupo) {
-        return false;
+        return daoGrupo.actualizarGrupo(grupo);
     }
 
     @Override
     public boolean eliminar(Grupo grupo) {
-        return false;
+        boolean eliminado = daoGrupo.eliminarGrupo(grupo.getId());
+        if (!eliminado) {
+            return false;
+        }
+        dataList.remove(grupo);
+        return true;
     }
 
     @Override
     public boolean guardar(Grupo grupo) {
-        return false;
+        var optional = daoGrupo.agregarGrupo(grupo);
+        if (optional.isEmpty()){
+            return false;
+        }
+        grupo.setId(optional.get().toString());
+        dataList.add(grupo);
+        return true;
     }
 
     @Override

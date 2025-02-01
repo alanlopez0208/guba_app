@@ -8,6 +8,7 @@ import com.guba.app.domain.models.Materia;
 import com.guba.app.data.local.database.DataConsumer;
 import com.guba.app.domain.models.Calificacion;
 import com.guba.app.domain.models.Estudiante;
+import com.guba.app.domain.models.Periodo;
 
 public class DAOCalificiaciones {
 
@@ -34,8 +35,7 @@ public class DAOCalificiaciones {
                 Materias.Creditos AS Materia_Creditos,
                 Materias.Clave AS Materia_Clave,
                 Materias.Semestre AS Materia_Semestre,
-             
-                   
+                 
                 Periodo.IdPeriodo AS Periodo_Id,
                 Periodo.Nombre AS Periodo_Nombre        
             FROM
@@ -66,6 +66,10 @@ public class DAOCalificiaciones {
             calificacion.getMateria().setCreditos(rs.getString("Materia_Creditos"));
             calificacion.getMateria().setClave(rs.getString("Materia_Clave"));
             calificacion.getMateria().setSemestre(rs.getString("Materia_Semestre"));
+            Periodo periodo = new Periodo();
+            periodo.setId(rs.getString("Periodo_Id"));
+            periodo.setNombre(rs.getString("Periodo_Nombre"));
+            calificacion.setPerido(periodo);
 
 
             Float p1u1 = rs.getFloat("P1U1");

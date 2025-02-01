@@ -3,9 +3,7 @@ package com.guba.app.controllers.grupos;
 import com.guba.app.data.dao.DAOAlumno;
 import com.guba.app.data.dao.DAOCalificiaciones;
 import com.guba.app.data.dao.DAOGrupoMateria;
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Loadable;
-import com.guba.app.utils.Paginas;
+import com.guba.app.utils.*;
 import com.guba.app.data.dao.DAOPeriodo;
 import com.guba.app.domain.models.*;
 import com.guba.app.presentation.dialogs.DialogAlumnos;
@@ -13,6 +11,7 @@ import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.dialogs.DialogMaterias;
 import com.guba.app.presentation.dialogs.DialogProfesores;
 import com.guba.app.presentation.utils.ComboCell;
+import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -45,7 +44,16 @@ import java.util.function.Consumer;
 
 public class DetailsController extends BaseController<Grupo> implements Initializable, Loadable<Grupo> {
 
-
+    @FXML
+    private Button backButton;
+    @FXML
+    private Button btnAddMaterias;
+    @FXML
+    private Button btnAddAlumnos;
+    @FXML
+    private JFXButton btnVerMaterias;
+    @FXML
+    private JFXButton btnVerEstudiantes;
     @FXML
     private TextField txtGrupo;
     @FXML
@@ -90,33 +98,40 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
     private DAOPeriodo daoPeriodo = new DAOPeriodo();
 
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public DetailsController( Mediador<Grupo> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super("/grupos/Details", mediador, estadoProperty, paginasProperty);
         setColumnsTableMaterias();
         setColumnTableEstudiantes();
         setComboBox();
         periodo = daoPeriodo.getUltimoPeriodo();
+        backButton.setOnAction(this::regresarAPanel);
+        btnVerMaterias.setOnAction(this::verMaterias);
+        btnVerEstudiantes.setOnAction(this::verEstudiantes);
+        btnAddMaterias.setOnAction(this::addMaterias);
+        btnAddAlumnos.setOnAction(this::agregarAlumnos);
+        tablaCalificaciones.setItems(calificacions);
     }
 
-    @FXML
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+    }
+
     private void verMaterias(ActionEvent event){
         containerMaterias.setVisible(true);
         containerAlumnos.setVisible(false);
     }
 
-    @FXML
     private void verEstudiantes(ActionEvent event){
         containerMaterias.setVisible(false);
         containerAlumnos.setVisible(true);
     }
 
-
-    @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
+        cleanData();
         paginasProperty.set(Paginas.LIST);
     }
 
-    @FXML
+
     private void addMaterias(ActionEvent actionEvent){
         DialogMaterias dialogMaterias = new DialogMaterias(grupo);
         dialogMaterias.showAndWait().ifPresent(materias -> {
@@ -132,19 +147,17 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
         });
     }
 
-    @FXML
+
     private void agregarAlumnos(ActionEvent actionEvent){
         if (materiasComboBox.getSelectionModel().isEmpty()){
             return;
         }
-        System.out.println("CARRERA: "+grupo.getCarrera().getIdCarrera());
         GrupoMateria grupoMateria = materiasComboBox.getValue();
         DialogAlumnos dialogAlumnos = new DialogAlumnos(grupo, grupoMateria.getMateria().getIdMateria());
         dialogAlumnos.showAndWait().ifPresent(estudiantes -> {
             if (estudiantes.isEmpty()){
                 return;
             }
-            System.out.println(estudiantes);
             daoCalificiaciones.insertarCalificaciones(estudiantes , grupoMateria.getMaestro().getId(), grupoMateria.getMateria().getIdMateria(), grupo.getId()).
                     ifPresentOrElse(aInteger -> {
                         List<Calificacion> calificacions1 =daoCalificiaciones.obtenerByMateriaAndGrupo(grupoMateria.getMateria().getIdMateria(), grupo.getId());
@@ -160,7 +173,6 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
     @Override
     public void loadData(Grupo data) {
         grupo = data;
-        System.out.println(grupo.getId());
         loadGrupoMateriasAsync(grupo, g -> {
             this.grupoMaterias = FXCollections.observableArrayList(g);
             tableMaterias.setItems(grupoMaterias);
@@ -172,66 +184,11 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
     }
 
     private void loadGrupoMateriasAsync(Grupo grupo,Consumer<List<GrupoMateria>> callback){
-        Task<List<GrupoMateria>> task = new Task<List<GrupoMateria>>() {
-            @Override
-            protected List<GrupoMateria> call() throws Exception {
-                return daoGrupoMateria.obtenerGruposMateriasPorIdGrupo(grupo.getId());
-            }
-        };
-
-        task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                try {
-                    callback.accept(task.get());
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-        task.setOnFailed(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                System.out.println("ERROR"+ task.getException());
-            }
-        });
-
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
+        Utils.loadAsync(()-> daoGrupoMateria.obtenerGruposMateriasPorIdGrupo(grupo.getId()),callback);
     }
 
-
     private void loadCalificaciones(Materia materia,Consumer<List<Calificacion>> callback){
-        Task<List<Calificacion>> task = new Task<List<Calificacion>>() {
-            @Override
-            protected List<Calificacion> call() throws Exception {
-                return daoCalificiaciones.obtenerByMateriaAndGrupo(materia.getIdMateria(), grupo.getId());
-            }
-        };
-
-        task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                try {
-                    callback.accept(task.get());
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-        task.setOnFailed(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                System.out.println("ERROR: "+ task.getException());
-            }
-        });
-
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
+        Utils.loadAsync(()->  daoCalificiaciones.obtenerByMateriaAndGrupo(materia.getIdMateria(), grupo.getId()),callback);
     }
 
     private void setColumnsTableMaterias(){
@@ -498,8 +455,6 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
 
     private void setUpColumnsEditable(TableColumn<Calificacion,String> tableColumn,
                                       Callback<Calificacion, ObjectProperty<Float>> propertyCellDataFeatures){
-
-
         tableColumn.setCellValueFactory(calificacionStringCellDataFeatures -> {
             Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
             ObjectProperty<Float> property = propertyCellDataFeatures.call(calificacion);
@@ -525,6 +480,7 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
                             setGraphic(null);
                         }else{
                             Calificacion calificacion = calificacionStringTableColumn.getTableView().getItems().get(getIndex());
+                            System.out.println(calificacion.getIdCalificacion() +"-> "+ calificacion.getPerido());
                             if (!calificacion.getPerido().getId().equals(periodo.getId())){
                                 setEditable(false);
                             }
@@ -554,33 +510,27 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
     }
 
     private void setComboBox(){
-        materiasComboBox.setCellFactory(new Callback<ListView<GrupoMateria>, ListCell<GrupoMateria>>() {
-            @Override
-            public ListCell<GrupoMateria> call(ListView<GrupoMateria> materiaListView) {
-                return new ComboCell<GrupoMateria>();
-            }
-        });
+        materiasComboBox.setCellFactory(materiaListView -> new ComboCell<GrupoMateria>());
         materiasComboBox.setButtonCell(new ComboCell<GrupoMateria>());
-        materiasComboBox.valueProperty().addListener(new ChangeListener<GrupoMateria>() {
-            @Override
-            public void changed(ObservableValue<? extends GrupoMateria> observableValue, GrupoMateria materia, GrupoMateria t1) {
-                if (t1 != null){
-                    loadCalificaciones(t1.getMateria(), new Consumer<List<Calificacion>>() {
-                        @Override
-                        public void accept(List<Calificacion> c) {
-                            Platform.runLater(() -> {
-                                calificacions = FXCollections.observableArrayList(c);
-                                tablaCalificaciones.setItems(calificacions);
-                            });
-                        }
-                    });
-                }
+        materiasComboBox.valueProperty().addListener((observableValue, materia, t1) -> {
+            if (t1 != null){
+                loadCalificaciones(t1.getMateria(), new Consumer<List<Calificacion>>() {
+                    @Override
+                    public void accept(List<Calificacion> c) {
+                        Platform.runLater(() -> {
+                            calificacions.setAll(c);
+                        });
+                    }
+                });
             }
         });
     }
 
     @Override
     protected void cleanData() {
-
+        calificacions.clear();
+        materiasComboBox.setValue(null);
+        containerMaterias.setVisible(true);
+        containerAlumnos.setVisible(false);
     }
 }

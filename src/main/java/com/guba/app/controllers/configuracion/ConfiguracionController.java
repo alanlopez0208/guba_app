@@ -7,9 +7,12 @@ import com.guba.app.domain.models.Periodo;
 import com.guba.app.presentation.dialogs.DialogAcuerdo;
 import com.guba.app.presentation.dialogs.DialogPeriodo;
 import com.guba.app.data.local.database.Service;
+import com.guba.app.utils.IPane;
+import com.guba.app.utils.Utils;
 import com.jfoenix.controls.JFXButton;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -21,7 +24,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 
-public class ConfiguracionController implements Initializable {
+public class ConfiguracionController implements Initializable, IPane {
     @FXML
     private TextField txtNombreCiclo, txtInicioCiclo, txtFinCiclo, txtNumeroAcuerdo, txtCCT;
     @FXML
@@ -33,15 +36,15 @@ public class ConfiguracionController implements Initializable {
     private Periodo periodo;
     private Acuerdo acuerdo;
 
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         loadAcuerdoAsync();
         loadPeriod();
-
+        btnActualizarCiclo.setOnAction(this::handleActualizarCiclo);
+        btnActualizarAcuerdo.setOnAction(this::handleActualizarAcuerdo);
     }
-    @FXML
-    public void handleActualizarCiclo() {
+
+    public void handleActualizarCiclo(ActionEvent event) {
         DialogPeriodo dialogPeriodo = new DialogPeriodo();
         dialogPeriodo.showAndWait().ifPresent(p -> {
             Service.getService().crearPeriodo(p).ifPresentOrElse(aBoolean -> {
@@ -59,8 +62,7 @@ public class ConfiguracionController implements Initializable {
         });
     }
 
-    @FXML
-    public void handleActualizarAcuerdo() {
+    public void handleActualizarAcuerdo(ActionEvent event) {
         DialogAcuerdo dialogAcuerdo = new DialogAcuerdo();
         dialogAcuerdo.showAndWait().ifPresent(a -> {
             boolean seActualizo = daoAcuerdo.actualizarAcuerdo(a);
@@ -80,70 +82,29 @@ public class ConfiguracionController implements Initializable {
     }
 
     public void loadAcuerdoAsync(){
-        Task<Acuerdo> task = new Task<Acuerdo>() {
-            @Override
-            protected Acuerdo call() throws Exception {
-                return daoAcuerdo.getAcuerdo();
+        Utils.loadAsync(()-> daoAcuerdo.getAcuerdo(), a->{
+            if (a == null){
+                return;
             }
-        };
-        task.setOnSucceeded(event -> {
-            try {
-                acuerdo = task.get();
-                txtNumeroAcuerdo.textProperty().bindBidirectional(acuerdo.numeroProperty());
-                txtCCT.textProperty().bindBidirectional(acuerdo.ccProperty());
-                dateFecha.valueProperty().bindBidirectional(acuerdo.dateProperty());
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-
+            acuerdo = a;
+            txtNumeroAcuerdo.setText(acuerdo.getNumero());
+            txtCCT.setText(acuerdo.getCc());
+            dateFecha.setValue(acuerdo.getDate());
         });
-
-        task.setOnFailed(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                System.out.println("Error al cargar el acuerdo: " + task.getException());
-            }
-        });
-
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
     }
-
-
 
     public void loadPeriod(){
-        Task<Periodo> task = new Task<Periodo>() {
-            @Override
-            protected Periodo call() throws Exception {
-                return daoPeriodo.getUltimoPeriodo();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            try {
-                periodo = task.get();
-                txtNombreCiclo.textProperty().bindBidirectional(periodo.nombreProperty());
-                txtInicioCiclo.textProperty().bindBidirectional(periodo.inicioProperty());
-                txtFinCiclo.textProperty().bindBidirectional(periodo.finProperty() );
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
-            }
+        Utils.loadAsync(()-> daoPeriodo.getUltimoPeriodo(),p -> {
+            periodo = p;
+            txtNombreCiclo.textProperty().bindBidirectional(periodo.nombreProperty());
+            txtInicioCiclo.textProperty().bindBidirectional(periodo.inicioProperty());
+            txtFinCiclo.textProperty().bindBidirectional(periodo.finProperty() );
         });
-
-        task.setOnFailed(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                System.out.println("Error al cargar el peido" + task.getException());
-            }
-        });
-
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
     }
 
+    @Override
+    public void openPane() {
+        loadPeriod();
+        loadAcuerdoAsync();
+    }
 }

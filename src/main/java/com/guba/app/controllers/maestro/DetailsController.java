@@ -1,12 +1,13 @@
 package com.guba.app.controllers.maestro;
 
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Loadable;
-import com.guba.app.utils.Paginas;
+import com.guba.app.utils.*;
 import com.guba.app.domain.models.Maestro;
 import com.guba.app.presentation.utils.Constants;
+import javafx.beans.property.ObjectProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -48,15 +49,24 @@ public class DetailsController extends BaseController<Maestro> implements Initia
     private TextField txtPathCurriculo;
     @FXML
     private ComboBox<String> comboSexo;
+    @FXML
+    private Button backButton;
+
     private Maestro maestro;
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public DetailsController(Mediador<Maestro> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super("/maestros/Details", mediador, estadoProperty, paginasProperty);
+        backButton.setOnAction(this::backPanel);
         comboSexo.getItems().addAll("Hombre", "Mujer");
     }
 
-    @FXML
-    private void backPanel(){
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle){
+
+    }
+
+    private void backPanel(ActionEvent event){
+        cleanData();
         paginasProperty.set(Paginas.LIST);
     }
 
@@ -84,6 +94,6 @@ public class DetailsController extends BaseController<Maestro> implements Initia
 
     @Override
     protected void cleanData() {
-
+        maestro = null;
     }
 }

@@ -15,8 +15,7 @@ public class MainController extends BaseMainController<Curso> {
     protected void registrarPaginas() {
         registrarPagina(Paginas.LIST, new ListController(this, this.estadoProperty, this.paginaProperty, dataList));
         registrarPagina(Paginas.ADD, new AddController(this, this.estadoProperty, this.paginaProperty));
-        //registrarPagina(Paginas.EDIT, "/curso/Edit");
-        //registrarPagina(Paginas.DETAILS, "/cursos/Details");
+        registrarPagina(Paginas.DETAILS, new DetailsController(this, this.estadoProperty, this.paginaProperty));
         stack.getChildren().addAll(nodos.values());
         nodos.get(Paginas.LIST).setVisible(true);
     }
@@ -29,12 +28,18 @@ public class MainController extends BaseMainController<Curso> {
 
     @Override
     public boolean actualizar(Curso curso) {
-        return false;
+        return daoCurso.actualizarCurso(curso);
     }
 
     @Override
     public boolean eliminar(Curso curso) {
-        return false;
+        boolean seElimino = daoCurso.eliminarCurso(curso.getIdCurso());
+
+        if (!seElimino){
+            return false;
+        }
+        dataList.remove(curso);
+        return true;
     }
 
     @Override

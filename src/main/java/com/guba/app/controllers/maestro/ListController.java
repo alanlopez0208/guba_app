@@ -1,13 +1,17 @@
 package com.guba.app.controllers.maestro;
 
 
-import com.guba.app.data.dao.DAOMaestro;
 import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Estado;
+import com.guba.app.utils.Mediador;
 import com.guba.app.utils.Paginas;
 import com.guba.app.domain.models.Maestro;
-import javafx.collections.FXCollections;
+import com.jfoenix.controls.JFXButton;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -21,14 +25,16 @@ import javafx.util.Callback;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 
 public class ListController extends BaseController<Maestro> implements Initializable {
 
+    @FXML
+    private Button btnAgregar;
+    @FXML
+    private JFXButton btnBorrarFiltros;
     @FXML
     private TableView<Maestro> tableView;
     @FXML
@@ -37,32 +43,46 @@ public class ListController extends BaseController<Maestro> implements Initializ
     private TextField busquedaSearch;
     @FXML
     private ToggleGroup toggleFiltroNormal;
-    private Filtros filtros = Filtros.NOMBRE;
-    private List<Maestro> maestroList = new ArrayList<>();
-    private ObservableList<Maestro> listaFiltros = FXCollections.observableArrayList();
-    private DAOMaestro daoMaestro = new DAOMaestro();
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    @FXML
+    private JFXButton btnActualizar;
+
+    private ObservableList<Maestro> list;
+    private FilteredList<Maestro> filteredList;
+    private Filtros filtroSeleccionado = Filtros.NOMBRE;
+
+    public ListController(Mediador<Maestro> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty, ObservableList<Maestro> list) {
+        super("/maestros/List", mediador, estadoProperty, paginasProperty);
+        this.list = list;
         setColumns();
-        /*loadAsyncMaestros(maestros -> {
-            maestroList = maestros;
-            listaFiltros.setAll(maestros);
-            getLista().setAll(listaFiltros);
-            tableView.setItems(getLista());
+        mediador.loadBD();
+        setFiltro();
+        estadoProperty.addListener((observableValue, oldValue, newValue) -> {
+            if (newValue.equals(Estado.CARGANDO)){
+
+                tableView.setVisible(false);
+            } else if (newValue.equals(Estado.CARGADO)) {
+                filteredList = new FilteredList<>(list, estudiante -> true);
+                tableView.setVisible(true);
+                tableView.setItems(filteredList);
+            }
         });
-        setFiltro();*/
+        btnAgregar.setOnAction(this::openPanelAdd);
+        btnBorrarFiltros.setOnAction(this::borrarFiltros);
+        btnActualizar.setOnAction(actionEvent -> {
+            mediador.loadBD();
+        });
     }
 
-    @FXML
-    private void openPanelAdd(){
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+    }
+
+    private void openPanelAdd(ActionEvent event){
         mediador.loadContent(Paginas.ADD, new Maestro());
     }
 
-
-    @FXML
     private void borrarFiltros(ActionEvent event){
         busquedaSearch.setText("");
-        //getLista().setAll(maestroList);
         toggleFiltroNormal.selectToggle(null);
     }
 
@@ -139,10 +159,9 @@ public class ListController extends BaseController<Maestro> implements Initializ
                                     Optional<Integer> option = dialog.showAndWait();
 
                                     if (option.isPresent() && option.get().equals(1)){
-                                        boolean seElimnio= daoMaestro.deleteDocente(maestro.getId());
-                                        System.out.println(seElimnio);
+                                        boolean seElimnio= mediador.eliminar(maestro);
                                         if (seElimnio){
-                                            //getLista().remove(maestro);
+                                            paginasProperty.setValue(Paginas.LIST);
                                         }
                                     }
                                 }
@@ -161,91 +180,38 @@ public class ListController extends BaseController<Maestro> implements Initializ
         });
     }
 
-    /*
+
     private void setFiltro(){
-        busquedaSearch.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-                if (t1.isEmpty()){
-                    getLista().setAll(listaFiltros);
-                    return;
-                }
-                System.out.println(filtros);
-                switch (filtros){
-
-                    case RFC -> {
-                        System.out.println("SE VA A BUSCAR POR EL NOMBRE PA");
-                        List<Maestro> filtro = listaFiltros.stream()
-                                .filter(maestro -> maestro.getRfc().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-
-                        getLista().setAll(filtro);
-                    }
-                    case NOMBRE -> {
-                        List<Maestro> filtro = listaFiltros.stream()
-                                .filter(maestro -> maestro.getNombre().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-                        getLista().setAll(filtro);
-                    }
-                    case APELLIDOS -> {
-                        List<Maestro> filtro = listaFiltros.stream()
-                                .filter(maestro -> maestro.getApPat().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-                        getLista().setAll(filtro);
-                    }
-                }
-            }
+        busquedaSearch.textProperty().addListener((observableValue, s, t1) -> {
+           aplicarFiltros();
         });
 
         toggleFiltroNormal.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
             RadioMenuItem rb = (RadioMenuItem) toggleFiltroNormal.getSelectedToggle();
-            if (rb == null){
-                return;
-            }
-            int index = Integer.parseInt(rb.getUserData().toString());
-            switch (index){
-                case 1->{
-                    filtros = Filtros.RFC;
-                }
-                case 2->{
-                    filtros = Filtros.NOMBRE;
-                }
-                case 3->{
-                    filtros = Filtros.APELLIDOS;
-                }
-            }
+            filtroSeleccionado = rb == null ? Filtros.NOMBRE :  Filtros.valueOf(rb.getUserData().toString().toUpperCase());
         });
     }
-*/
 
-    private void loadAsyncMaestros(Consumer<List<Maestro>> callBack){
-        Task<List<Maestro>> task = new Task<List<Maestro>>() {
-            @Override
-            protected List<Maestro> call() throws Exception {
-                return daoMaestro.getDocentes();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            try {
-               callBack.accept(task.get());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    private void aplicarFiltros(){
+        filteredList.setPredicate(maestro->{
+            String busqueda = busquedaSearch.getText().toLowerCase();
+            return busqueda.isEmpty() || switch (filtroSeleccionado){
+                case RFC ->  maestro.getRfc().toLowerCase().contains(busqueda);
+                case NOMBRE -> maestro.getNombre().toLowerCase().contains(busqueda);
+                case APELLIDOS -> maestro.getApPat().toLowerCase().contains(busqueda);
+            };
         });
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
     }
 
     @Override
     protected void cleanData() {
+       mediador.loadBD();
+    }
 
+    enum Filtros{
+        RFC,
+        NOMBRE,
+        APELLIDOS
     }
 }
 
-
-enum Filtros{
-    RFC,
-    NOMBRE,
-    APELLIDOS
-}

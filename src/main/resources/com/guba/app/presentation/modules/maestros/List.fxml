@@ -17,11 +17,11 @@
 <?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.ToggleGroup?>
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" spacing="40" fx:controller="com.guba.app.controllers.maestro.ListController">
+<fx:root type="VBox" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" spacing="40">
    <HBox spacing="10.0">
       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Lista de Maestros" styleClass="titulo"/>
       <Region HBox.hgrow="ALWAYS"/>
-      <Button styleClass="btnsAgregar" text="Agregar Maestro" fx:id="btnAgregar" onAction="#openPanelAdd">
+      <Button styleClass="btnsAgregar" text="Agregar Maestro" fx:id="btnAgregar" >
          <padding>
             <Insets top="10" bottom="10" left="20" right="20"/>
          </padding>
@@ -35,30 +35,30 @@
             </padding>
             <FontIcon iconLiteral="mdi-magnify" styleClass="iconSearch" iconSize="15"/>
             <TextField HBox.hgrow="ALWAYS" fx:id="busquedaSearch" styleClass="textFieldSearch" promptText="Buscar..."/>
-            <JFXButton onAction="#borrarFiltros">
+            <JFXButton fx:id="btnBorrarFiltros">
                <graphic>
                   <FontIcon iconLiteral="mdi-close" fill="red" iconSize="15" />
                </graphic>
             </JFXButton>
          </HBox>
-         <JFXButton styleClass="btnFiltro, btnFiltroFinal" minHeight="-Infinity" maxHeight="Infinity" text="Filtros" fx:id="btnFiltros">
+         <JFXButton styleClass="btnFiltro" minHeight="-Infinity" maxHeight="Infinity" text="Filtros" fx:id="btnFiltros">
             <graphic>
                <FontIcon iconLiteral="mdi-filter" iconSize="15"/>
             </graphic>
             <contextMenu>
                <ContextMenu styleClass="contextMenu">
                   <items>
-                     <RadioMenuItem userData="1" text="RFC" >
+                     <RadioMenuItem userData="RFC" text="RFC" >
                         <toggleGroup>
                            <ToggleGroup fx:id="toggleFiltroNormal"/>
                         </toggleGroup>
                      </RadioMenuItem>
-                     <RadioMenuItem userData="2"  text="Nombre" >
+                     <RadioMenuItem userData="NOMBRE"  text="Nombre" >
                         <toggleGroup>
                            <fx:reference source="toggleFiltroNormal"/>
                         </toggleGroup>
                      </RadioMenuItem>
-                     <RadioMenuItem userData="3" text="Apellido Paterno" toggleGroup="$toggleFiltroNormal" >
+                     <RadioMenuItem userData="APELLIDOS" text="Apellido Paterno" toggleGroup="$toggleFiltroNormal" >
                         <toggleGroup>
                            <fx:reference source="toggleFiltroNormal"/>
                         </toggleGroup>
@@ -66,6 +66,11 @@
                   </items>
                </ContextMenu>
             </contextMenu>
+         </JFXButton>
+         <JFXButton fx:id="btnActualizar" styleClass="btnFiltro, btnFiltroFinal" maxHeight="Infinity" >
+            <graphic>
+               <FontIcon  iconLiteral="mdi-autorenew" fill="green" iconSize="15" />
+            </graphic>
          </JFXButton>
       </HBox>
       <TableView styleClass="table" VBox.vgrow="ALWAYS" fx:id="tableView">
@@ -78,4 +83,4 @@
          </columns>
       </TableView>
       </VBox>
-</VBox>
+</fx:root>

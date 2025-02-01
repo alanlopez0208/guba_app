@@ -2,14 +2,13 @@ package com.guba.app.controllers.materias;
 
 import com.guba.app.data.dao.DAOCarreras;
 import com.guba.app.data.dao.DAOMaterias;
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Loadable;
-import com.guba.app.utils.Paginas;
+import com.guba.app.utils.*;
 import com.guba.app.domain.models.Carrera;
 import com.guba.app.domain.models.Materia;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.utils.ComboCell;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -24,38 +23,33 @@ import java.util.concurrent.ExecutionException;
 
 
 public class AddController extends BaseController<Materia> implements Initializable, Loadable<Materia> {
+
+    @FXML
+    private Button backButton;
+    @FXML
+    private Button btnGuardar;
     @FXML
     private TextField txtNombre;
-
     @FXML
     private TextField txtModalidad;
-
     @FXML
     private TextField txtHbca;
-
     @FXML
     private TextField txtHti;
-
     @FXML
     private TextField txtSemestre;
-
     @FXML
     private TextField txtClave;
-
     @FXML
     private TextField txtCreditos;
-
     @FXML
     private ComboBox<Carrera> comboCarreras;
 
     private Materia materia;
-
     private DAOCarreras daoCarreras = new DAOCarreras();
-    private DAOMaterias daoMaterias = new DAOMaterias();
 
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public AddController(Mediador<Materia> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super("/materias/Add", mediador, estadoProperty, paginasProperty);
         txtCreditos.setTextFormatter(new TextFormatter<>(change -> {
             if (change.getControlNewText().matches("\\d*")){
                 return change;
@@ -81,20 +75,23 @@ public class AddController extends BaseController<Materia> implements Initializa
             }
         });
         comboCarreras.setButtonCell(new ComboCell<>());
+        backButton.setOnAction(this::regresarAPanel);
+        btnGuardar.setOnAction(this::guardar);
     }
 
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
 
-    @FXML
+    }
+
     private void regresarAPanel(ActionEvent actionEvent) {
         materia = null;
         paginasProperty.set(Paginas.LIST);
     }
 
-    @FXML
     private void guardar(ActionEvent event){
         if (mostrarConfirmacion()){
-            daoMaterias.insertMateria(materia);
-            //getLista().add(materia);
+            mediador.guardar(materia);
             materia = null;
             paginasProperty.set(Paginas.LIST);
         }
@@ -120,8 +117,6 @@ public class AddController extends BaseController<Materia> implements Initializa
         new Thread(task).start();
     }
 
-
-    @Override
     public void loadData(Materia data) {
         materia = data;
         txtNombre.textProperty().bindBidirectional(materia.nombreProperty());
@@ -142,6 +137,6 @@ public class AddController extends BaseController<Materia> implements Initializa
 
     @Override
     protected void cleanData() {
-
+        materia = null;
     }
 }

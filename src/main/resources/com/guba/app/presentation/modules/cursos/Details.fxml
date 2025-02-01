@@ -9,11 +9,9 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <?import com.dlsc.gemsfx.CalendarPicker?>
 <?import com.jfoenix.controls.JFXButton?>
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.guba.app.controllers.cursos.DetailsController" alignment="CENTER" spacing="20">
+<fx:root type="VBox" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" alignment="CENTER" spacing="20">
     <HBox alignment="CENTER">
-        <Button fx:id="backButton" onAction="#backPanel" styleClass="btn, btnBack">
+        <Button fx:id="backButton" styleClass="btn, btnBack">
             <graphic>
                 <FontIcon fill="white" iconLiteral="mdi-arrow-left-bold" iconSize="15" />
             </graphic>
@@ -69,9 +67,9 @@
         </HBox>
         <VBox styleClass="panelShadow" maxWidth="Infinity" minWidth="-Infinity">
             <Label text="Participantes" styleClass="subtitulo"/>
-            <ListView styleClass="listView" focusTraversable="false" fx:id="listParticipantes"  orientation="HORIZONTAL">
+            <ListView styleClass="listView" focusTraversable="false" fx:id="listviewParticipanetes"  orientation="HORIZONTAL">
             </ListView>
         </VBox>
     </VBox>
 
-</VBox>
+</fx:root>

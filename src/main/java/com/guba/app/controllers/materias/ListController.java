@@ -1,17 +1,17 @@
 package com.guba.app.controllers.materias;
 
-import com.guba.app.data.dao.DAOMaterias;
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Paginas;
+import com.guba.app.data.dao.DAOCarreras;
+import com.guba.app.utils.*;
 import com.guba.app.domain.models.Carrera;
 import com.guba.app.domain.models.Materia;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.jfoenix.controls.JFXButton;
 import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -25,14 +25,18 @@ import javafx.util.Callback;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 public class ListController extends BaseController<Materia> implements Initializable {
 
+    @FXML
+    private Button btnAgregar;
+    @FXML
+    private JFXButton btnActualizar;
+    @FXML
+    private JFXButton btnBorrarFiltros;
     @FXML
     private Label label;
     @FXML
@@ -50,66 +54,55 @@ public class ListController extends BaseController<Materia> implements Initializ
     @FXML
     private ToggleGroup toggleSemestre;
     private ToggleGroup toggleCarreras = new ToggleGroup();
-    private Filtros filtros = Filtros.CLAVE;
-    private List<Materia> materiaList = new ArrayList<>();
-    private ObservableList<Materia> listaFiltros = FXCollections.observableArrayList();
-    private DAOMaterias daoMaterias = new DAOMaterias();
+
+    private FilteredList<Materia> filteredList;
+    private Filtros filtroSeleccionado = Filtros.CLAVE;
+    private Carrera carreraSelecionada;
+    private String semestreSeleccioando;
+
+
+    public ListController( Mediador<Materia> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty, ObservableList<Materia> list) {
+        super("/materias/List", mediador, estadoProperty, paginasProperty);
+        cargarData();
+        setCellColumns();
+        setFiltro();
+        estadoProperty.addListener((observableValue, oldValue, newValue) -> {
+            if (newValue.equals(Estado.CARGANDO)){
+                label.setVisible(true);
+                tableView.setVisible(false);
+            } else if (newValue.equals(Estado.CARGADO)) {
+                label.setVisible(false);
+                filteredList = new FilteredList<>(list, estudiante -> true);
+                tableView.setVisible(true);
+                tableView.setItems(filteredList);
+            }
+        });
+        btnAgregar.setOnAction(this::openPaneAdd);
+        btnBorrarFiltros.setOnAction(this::borrarFiltros);
+        btnActualizar.setOnAction(actionEvent -> {
+            mediador.loadBD();
+        });
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        cargarMaterias();
-        setCellColumns();
-        //setFiltro();
     }
 
-    @FXML
-    private void openPaneAddAlumno(ActionEvent event){
+    private void openPaneAdd(ActionEvent event){
         mediador.loadContent(Paginas.ADD, new Materia());
     }
 
-
-    @FXML
     private void borrarFiltros(ActionEvent event){
-        busquedaSearch.setText("");
-        //getLista().setAll(materiaList);
         toggleSemestre.selectToggle(null);
         toggleCarreras.selectToggle(null);
         toggleFiltroNormal.selectToggle(null);
-
+        busquedaSearch.setText("");
     }
 
-    private void cargarMaterias(){
-        Task<List<Materia>> task = new Task<List<Materia>>() {
-            @Override
-            protected List<Materia> call() throws Exception {
-                return daoMaterias.getMaterias();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            try {
-                label.setVisible(false);
-                materiaList = task.get();
-                listaFiltros.setAll(materiaList);
-                //getLista().setAll(listaFiltros);
-                //tableView.setItems(getLista());
-                tableView.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-        task.setOnFailed(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                System.out.println("Error al carrgar las materias" +task.getException());
-            }
-        });
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
+    private void cargarData(){
+        mediador.loadBD();
+        loadCarrerasAsync();
     }
-
-
 
     private void setCellColumns(){
         clave.setCellValueFactory(new PropertyValueFactory<>("clave"));
@@ -185,7 +178,7 @@ public class ListController extends BaseController<Materia> implements Initializ
                                         @Override
                                         public void accept(Integer integer) {
                                             if (integer.equals(1)){
-                                                daoMaterias.eliminarMateria(materia.getIdMateria());
+                                                mediador.eliminar(materia);
                                                 //getLista().remove(materia);
                                             }
                                         }
@@ -206,34 +199,49 @@ public class ListController extends BaseController<Materia> implements Initializ
         });
     }
 
-    /*
     private void setFiltro(){
-        busquedaSearch.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-                if (t1.isEmpty()){
-                    getLista().setAll(listaFiltros);
-                    return;
-                }
-                switch (filtros){
-                    case NOMBRE -> {
-                        List<Materia> filtro = listaFiltros.stream()
-                                .filter(materia -> materia.getNombre().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-
-                        getLista().setAll(filtro);
-                    }
-                    case CLAVE -> {
-                        List<Materia> filtro = listaFiltros.stream()
-                                .filter(materia -> materia.getClave().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-                        getLista().setAll(filtro);
-                    }
-                }
-            }
+        busquedaSearch.textProperty().addListener((observableValue, s, t1) -> {
+            aplicarFiltros();
         });
 
-        loadCarrerasAsync(carreras -> {
+        toggleCarreras.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
+            RadioMenuItem rb = (RadioMenuItem) toggleCarreras.getSelectedToggle();
+            carreraSelecionada = rb == null ? null : (Carrera) rb.getUserData();
+            aplicarFiltros();
+        });
+
+        toggleFiltroNormal.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
+            RadioMenuItem rb = (RadioMenuItem) toggleFiltroNormal.getSelectedToggle();
+            filtroSeleccionado =  rb == null ? Filtros.NOMBRE : Filtros.valueOf(rb.getUserData().toString());
+            aplicarFiltros();
+        });
+
+        toggleSemestre.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
+            RadioMenuItem rb = (RadioMenuItem) toggleSemestre.getSelectedToggle();
+            semestreSeleccioando = rb == null ? null :  rb.getUserData().toString();
+            aplicarFiltros();
+        });
+    }
+
+    private void aplicarFiltros() {
+        filteredList.setPredicate(materia -> {
+            boolean coincideCarrera = carreraSelecionada == null || materia.getCarreraModelo().getIdCarrera().equals(carreraSelecionada.getIdCarrera());
+            boolean coicideTexto = busquedaSearch.getText().isEmpty() ||  compararTexto(materia);
+            boolean coincidenciaSemestre = semestreSeleccioando == null || materia.getSemestre().equals(semestreSeleccioando);
+            return coincideCarrera && coicideTexto && coincidenciaSemestre;
+        });
+    }
+
+    private boolean compararTexto(Materia materia){
+        String busqueda = busquedaSearch.getText().toLowerCase();
+        return switch (filtroSeleccionado){
+            case NOMBRE -> materia.getNombre().toLowerCase().contains(busqueda);
+            case CLAVE -> materia.getClave().toLowerCase().contains(busqueda);
+        };
+    }
+
+    private void loadCarrerasAsync() {
+        Utils.loadAsync(()-> new DAOCarreras().getAllCarreras(), carreras -> {
             carreras.forEach(carrera -> {
                 RadioMenuItem radioButton = new RadioMenuItem();
                 radioButton.setText(carrera.getNombre() + " " + carrera.getModalidad());
@@ -242,86 +250,20 @@ public class ListController extends BaseController<Materia> implements Initializ
                 contextMenu.getItems().add(radioButton);
             });
         });
-
-        toggleCarreras.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
-            RadioMenuItem rb = (RadioMenuItem) toggleCarreras.getSelectedToggle();
-            if (rb == null){
-                return;
-            }
-            Carrera carrera = (Carrera) rb.getUserData();
-            listaFiltros.setAll(materiaList.stream()
-                    .filter(e->{
-                        if (toggleSemestre.getSelectedToggle() != null){
-                            RadioMenuItem rbSemestre = (RadioMenuItem) toggleSemestre.getSelectedToggle();
-                            String semestre = rbSemestre.getUserData().toString();
-                            return e.getCarreraModelo().getIdCarrera().equals(carrera.getIdCarrera()) && e.getSemestre().equals(semestre);
-                        }
-                        return e.getCarreraModelo().getIdCarrera().equals(carrera.getIdCarrera());
-                    })
-                    .toList());
-            getLista().setAll(listaFiltros);
-        });
-
-        toggleFiltroNormal.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
-            RadioMenuItem rb = (RadioMenuItem) toggleFiltroNormal.getSelectedToggle();
-            if (rb == null){
-                return;
-            }
-            int index = Integer.parseInt(rb.getUserData().toString());
-            switch (index){
-                case 1->{
-                    filtros = Filtros.CLAVE;
-                }
-                case 2->{
-                    filtros = Filtros.NOMBRE;
-                }
-            }
-        });
-
-        toggleSemestre.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
-
-            RadioMenuItem rb = (RadioMenuItem) toggleSemestre.getSelectedToggle();
-            if (rb == null){
-                return;
-            }
-            String semestre = rb.getUserData().toString();
-            listaFiltros.setAll(materiaList.stream()
-                    .filter(m->{
-                        if (toggleCarreras.getSelectedToggle() != null){
-                            RadioMenuItem rbCarreras = (RadioMenuItem) toggleCarreras.getSelectedToggle();
-                            Carrera carrera = (Carrera) rbCarreras.getUserData();
-                            return m.getCarreraModelo().getIdCarrera().equals(carrera.getIdCarrera()) && m.getSemestre().equals(semestre);
-                        }
-                        return m.getSemestre().equals(semestre);
-                    })
-                    .toList());
-
-            getLista().setAll(listaFiltros);
-        });
     }
-    private void loadCarrerasAsync(Consumer<List<Carrera>> cosumer) {
-        Task<List<Carrera>> task = new Task<>() {
-            @Override
-            protected List<Carrera> call() throws Exception {
-                return new DAOCarreras().getAllCarreras();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            try {
-                cosumer.accept(task.get());
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        new Thread(task).start();
-    }
-*/
+
     @Override
     protected void cleanData() {
-
+        busquedaSearch.setText("");
+        toggleSemestre.selectToggle(null);
+        toggleCarreras.selectToggle(null);
+        toggleFiltroNormal.selectToggle(null);
+        cargarData();
     }
-}
-enum Filtros{
-    CLAVE,
-    NOMBRE
+
+    enum Filtros{
+        CLAVE,
+        NOMBRE
+    }
+
 }

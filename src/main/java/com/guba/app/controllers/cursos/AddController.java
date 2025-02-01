@@ -79,6 +79,18 @@ public class AddController extends BaseController<Curso> implements Loadable<Cur
         backButton.setOnAction(this::backPanel);
         btnGuardad.setOnAction(this::guardarCurso);
         btnAgregarAlumnos.setOnAction(this::agregarAlumnos);
+        fechaFin.valueProperty().addListener((observableValue, localDate, t1) -> {
+            if (t1 == null || curso == null) {
+                return;
+            }
+            curso.setDateFin(t1);
+        });
+        daeFechaInico.valueProperty().addListener((observableValue, localDate, t1) -> {
+            if (t1 == null || curso == null) {
+                return;
+            }
+            curso.setDateInicio(t1);
+        });
     }
 
     @Override
@@ -95,9 +107,6 @@ public class AddController extends BaseController<Curso> implements Loadable<Cur
         this.impartidorNombreField.textProperty().bindBidirectional(curso.getAsesor().nombreProperty());
         this.impartdiorLugarField.textProperty().bindBidirectional(curso.getAsesor().lugarProperty());
         this.impartidorPuestoFlied.textProperty().bindBidirectional(curso.getAsesor().puestoProperty());
-        this.fechaFin.valueProperty().bindBidirectional(curso.dateFinProperty());
-        this.daeFechaInico.valueProperty().bindBidirectional(curso.dateInicioProperty());
-
     }
 
     private void backPanel(ActionEvent actionEvent){
