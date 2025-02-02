@@ -1,11 +1,10 @@
 package com.guba.app.controllers.carreras;
 
 import com.guba.app.data.dao.DAOCarreras;
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Loadable;
-import com.guba.app.utils.Paginas;
+import com.guba.app.utils.*;
 import com.guba.app.domain.models.Carrera;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
+import javafx.beans.property.ObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -22,37 +21,32 @@ public class AddController extends BaseController<Carrera> implements Initializa
 
     @FXML
     private Button backButton;
-
+    @FXML
+    private Button btnGuardar;
     @FXML
     private TextField txtNombre;
-
     @FXML
     private TextField txtModalidad;
-
     @FXML
     private TextField txtHbca;
-
     @FXML
     private TextField txtHti;
-
     @FXML
     private TextField txtTotalHoras;
-
     @FXML
     private TextField txtClave;
-
     @FXML
     private TextField txtCreditos;
-
     @FXML
     private TextField txtTotalAsignaturas;
     @FXML
     private Label titulo;
     private Carrera carrera;
-    private DAOCarreras daoCarreras = new DAOCarreras();
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public AddController(Mediador<Carrera> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super("/carreras/Add", mediador, estadoProperty, paginasProperty);
+        backButton.setOnAction(this::regresarAPanel);
+        btnGuardar.setOnAction(this::guardarCarrera);
         txtTotalHoras.setTextFormatter(new TextFormatter<>(change -> {
             if (change.getControlNewText().matches("\\d*")){
                 return change;
@@ -83,6 +77,11 @@ public class AddController extends BaseController<Carrera> implements Initializa
             }
             return null;
         }));
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
 
     }
 
@@ -99,16 +98,15 @@ public class AddController extends BaseController<Carrera> implements Initializa
       carrera.totalAsignaturasProperty().bindBidirectional(txtTotalAsignaturas.textProperty());
     }
 
-    @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
         carrera = null;
         paginasProperty.set(Paginas.LIST);
     }
 
-    @FXML
     private void guardarCarrera(ActionEvent event){
         if (mostrarConfirmacion()){
             mediador.guardar(carrera);
+            paginasProperty.set(Paginas.LIST);
         }
     }
 
@@ -119,6 +117,6 @@ public class AddController extends BaseController<Carrera> implements Initializa
 
     @Override
     protected void cleanData() {
-
+        carrera = null;
     }
 }

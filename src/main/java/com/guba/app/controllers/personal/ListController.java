@@ -2,11 +2,18 @@ package com.guba.app.controllers.personal;
 
 import com.guba.app.data.dao.DAOPersonal;
 import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Estado;
+import com.guba.app.utils.Mediador;
 import com.guba.app.utils.Paginas;
 import com.guba.app.domain.models.Personal;
 import com.jfoenix.controls.JFXButton;
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -30,6 +37,12 @@ import java.util.function.Consumer;
 public class ListController extends BaseController<Personal> implements Initializable {
 
     @FXML
+    private Button btnAgregar;
+    @FXML
+    private Button btnBorrarFiltros;
+    @FXML
+    private JFXButton btnActualizar;
+    @FXML
     private TableView<Personal> tableView;
     @FXML
     TableColumn<Personal, String> rfc, nombre, apPaterno, apMaterno, acciones;
@@ -41,36 +54,43 @@ public class ListController extends BaseController<Personal> implements Initiali
     private ContextMenu contextMenu;
     @FXML
     private ToggleGroup toggleFiltroNormal;
-    private ToggleGroup toggleCarreras = new ToggleGroup();
-    private Filtros filtros = Filtros.NOMBRE;
-    private List<Personal> personalList = new ArrayList<>();
-    private ObservableList<Personal> listaFiltros = FXCollections.observableArrayList();
-    private DAOPersonal daoPerosnal = new DAOPersonal();
+    private Filtros filtroSeleccioando = Filtros.NOMBRE;
+    private FilteredList<Personal> filteredList;
+
+    public ListController(Mediador<Personal> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty, ObservableList<Personal> list) {
+        super("/personal/List", mediador, estadoProperty, paginasProperty);
+        setColumns();
+        loadAsyncPersonal();
+        setFiltro();
+        btnAgregar.setOnAction(this::openPanelAdd);
+        btnBorrarFiltros.setOnAction(this::borrarFiltros);
+        btnActualizar.setOnAction(event -> {
+            loadAsyncPersonal();
+        });
+        estadoProperty.addListener((observableValue, oldValue, newValue) -> {
+            if (newValue.equals(Estado.CARGANDO)){
+                tableView.setVisible(false);
+            } else if (newValue.equals(Estado.CARGADO)) {
+                filteredList = new FilteredList<>(list, estudiante -> true);
+                tableView.setVisible(true);
+                tableView.setItems(filteredList);
+            }
+        });
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        setColumns();
-        loadAsyncPersonal(personals -> {
-            personalList = personals;
-            listaFiltros.setAll(personalList);
-            //getLista().setAll(listaFiltros);
-            //tableView.setItems(getLista());
-        });
-        //setFiltro();
+
     }
 
-    @FXML
-    private void openPanelAdd() {
+    private void openPanelAdd(ActionEvent event) {
         mediador.loadContent(Paginas.ADD, new Personal());
     }
 
-    @FXML
     private void borrarFiltros(ActionEvent event) {
         busquedaSearch.setText("");
-        //getLista().setAll(personalList);
-        toggleCarreras.selectToggle(null);
+        loadAsyncPersonal();
         toggleFiltroNormal.selectToggle(null);
-
     }
 
     private void setColumns() {
@@ -143,12 +163,7 @@ public class ListController extends BaseController<Personal> implements Initiali
                                     Optional<Integer> option = dialog.showAndWait();
 
                                     if (option.isPresent() && option.get().equals(1)) {
-                                        System.out.println(personal.getId());
-                                        boolean seElimnio = daoPerosnal.deletePersonal(personal.getId());
-                                        System.out.println(seElimnio);
-                                        if (seElimnio) {
-                                            //getLista().remove(personal);
-                                        }
+                                        mediador.eliminar(personal);
                                     }
                                 }
                             });
@@ -166,81 +181,40 @@ public class ListController extends BaseController<Personal> implements Initiali
         });
     }
 
-    /*
+
     private void setFiltro(){
-        busquedaSearch.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-                if (t1.isEmpty()){
-                    getLista().setAll(listaFiltros);
-                    return;
-                }
-                System.out.println(filtros);
-                switch (filtros){
-
-                    case NOMBRE -> {
-                        System.out.println("SE VA A BUSCAR POR EL NOMBRE PA");
-                        List<Personal> filtro = listaFiltros.stream()
-                                .filter(personal -> personal.getNombre().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-
-                        getLista().setAll(filtro);
-                    }
-                    case APELLIDOS -> {
-                        List<Personal> filtro = listaFiltros.stream()
-                                .filter(personal -> personal.getApPat().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-                        getLista().setAll(filtro);
-                    }
-                }
-            }
+        busquedaSearch.textProperty().addListener((observableValue, s, t1) -> {
+            aplicarFiltros();
         });
 
         toggleFiltroNormal.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
             RadioMenuItem rb = (RadioMenuItem) toggleFiltroNormal.getSelectedToggle();
-            if(rb == null){
-                filtros = Filtros.NOMBRE;
-                return;
-            }
-            int index = Integer.parseInt(rb.getUserData().toString());
-
-            switch (index){
-                case 1->{
-                    filtros = Filtros.NOMBRE;
-                }
-                case 2->{
-                    filtros = Filtros.APELLIDOS;
-                }
-            }
+            filtroSeleccioando =  rb == null ? Filtros.NOMBRE : Filtros.valueOf(rb.getUserData().toString());
+            aplicarFiltros();
         });
     }
-*/
-    private void loadAsyncPersonal(Consumer<List<Personal>> callBack){
-        Task<List<Personal>> task = new Task<List<Personal>>() {
-            @Override
-            protected List<Personal> call() throws Exception {
-                return daoPerosnal.getPersonales();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            try {
-               callBack.accept(task.get());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    private void aplicarFiltros() {
+        filteredList.setPredicate(personal -> {
+            String filtro = busquedaSearch.getText().toLowerCase();
+            return filtro.isEmpty() || switch (filtroSeleccioando){
+                case NOMBRE -> personal.getNombre().toLowerCase().contains(filtro);
+                case APELLIDOS -> personal.getApPat().toLowerCase().contains(filtro);
+            };
         });
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
+    }
+
+    private void loadAsyncPersonal(){
+        mediador.loadBD();
     }
 
     @Override
     protected void cleanData() {
-
+        loadAsyncPersonal();
     }
-}
 
-enum Filtros{
-    NOMBRE,
-    APELLIDOS
+    enum Filtros{
+        NOMBRE,
+        APELLIDOS
+    }
+
 }

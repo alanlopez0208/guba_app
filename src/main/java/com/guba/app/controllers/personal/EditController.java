@@ -2,19 +2,20 @@ package com.guba.app.controllers.personal;
 
 import com.guba.app.data.dao.DAOPersonal;
 import com.guba.app.data.local.database.conexion.Config;
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Loadable;
-import com.guba.app.utils.Paginas;
+import com.guba.app.utils.*;
 import com.guba.app.domain.models.Personal;
 import com.guba.app.presentation.dialogs.DialogCamara;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.utils.Constants;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -35,6 +36,17 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 
 public class EditController extends BaseController<Personal> implements Initializable, Loadable<Personal> {
+
+    @FXML
+    private Button backButton;
+    @FXML
+    private Button btnActualizar;
+    @FXML
+    private Button btnCamera;
+    @FXML
+    private Button btnArchivos;
+    @FXML
+    private Button btnBorrar;
     @FXML
     private Circle foto;
     @FXML
@@ -65,21 +77,28 @@ public class EditController extends BaseController<Personal> implements Initiali
     private ComboBox<String> comboSexo;
     private Personal personal;
     private BufferedImage bufferedImage;
-    private File file;
-    private DAOPersonal daoPersonal = new DAOPersonal();
+    private File file;;
+
+    public EditController(Mediador<Personal> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super("/personal/Edit", mediador, estadoProperty, paginasProperty);
+        comboSexo.getItems().addAll("Hombre", "Mujer");
+        backButton.setOnAction(this::backPanel);
+        btnActualizar.setOnAction(this::actualizar);
+        btnCamera.setOnAction(this::abrirCamara);
+        btnArchivos.setOnAction(this::abrirArchivos);
+        btnBorrar.setOnAction(this::borrarFoto);
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        comboSexo.getItems().addAll("Hombre", "Mujer");
+
     }
 
-    @FXML
-    private void backPanel(){
+    private void backPanel(ActionEvent event){
         paginasProperty.set(Paginas.LIST);
     }
 
-    @FXML
-    private void actualizar(){
+    private void actualizar(ActionEvent event){
         DialogConfirmacion dialogConfirmacion = new DialogConfirmacion("¿Esta seguro de actualizar?");
         dialogConfirmacion.showAndWait().ifPresent(integer1 -> {
             if (!validar()) {
@@ -101,10 +120,12 @@ public class EditController extends BaseController<Personal> implements Initiali
             personal.setCelular(txtCelular.getText());
             personal.setGenero(comboSexo.getValue());
             if (bufferedImage != null) {
-                personal.setFoto(guardarFoto());
+                personal.setFoto(Utils.guardarFoto(
+                        Config.getConif().obtenerConfiguracion("05 RUTA IMAGENES PERSONAL") + "\\" + personal.getRfc() + ".jpg",
+                        bufferedImage));
             }
 
-            boolean seActualizo = daoPersonal.updatePersonal(personal);
+            boolean seActualizo = mediador.actualizar(personal);
             Alert alert = new Alert(seActualizo ? Alert.AlertType.CONFIRMATION : Alert.AlertType.ERROR);
             alert.setContentText(seActualizo ? "Se ha registrado el alumno con exito" : "Hay un error al guardar al Alumno intente mas tarde porfavor");
             alert.showAndWait();
@@ -116,8 +137,7 @@ public class EditController extends BaseController<Personal> implements Initiali
         return !txtRfc.getText().isEmpty();
     }
 
-    @FXML
-    private void abrirCamara() {
+    private void abrirCamara(ActionEvent event) {
         DialogCamara dialogCamara = new DialogCamara();
         Optional<BufferedImage> optionBuffer = dialogCamara.showAndWait();
         optionBuffer.ifPresent(bufferedImage -> {
@@ -127,27 +147,13 @@ public class EditController extends BaseController<Personal> implements Initiali
         });
     }
 
-    private String guardarFoto() {
-        try {
-            File outputFile = new File(Config.getConif().obtenerConfiguracion("05 RUTA IMAGENES PERSONAL") + "\\" + personal.getRfc() + ".jpg");
-            ImageIO.write(bufferedImage, "jpg", outputFile);
-            return  outputFile.getAbsolutePath();
-        } catch (IOException ex) {
-            return null;
-        }
-    }
-
-
-
-    @FXML
-    private void borrarFoto(){
+    private void borrarFoto(ActionEvent event){
         bufferedImage = null;
         foto.setFill(new ImagePattern(new Image(Objects.requireNonNull(getClass().getResource(Constants.URL_FOTO_PREDETERMINADA)).toString())));
         personal.setFoto(null);
     }
 
-    @FXML
-    private void abrirArchivos() {
+    private void abrirArchivos(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Archivos de imagen", "*.jpg")
@@ -160,7 +166,7 @@ public class EditController extends BaseController<Personal> implements Initiali
                     return ImageIO.read(file);
                 }
             };
-            task.setOnSucceeded(event ->
+            task.setOnSucceeded(workerStateEvent ->
                     Platform.runLater(() -> {
                         try {
                             this.bufferedImage = task.get();

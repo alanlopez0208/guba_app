@@ -1,11 +1,10 @@
 package com.guba.app.controllers.carreras;
 
 import com.guba.app.data.dao.DAOCarreras;
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Loadable;
-import com.guba.app.utils.Paginas;
+import com.guba.app.utils.*;
 import com.guba.app.domain.models.Carrera;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
+import javafx.beans.property.ObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -21,37 +20,30 @@ public class EditController extends BaseController<Carrera> implements Initializ
 
     @FXML
     private Button backButton;
-
+    @FXML
+    private Button btnActualizar;
     @FXML
     private TextField txtNombre;
-
     @FXML
     private TextField txtModalidad;
-
     @FXML
     private TextField txtHbca;
-
     @FXML
     private TextField txtHti;
-
     @FXML
     private TextField txtTotalHoras;
-
     @FXML
     private TextField txtClave;
-
     @FXML
     private TextField txtCreditos;
-
     @FXML
     private TextField txtTotalAsignaturas;
     @FXML
     private Label titulo;
     private Carrera carrera;
-    private DAOCarreras daoCarreras = new DAOCarreras();
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public EditController(Mediador<Carrera> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super("/carreras/Edit", mediador, estadoProperty, paginasProperty);
         txtTotalHoras.setTextFormatter(new TextFormatter<>(change -> {
             if (change.getControlNewText().matches("\\d*")){
                 return change;
@@ -82,6 +74,13 @@ public class EditController extends BaseController<Carrera> implements Initializ
             }
             return null;
         }));
+        backButton.setOnAction(this::regresarAPanel);
+        btnActualizar.setOnAction(this::actualizarCarrera);
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
     }
 
     @Override
@@ -97,13 +96,13 @@ public class EditController extends BaseController<Carrera> implements Initializ
         txtTotalAsignaturas.setText(carrera.getTotalHoras());
     }
 
-    @FXML
+
     private void regresarAPanel(ActionEvent actionEvent) {
         carrera = null;
         paginasProperty.setValue(Paginas.LIST);
     }
 
-    @FXML
+
     private void actualizarCarrera(ActionEvent event){
         if (mostrarConfirmacion()){
             carrera.setNombre(txtNombre.getText());
@@ -114,7 +113,7 @@ public class EditController extends BaseController<Carrera> implements Initializ
             carrera.setIdClave(txtClave.getText());
             carrera.setCreditos(txtCreditos.getText());
             carrera.setTotalAsignaturas(txtTotalAsignaturas.getText());
-            daoCarreras.updateCarrera(carrera);
+            mediador.actualizar(carrera);
             carrera = null;
             paginasProperty.setValue(Paginas.LIST);
         }
@@ -127,6 +126,14 @@ public class EditController extends BaseController<Carrera> implements Initializ
 
     @Override
     protected void cleanData() {
-
+        carrera = null;
+        txtNombre.setText(null);
+        txtModalidad.setText(null);
+        txtHbca.setText(null);
+        txtHti.setText(null);
+        txtTotalHoras.setText(null);
+        txtClave.setText(null);
+        txtCreditos.setText(null);
+        txtTotalAsignaturas.setText(null);
     }
 }

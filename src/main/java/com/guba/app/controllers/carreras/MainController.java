@@ -13,12 +13,12 @@ public class MainController extends BaseMainController<Carrera>{
 
     @Override
     protected void registrarPaginas() {
-        registrarPagina(Paginas.LIST, new ListController("/carreras/List", this,this.estadoProperty, this.paginaProperty ));
-        registrarPagina(Paginas.ADD, "/carreras/Add");
-        registrarPagina(Paginas.EDIT, "/carreras/Edit");
-        registrarPagina(Paginas.DETAILS, "/carreras/Details");
-        stack.getChildren().addAll(paginas.values());
-        paginas.get(Paginas.LIST).setVisible(true);
+        registrarPagina(Paginas.LIST, new ListController(this,this.estadoProperty, this.paginaProperty, dataList));
+        registrarPagina(Paginas.ADD, new AddController(this, this.estadoProperty, this.paginaProperty));
+        registrarPagina(Paginas.EDIT, new EditController(this,this.estadoProperty, this.paginaProperty));
+        registrarPagina(Paginas.DETAILS, new DetailsController(this, this.estadoProperty, this.paginaProperty));
+        stack.getChildren().addAll(nodos.values());
+        nodos.get(Paginas.LIST).setVisible(true);
     }
 
     @Override

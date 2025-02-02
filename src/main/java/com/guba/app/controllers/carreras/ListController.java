@@ -36,6 +36,12 @@ public class ListController extends BaseController<Carrera>{
     @FXML
     private Label label;
     @FXML
+    private Button btnAgregar;
+    @FXML
+    private Button btnBorrarFiltros;
+    @FXML
+    private JFXButton btnActualizar;
+    @FXML
     private TableView<Carrera> tableView;
     @FXML
     TableColumn<Carrera, String> clave, nombre, creditos,modalidad,acciones;
@@ -50,18 +56,14 @@ public class ListController extends BaseController<Carrera>{
 
     private FilteredList<Carrera> filteredList;
     private Filtros filtroSeleccionado = Filtros.NOMBRE;
-    private List<Carrera> carreraList = new ArrayList<>();
-    private ObservableList<Carrera> listaFiltros = FXCollections.observableArrayList();
 
-    private DAOCarreras daoCarreras = new DAOCarreras();
-
-
-    public ListController(String ruta, Mediador<Carrera> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
-        super(ruta, mediador, estadoProperty, paginasProperty);
-    }
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public ListController(Mediador<Carrera> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty, ObservableList<Carrera> list) {
+        super("/carreras/List", mediador, estadoProperty, paginasProperty);
+        btnAgregar.setOnAction(this::openPaneAddAlumno);
+        btnBorrarFiltros.setOnAction(this::borrarFiltros);
+        btnActualizar.setOnAction(event -> {
+            cargarCarrerasBD();
+        });
         cargarCarrerasBD();
         setCellColumns();
         setFiltro();
@@ -70,11 +72,17 @@ public class ListController extends BaseController<Carrera>{
                 label.setVisible(true);
                 tableView.setVisible(false);
             } else if (newValue.equals(Estado.CARGADO)) {
-                filteredList = new FilteredList<>(listaFiltros,estudiante -> true);
+                label.setVisible(false);
+                filteredList = new FilteredList<>(list,estudiante -> true);
                 tableView.setVisible(true);
                 tableView.setItems(filteredList);
             }
         });
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
     }
 
     @FXML
@@ -136,14 +144,14 @@ public class ListController extends BaseController<Carrera>{
                             openIcon.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent actionEvent) {
-                                    paginasProperty.set(Paginas.DETAILS);
+                                   mediador.loadContent(Paginas.DETAILS, carrera);
                                 }
                             });
 
                             editIcon.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent event) {
-                                    paginasProperty.set(Paginas.EDIT);
+                                    mediador.loadContent(Paginas.EDIT, carrera);
                                 }
                             });
 
@@ -184,14 +192,15 @@ public class ListController extends BaseController<Carrera>{
 
         toggleFiltroNormal.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
             RadioMenuItem rb = (RadioMenuItem) toggleFiltroNormal.getSelectedToggle();
-            filtroSeleccionado  = (rb != null) ? (Filtros) rb.getUserData() : null;
+            filtroSeleccionado  = (rb != null) ? Filtros.valueOf(rb.getUserData().toString()) : Filtros.NOMBRE;
+            aplicarFiltros();
         });
     }
 
     private void aplicarFiltros(){
-        filteredList.filtered(carrera -> {
+        filteredList.setPredicate(carrera -> {
             String filtro = busquedaSearch.getText().toLowerCase();
-            return switch (filtroSeleccionado){
+            return filtro.isEmpty() || switch (filtroSeleccionado){
                 case NOMBRE -> carrera.getNombre().toLowerCase().contains(filtro);
                 case CLAVE -> carrera.getIdClave().toLowerCase().contains(filtro);
                 case CREDITOS -> carrera.getCreditos().toLowerCase().contains(filtro);
@@ -201,11 +210,13 @@ public class ListController extends BaseController<Carrera>{
 
     @Override
     protected void cleanData() {
-
+        cargarCarrerasBD();
     }
-}
-enum Filtros{
-    CLAVE,
-    NOMBRE,
-    CREDITOS
+
+    enum Filtros{
+        CLAVE,
+        NOMBRE,
+        CREDITOS
+    }
+
 }

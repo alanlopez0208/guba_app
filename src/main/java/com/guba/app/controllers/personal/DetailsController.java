@@ -1,12 +1,13 @@
 package com.guba.app.controllers.personal;
 
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Loadable;
-import com.guba.app.utils.Paginas;
+import com.guba.app.utils.*;
 import com.guba.app.domain.models.Personal;
 import com.guba.app.presentation.utils.Constants;
+import javafx.beans.property.ObjectProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -17,6 +18,9 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class DetailsController extends BaseController<Personal> implements Initializable, Loadable<Personal> {
+
+    @FXML
+    private Button backButton;
     @FXML
     private Circle foto;
     @FXML
@@ -47,13 +51,19 @@ public class DetailsController extends BaseController<Personal> implements Initi
     private ComboBox<String> comboSexo;
     private Personal personal;
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public DetailsController(Mediador<Personal> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super("/personal/Details", mediador, estadoProperty, paginasProperty);
+        backButton.setOnAction(this::backPanel);
         comboSexo.getItems().addAll("Hombre", "Mujer");
     }
 
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+    }
+
     @FXML
-    private void backPanel(){
+    private void backPanel(ActionEvent actionEvent){
+        personal = null;
         paginasProperty.set(Paginas.LIST);
     }
 
@@ -81,6 +91,6 @@ public class DetailsController extends BaseController<Personal> implements Initi
 
     @Override
     protected void cleanData() {
-
+        personal = null;
     }
 }

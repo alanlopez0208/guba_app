@@ -12,13 +12,12 @@
 
 
 <?import javafx.scene.shape.Circle?>
-<VBox xmlns="http://javafx.com/javafx"
+<fx:root type="VBox" xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       alignment="CENTER"
-      spacing="20"
-      fx:controller="com.guba.app.controllers.personal.DetailsController">
+      spacing="20">
     <HBox alignment="CENTER">
-        <Button onAction="#backPanel" styleClass="btn, btnBack">
+        <Button fx:id="backButton" styleClass="btn, btnBack">
             <graphic>
                 <FontIcon fill="white" iconLiteral="mdi-arrow-left-bold" iconSize="15" />
             </graphic>
@@ -88,5 +87,5 @@
             </VBox>
         </HBox>
     </VBox>
-</VBox>
+</fx:root>
 
