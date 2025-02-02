@@ -14,6 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -70,10 +71,12 @@ public class DetailsController extends BaseController<Personal> implements Initi
     @Override
     public void loadData(Personal data) {
         personal = data;
-        Image img = new Image(String.valueOf(personal.getFoto() != null ?  "file:///"+personal.getFoto() : getClass().getResource(Constants.URL_ASSETS+"img/usuario.png")));
+        Image img = new Image(
+                String.valueOf(data.getFoto() != null ?
+                        new File(data.getFoto()).toURI().toString() :
+                        getClass().getResource(Constants.URL_ASSETS+"img/usuario.png")));
         ImagePattern imagePattern = new ImagePattern(img);
         foto.setFill(imagePattern);
-
         txtRfc.textProperty().bind(personal.rfcProperty());
         txtNombre.textProperty().bind(personal.nombreProperty());
         txtApPat.textProperty().bind(personal.apPatProperty());

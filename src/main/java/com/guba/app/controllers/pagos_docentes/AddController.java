@@ -2,14 +2,15 @@ package com.guba.app.controllers.pagos_docentes;
 
 import com.guba.app.data.dao.DAOMaestro;
 import com.guba.app.data.dao.DAOPagoDocentes;
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Loadable;
-import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Estudiante;
+import com.guba.app.domain.models.PagoDocente;
+import com.guba.app.utils.*;
 import com.guba.app.domain.models.Maestro;
 import com.guba.app.domain.models.PagoDocente;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.utils.ComboCell;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
@@ -29,31 +30,27 @@ import java.util.concurrent.ExecutionException;
 public class AddController extends BaseController<PagoDocente> implements Initializable, Loadable<PagoDocente> {
 
     @FXML
+    private Button backButton;
+    @FXML
+    private Button btnGuardar;
+    @FXML
     private HBox containerMoney;
-
     @FXML
     private TextField txtCantidad;
-
     @FXML
     private TextField txtConcepto;
-
     @FXML
     private TextField txtFactura;
-
     @FXML
     private ComboBox<Maestro> comboMaestros;
-
     @FXML
     private DatePicker dateFeha;
-
     private PagoDocente pagoDocente;
-
     private DAOMaestro daoMaestro = new DAOMaestro();
-    private DAOPagoDocentes daoPagoDocentes = new DAOPagoDocentes();
 
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public AddController(Mediador<PagoDocente> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super("/pago_docentes/Add", mediador, estadoProperty, paginasProperty);
         txtCantidad.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
@@ -78,6 +75,14 @@ public class AddController extends BaseController<PagoDocente> implements Initia
             }
         });
         comboMaestros.setButtonCell(new ComboCell<>());
+        comboMaestros.setButtonCell(new ComboCell<>());
+        backButton.setOnAction(this::regresarAPanel);
+        btnGuardar.setOnAction(this::guardar);
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
     }
 
 
@@ -91,22 +96,18 @@ public class AddController extends BaseController<PagoDocente> implements Initia
     @FXML
     private void guardar(ActionEvent event){
         if (mostrarConfirmacion()){
-            daoPagoDocentes.crearPago(pagoDocente).ifPresentOrElse(integer -> {
-                pagoDocente.setIdPago(integer.toString());
-                //getLista().add(pagoDocente);
-                System.out.println(pagoDocente.getFecha());
-                pagoDocente = null;
-                paginasProperty.set(Paginas.LIST);
+            pagoDocente.setMaestro(comboMaestros.getValue());
+            boolean seAgrego = mediador.guardar(pagoDocente);
+            if (seAgrego){
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setContentText("Se actulizo Correctamente");
-                //alert.showAndWait();
-                //mediador.changePane(Paginas.LIST);
-            }, () -> {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setContentText( "Error al actualizar contacte con soporte");
+                alert.setContentText("Se agrego Correctamente");
                 alert.showAndWait();
-                paginasProperty.set(Paginas.LIST);
-            });
+            }else{
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Error al guardar contecta con soporte");
+                alert.showAndWait();
+            }
+            paginasProperty.set(Paginas.LIST);
         }
     }
 
@@ -148,6 +149,6 @@ public class AddController extends BaseController<PagoDocente> implements Initia
 
     @Override
     protected void cleanData() {
-
+        pagoDocente = null;
     }
 }

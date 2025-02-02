@@ -2,13 +2,14 @@ package com.guba.app.controllers.pagos_docentes;
 
 import com.guba.app.data.dao.DAOMaestro;
 import com.guba.app.data.dao.DAOPagoDocentes;
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Loadable;
-import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.Estudiante;
+import com.guba.app.domain.models.PagoDocente;
+import com.guba.app.utils.*;
 import com.guba.app.domain.models.Maestro;
 import com.guba.app.domain.models.PagoDocente;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.utils.ComboCell;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
@@ -26,32 +27,30 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 
-public class EditController extends BaseController<PagoDocente> implements Initializable, Loadable<PagoDocente> {
+public class EditController extends BaseController<PagoDocente> implements Loadable<PagoDocente> {
+
+    @FXML
+    private Button backButton;
+    @FXML
+    private Button btnActualizar;
     @FXML
     private HBox containerMoney;
-
     @FXML
     private TextField txtCantidad;
-
     @FXML
     private TextField txtConcepto;
-
     @FXML
     private TextField txtFactura;
-
     @FXML
     private ComboBox<Maestro> comboMaestros;
 
     @FXML
     private DatePicker dateFeha;
     private PagoDocente pagoDocente;
-
     private DAOMaestro daoMaestro = new DAOMaestro();
 
-    private DAOPagoDocentes daoPagoDocentes = new DAOPagoDocentes();
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public EditController(Mediador<PagoDocente> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super("/pago_alumnos/Edit", mediador, estadoProperty, paginasProperty);
         txtCantidad.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
@@ -76,6 +75,13 @@ public class EditController extends BaseController<PagoDocente> implements Initi
             }
         });
         comboMaestros.setButtonCell(new ComboCell<Maestro>());
+        backButton.setOnAction(this::regresarAPanel);
+        btnActualizar.setOnAction(this::actualizar);
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
     }
 
     private void loadAlumnosAsync(Maestro maestro) {
@@ -130,7 +136,7 @@ public class EditController extends BaseController<PagoDocente> implements Initi
             pagoDocente.setMaestro(comboMaestros.getSelectionModel().getSelectedItem());
             pagoDocente.setDate(dateFeha.getValue());
             paginasProperty.set(Paginas.LIST);
-            boolean seActualizo = daoPagoDocentes.updatePago(pagoDocente);
+            boolean seActualizo = mediador.actualizar(pagoDocente);
             Alert alert = new Alert(seActualizo ? Alert.AlertType.CONFIRMATION : Alert.AlertType.ERROR);
             alert.setContentText(seActualizo ? "Se actulizo Correctamente" : "Error al actualizar contacte con soporte");
             alert.showAndWait();

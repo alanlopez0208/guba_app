@@ -152,6 +152,7 @@ public class PagoDocente {
     }
 
     public String toStringDate(){
+        this.setFecha(dateTimeFormatter.format(this.getDate()));
         return dateTimeFormatter.format(this.getDate());
     }
 }

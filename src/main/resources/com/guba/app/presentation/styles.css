@@ -12,6 +12,11 @@
     -fx-border-width: 2;
 }
 
+.cursada{
+    -fx-background-color: #04BF68;
+    -fx-fill: white;
+}
+
 .titulo{
     -fx-font-family: "Montserrat Bold";
     -fx-font-size: 24;

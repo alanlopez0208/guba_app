@@ -117,7 +117,7 @@
                                 <TableColumn prefWidth="75.0" text="Promedio" fx:id="columnU4PM" />
                             </columns>
                         </TableColumn>
-                        <TableColumn text="Trabajo Final" style="-fx-background-color: yellow" fx:id="columnTF"/>
+                        <TableColumn text="Trabajo Final" fx:id="columnTF"/>
                         <TableColumn text="Promedio" fx:id="columnPromedio"/>
                         <TableColumn text="Acciones" fx:id="columnAccionesEstudiantes"/>
                     </columns>

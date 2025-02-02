@@ -9,8 +9,8 @@ public enum Modulo {
     MATERIAS("/materias/Main"),
     CARRERAS("/carreras/Main"),
     PERSONAL("/personal/Main"),
-    //PAGO_ALUMNOS("/pago_alumnos/Main"),
-    //PAGO_DOCENTES("/pago_docentes/Main"),
+    PAGO_ALUMNOS("/pago_alumnos/Main"),
+    PAGO_DOCENTES("/pago_docentes/Main"),
     WEB("/web/Web"),
     CONFIGURACION("/configuracion/Configuracion");
 

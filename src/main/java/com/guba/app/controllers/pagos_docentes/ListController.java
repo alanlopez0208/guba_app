@@ -3,13 +3,17 @@ package com.guba.app.controllers.pagos_docentes;
 import com.dlsc.gemsfx.YearMonthPicker;
 import com.guba.app.data.dao.DAOPagoDocentes;
 import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Estado;
+import com.guba.app.utils.Mediador;
 import com.guba.app.utils.Paginas;
 import com.guba.app.domain.models.*;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.jfoenix.controls.JFXButton;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
@@ -25,16 +29,23 @@ import javafx.util.Callback;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
-public class ListController extends BaseController<PagoDocente> implements Initializable {
+public class ListController extends BaseController<PagoDocente> {
 
     @FXML
     private Label label;
+    @FXML
+    private Button btnAgregar;
+    @FXML
+    private Button btnBorrarFiltros;
+    @FXML
+    private JFXButton btnActualizar;
     @FXML
     private TableView<PagoDocente> tableView;
     @FXML
@@ -47,16 +58,37 @@ public class ListController extends BaseController<PagoDocente> implements Initi
     private ToggleGroup toggleFiltroNormal;
     @FXML
     private YearMonthPicker yearmMonthPicker;
-    private Filtros filtros = Filtros.NOMBRE;
-    private List<PagoDocente> pagoList = new ArrayList<>();
-    private ObservableList<PagoDocente> listaFiltros = FXCollections.observableArrayList();
-    private DAOPagoDocentes daoPagoDocentes = new DAOPagoDocentes();
+    private Filtros filtroSeleccionado = Filtros.NOMBRE;
+    private YearMonth yearMonthSelect;
+    private FilteredList<PagoDocente> filteredList;
+
+
+    public ListController(Mediador<PagoDocente> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty, ObservableList<PagoDocente> list) {
+        super("/pago_docentes/List", mediador, estadoProperty, paginasProperty);
+        cargarPagoDocentes();
+        setCellColumns();
+        setFiltro();
+        btnAgregar.setOnAction(this::openPaneAddAlumno);
+        btnBorrarFiltros.setOnAction(this::borrarFiltros);
+        btnActualizar.setOnAction(event -> {
+            cargarPagoDocentes();
+        });
+        estadoProperty.addListener((observableValue, oldValue, newValue) -> {
+            if (newValue.equals(Estado.CARGANDO)){
+                label.setVisible(true);
+                tableView.setVisible(false);
+            } else if (newValue.equals(Estado.CARGADO)) {
+                filteredList = new FilteredList<>(list, estudiante -> true);
+                label.setVisible(false);
+                tableView.setVisible(true);
+                tableView.setItems(filteredList);
+            }
+        });
+    }
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        cargarPagoAlumnos();
-        setCellColumns();
-        //setFiltro();
     }
 
     @FXML
@@ -73,36 +105,8 @@ public class ListController extends BaseController<PagoDocente> implements Initi
     }
 
 
-    private void cargarPagoAlumnos(){
-        Task<List<PagoDocente>> task = new Task<List<PagoDocente>>() {
-            @Override
-            protected List<PagoDocente> call() throws Exception {
-                return daoPagoDocentes.getPagos();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            try {
-                label.setVisible(false);
-                pagoList = task.get();
-                listaFiltros.setAll(pagoList);
-                //getLista().setAll(listaFiltros);
-                //tableView.setItems(getLista());
-                tableView.setVisible(true);
-                tableView.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-        task.setOnFailed(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                System.out.println("Error al carrgar los pagos docentes: " +task.getException());
-            }
-        });
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
+    private void cargarPagoDocentes(){
+        mediador.loadBD();
     }
 
     private void setCellColumns(){
@@ -186,7 +190,7 @@ public class ListController extends BaseController<PagoDocente> implements Initi
                                         @Override
                                         public void accept(Integer integer) {
                                             if (integer.equals(1)){
-                                                daoPagoDocentes.deletePago(pagoDocente.getIdPago());
+                                                mediador.eliminar(pagoDocente);
                                                 //getLista().remove(pagoDocente);
                                             }
                                         }
@@ -207,88 +211,52 @@ public class ListController extends BaseController<PagoDocente> implements Initi
         });
     }
 
-    /*
     private void setFiltro(){
         yearmMonthPicker.getEditor().setText(null);
-        busquedaSearch.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-                if (t1.isEmpty()){
-                    getLista().setAll(listaFiltros);
-                    return;
-                }
-                System.out.println(filtros);
-                switch (filtros){
-
-                    case NOMBRE -> {
-                        System.out.println("SE VA A BUSCAR POR EL NOMBRE PA");
-                        List<PagoDocente> filtro = listaFiltros.stream()
-                                .filter(pagoDocente -> pagoDocente.getMaestro().getNombre().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-
-                        getLista().setAll(filtro);
-                    }
-                    case RFC -> {
-                        List<PagoDocente> filtro = listaFiltros.stream()
-                                .filter(pagoDocente -> pagoDocente.getMaestro().getRfc().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-                        getLista().setAll(filtro);
-                    }
-                    case CANTIDAD -> {
-                        List<PagoDocente> filtro = listaFiltros.stream()
-                                .filter(pagoDocente -> pagoDocente.getCantidad().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-                        getLista().setAll(filtro);
-                    }
-                }
-            }
+        busquedaSearch.textProperty().addListener((observableValue, s, t1) -> {
+            aplicarFiltro();
         });
 
         toggleFiltroNormal.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
             RadioMenuItem rb = (RadioMenuItem) toggleFiltroNormal.getSelectedToggle();
-            if (rb == null){
-                filtros = Filtros.NOMBRE;
-                return;
-            }
-            int index = Integer.parseInt(rb.getUserData().toString());
-            switch (index){
-                case 1->{
-                    filtros = Filtros.RFC;
-                }
-                case 2->{
-                    filtros = Filtros.NOMBRE;
-                }
-                case 3->{
-                    filtros = Filtros.CANTIDAD;
-                }
-            }
+            filtroSeleccionado = rb == null ? Filtros.NOMBRE : Filtros.valueOf(rb.getUserData().toString());
+            aplicarFiltro();
         });
 
 
         yearmMonthPicker.valueProperty().addListener((observableValue, yearMonth, t1) -> {
-            if (t1 == null){
-                return;
-            }
-            listaFiltros.setAll(pagoList.stream()
-                    .filter(pa->{
-                        YearMonth yearMonth1 = YearMonth.from(pa.getDate());
-                        return t1.equals(yearMonth1);
-                    })
-                    .toList());
-
-            getLista().setAll(listaFiltros);
-
+            yearMonthSelect = t1;
+            aplicarFiltro();
         });
-    }*/
+    }
+
+    private void aplicarFiltro(){
+        filteredList.setPredicate(pagoAlumno -> {
+            YearMonth fechaPago = YearMonth.from(pagoAlumno.getDate());
+            boolean coincideFecha = yearMonthSelect == null || fechaPago.compareTo(yearMonthSelect) >= 0;
+            return coincideFecha && compararTexto(pagoAlumno);
+        });
+    }
+
+    private boolean compararTexto(PagoDocente pagoAlumno){
+        String busqueda = busquedaSearch.getText().toLowerCase();
+        return busqueda.isEmpty() || switch (filtroSeleccionado){
+            case NOMBRE -> pagoAlumno.getMaestro().getNombre().toLowerCase().contains(busqueda);
+            case CANTIDAD -> pagoAlumno.getCantidad().toLowerCase().contains(busqueda);
+            case RFC -> pagoAlumno.getMaestro().getRfc().toLowerCase().contains(busqueda);
+        };
+    }
 
     @Override
     protected void cleanData() {
-
+        cargarPagoDocentes();
     }
-}
-enum Filtros{
-    NOMBRE,
-    RFC,
-    CANTIDAD
+
+    enum Filtros{
+        NOMBRE,
+        RFC,
+        CANTIDAD
+    }
+
 }
 

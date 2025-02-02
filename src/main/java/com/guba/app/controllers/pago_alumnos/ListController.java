@@ -3,14 +3,20 @@ package com.guba.app.controllers.pago_alumnos;
 import com.dlsc.gemsfx.YearMonthPicker;
 import com.guba.app.data.dao.DAOPagoAlumnos;
 import com.guba.app.utils.BaseController;
+import com.guba.app.utils.Estado;
+import com.guba.app.utils.Mediador;
 import com.guba.app.utils.Paginas;
 import com.guba.app.domain.models.Estudiante;
 import com.guba.app.domain.models.PagoAlumno;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.jfoenix.controls.JFXButton;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
@@ -26,16 +32,23 @@ import javafx.util.Callback;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
-public class ListController extends BaseController<PagoAlumno> implements Initializable {
+public class ListController extends BaseController<PagoAlumno> {
 
     @FXML
     private Label label;
+    @FXML
+    private Button btnAgregar;
+    @FXML
+    private Button btnBorrarFiltros;
+    @FXML
+    private JFXButton btnActualizar;
     @FXML
     private TableView<PagoAlumno> tableView;
     @FXML
@@ -48,16 +61,38 @@ public class ListController extends BaseController<PagoAlumno> implements Initia
     private ToggleGroup toggleFiltroNormal;
     @FXML
     private YearMonthPicker yearmMonthPicker;
-    private Filtros filtros = Filtros.NOMBRE;
-    private List<PagoAlumno> pagoList = new ArrayList<>();
-    private ObservableList<PagoAlumno> listaFiltros = FXCollections.observableArrayList();
-    private DAOPagoAlumnos daoPagoAlumnos = new DAOPagoAlumnos();
+
+    private Filtros filtroSeleccionado = Filtros.MATRICULA;
+    private YearMonth yearMonthSelect;
+
+    private FilteredList<PagoAlumno> filteredList;
+
+
+    public ListController(Mediador<PagoAlumno> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty, ObservableList<PagoAlumno> list) {
+        super("/pago_alumnos/List", mediador, estadoProperty, paginasProperty);
+        cargarPagoAlumnos();
+        setCellColumns();
+        setFiltro();
+        btnAgregar.setOnAction(this::openPaneAddAlumno);
+        btnBorrarFiltros.setOnAction(this::borrarFiltros);
+        btnActualizar.setOnAction(event -> {
+            cargarPagoAlumnos();
+        });
+        estadoProperty.addListener((observableValue, oldValue, newValue) -> {
+            if (newValue.equals(Estado.CARGANDO)){
+                label.setVisible(true);
+                tableView.setVisible(false);
+            } else if (newValue.equals(Estado.CARGADO)) {
+                filteredList = new FilteredList<>(list, estudiante -> true);
+                label.setVisible(false);
+                tableView.setVisible(true);
+                tableView.setItems(filteredList);
+            }
+        });
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        cargarPagoAlumnos();
-        setCellColumns();
-        //setFiltro();
     }
 
     @FXML
@@ -67,41 +102,15 @@ public class ListController extends BaseController<PagoAlumno> implements Initia
 
     @FXML
     private void borrarFiltros(ActionEvent event){
-        busquedaSearch.setText("");
-        yearmMonthPicker.getEditor().setText(null);
+        yearMonthSelect = null;
         toggleFiltroNormal.selectToggle(null);
-        //getLista().setAll(pagoList);
+        yearmMonthPicker.getEditor().setText("");
+        busquedaSearch.setText("");
+        filteredList.setPredicate(null);
     }
 
     private void cargarPagoAlumnos(){
-        Task<List<PagoAlumno>> task = new Task<List<PagoAlumno>>() {
-            @Override
-            protected List<PagoAlumno> call() throws Exception {
-                return daoPagoAlumnos.getPagos();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            try {
-                label.setVisible(false);
-                pagoList = task.get();
-                listaFiltros.setAll(pagoList);
-                //getLista().setAll(listaFiltros);
-                //tableView.setItems(getLista());
-                tableView.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-        task.setOnFailed(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                System.out.println("Error al carrgar las materias" +task.getException());
-            }
-        });
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
+        mediador.loadBD();
     }
 
     private void setCellColumns(){
@@ -185,8 +194,7 @@ public class ListController extends BaseController<PagoAlumno> implements Initia
                                         @Override
                                         public void accept(Integer integer) {
                                             if (integer.equals(1)){
-                                                daoPagoAlumnos.deletePago(pagoAlumno.getIdPago());
-                                                //getLista().remove(pagoAlumno);
+                                               mediador.eliminar(pagoAlumno);
                                             }
                                         }
                                     });
@@ -206,87 +214,51 @@ public class ListController extends BaseController<PagoAlumno> implements Initia
         });
     }
 
-    /*
+
     private void setFiltro(){
         yearmMonthPicker.getEditor().setText(null);
-        busquedaSearch.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-                if (t1.isEmpty()){
-                    getLista().setAll(listaFiltros);
-                    return;
-                }
-                System.out.println(filtros);
-                switch (filtros){
-
-                    case NOMBRE -> {
-                        System.out.println("SE VA A BUSCAR POR EL NOMBRE PA");
-                        List<PagoAlumno> filtro = listaFiltros.stream()
-                                .filter(pagoAlumno -> pagoAlumno.getAlumno().getNombre().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-
-                        getLista().setAll(filtro);
-                    }
-                    case MATRICULA -> {
-                        List<PagoAlumno> filtro = listaFiltros.stream()
-                                .filter(pagoAlumno -> pagoAlumno.getAlumno().getMatricula().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-                        getLista().setAll(filtro);
-                    }
-                    case CANTIDAD -> {
-                        List<PagoAlumno> filtro = listaFiltros.stream()
-                                .filter(pagoAlumno -> pagoAlumno.getCantidad().toLowerCase().contains(t1.toLowerCase()))
-                                .toList();
-                        getLista().setAll(filtro);
-                    }
-                }
-            }
+        busquedaSearch.textProperty().addListener((observableValue, s, t1) -> {
+            aplicarFiltro();
         });
 
         toggleFiltroNormal.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
             RadioMenuItem rb = (RadioMenuItem) toggleFiltroNormal.getSelectedToggle();
-            if (rb == null){
-                filtros = Filtros.NOMBRE;
-                return;
-            }
-            int index = Integer.parseInt(rb.getUserData().toString());
-            switch (index){
-                case 1->{
-                    filtros = Filtros.MATRICULA;
-                }
-                case 2->{
-                    filtros = Filtros.NOMBRE;
-                }
-                case 3->{
-                    filtros = Filtros.CANTIDAD;
-                }
-            }
+            filtroSeleccionado = rb == null ? Filtros.NOMBRE : Filtros.valueOf(rb.getUserData().toString());
+            aplicarFiltro();
         });
 
 
         yearmMonthPicker.valueProperty().addListener((observableValue, yearMonth, t1) -> {
-            if (t1 == null){
-                return;
-            }
-            listaFiltros.setAll(pagoList.stream()
-                    .filter(pa->{
-                        YearMonth yearMonth1 = YearMonth.from(pa.getDate());
-                        return t1.equals(yearMonth1);
-                    })
-                    .toList());
-
-            //getLista().setAll(listaFiltros);
-
+            yearMonthSelect = t1;
+            aplicarFiltro();
         });
-    }*/
+    }
+
+    private void aplicarFiltro(){
+        filteredList.setPredicate(pagoAlumno -> {
+            YearMonth fechaPago = YearMonth.from(pagoAlumno.getDate());
+            boolean coincideFecha = yearMonthSelect == null || fechaPago.compareTo(yearMonthSelect) >= 0;
+            return coincideFecha && compararTexto(pagoAlumno);
+        });
+    }
+
+    private boolean compararTexto(PagoAlumno pagoAlumno){
+        String busqueda = busquedaSearch.getText().toLowerCase();
+        return busqueda.isEmpty() || switch (filtroSeleccionado){
+            case NOMBRE -> pagoAlumno.getAlumno().getNombre().toLowerCase().contains(busqueda);
+            case CANTIDAD -> pagoAlumno.getCantidad().toLowerCase().contains(busqueda);
+            case MATRICULA -> pagoAlumno.getAlumno().getMatricula().toLowerCase().contains(busqueda);
+        };
+    }
 
     @Override
     protected void cleanData() {
-
+        mediador.loadBD();
     }
-}
-enum Filtros{
-    NOMBRE,
-    MATRICULA,
-    CANTIDAD
+
+    enum Filtros{
+        NOMBRE,
+        MATRICULA,
+        CANTIDAD
+    }
 }

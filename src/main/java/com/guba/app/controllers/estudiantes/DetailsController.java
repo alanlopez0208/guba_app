@@ -167,10 +167,6 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
 
     public DetailsController(Mediador<Estudiante> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
         super(  "/estudiantes/DetailsEstudiante", mediador, estadoProperty, paginasProperty);
-    }
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
         inicializarPaneles();
         inicializarCombos();
         setColumns();
@@ -185,6 +181,11 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
         btnEditarTitulo.setOnAction(this::editarTitulo);
         btnGenerarDocumento.setOnAction(this::generarDocumentos);
         btnPassword.setOnAction(this::verPassword);
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
     }
 
     private void backPanel(ActionEvent event){

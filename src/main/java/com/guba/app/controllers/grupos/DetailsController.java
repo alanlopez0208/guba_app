@@ -3,13 +3,10 @@ package com.guba.app.controllers.grupos;
 import com.guba.app.data.dao.DAOAlumno;
 import com.guba.app.data.dao.DAOCalificiaciones;
 import com.guba.app.data.dao.DAOGrupoMateria;
+import com.guba.app.presentation.dialogs.*;
 import com.guba.app.utils.*;
 import com.guba.app.data.dao.DAOPeriodo;
 import com.guba.app.domain.models.*;
-import com.guba.app.presentation.dialogs.DialogAlumnos;
-import com.guba.app.presentation.dialogs.DialogConfirmacion;
-import com.guba.app.presentation.dialogs.DialogMaterias;
-import com.guba.app.presentation.dialogs.DialogProfesores;
 import com.guba.app.presentation.utils.ComboCell;
 import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
@@ -18,6 +15,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -177,10 +175,12 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
             this.grupoMaterias = FXCollections.observableArrayList(g);
             tableMaterias.setItems(grupoMaterias);
             materiasComboBox.setItems(grupoMaterias);
+            tableMaterias.refresh();
         });
         txtCarrera.setText(grupo.getCarrera().toComboCell());
         txtSemestre.setText(grupo.getSemestre());
         txtGrupo.setText(grupo.getNombre());
+
     }
 
     private void loadGrupoMateriasAsync(Grupo grupo,Consumer<List<GrupoMateria>> callback){
@@ -192,6 +192,23 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
     }
 
     private void setColumnsTableMaterias(){
+        tableMaterias.setRowFactory(grupoMateriaTableView -> {
+            return new TableRow<>(){
+                @Override
+                protected void updateItem(GrupoMateria item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty){
+                        this.setText(null);
+                        this.setGraphic(null);
+                    }else{
+                        if (item.getCursada() == 1){
+                            this.getStyleClass().add("cursada");
+                        }
+                    }
+                }
+            };
+        });
+
         columnClave.setCellValueFactory(cellData -> {
             Materia materia =  cellData.getValue().getMateria();
             return Bindings.createStringBinding(() -> {
@@ -247,6 +264,7 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
 
                             Button deletIcon = new Button();
                             Button editIcon = new Button();
+                            Button finalizarIcon = new Button();
 
                             FontIcon fontIcon = new FontIcon("mdi-border-color");
                             fontIcon.setFill(Color.WHITE);
@@ -257,6 +275,11 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
                             delete.setFill(Color.WHITE);
                             deletIcon.setGraphic(delete);
                             deletIcon.getStyleClass().add("btnBorrar");
+
+                            FontIcon marked = new FontIcon("mdi-checkbox-marked-circle");
+                            marked.setFill(Color.WHITE);
+                            finalizarIcon.setGraphic(marked);
+                            finalizarIcon.getStyleClass().add("btnVer");
 
 
                             editIcon.setOnAction(new EventHandler<ActionEvent>() {
@@ -290,13 +313,25 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
                                     });
                                 }
                             });
+
+                            finalizarIcon.setOnAction(event -> {
+                                boolean seActualizo  = new DialogFinalizarMateria(grupoMateria).showAndWait().orElse(false);
+                                if (seActualizo) {
+                                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                                    alert.setTitle("Confirmacion");
+                                    alert.setContentText("Se finalizo la materia");
+                                    grupoMateria.setCursada(1);
+                                    tableMaterias.refresh();
+                                }
+                            });
+
                             HBox hBox = new HBox();
-                            hBox.getChildren().addAll(editIcon, deletIcon);
+                            hBox.getChildren().addAll(editIcon, deletIcon, finalizarIcon);
                             hBox.setSpacing(10);
                             hBox.setPrefWidth(120);
                             hBox.setAlignment(Pos.CENTER);
                             setText("");
-                            setGraphic(hBox);
+                            setGraphic(grupoMateria.getCursada() == 1 ? new HBox() : hBox);
                         }
                     }
                 };

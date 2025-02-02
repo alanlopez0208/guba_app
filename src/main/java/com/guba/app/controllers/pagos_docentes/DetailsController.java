@@ -1,13 +1,13 @@
 package com.guba.app.controllers.pagos_docentes;
 
 import com.guba.app.data.dao.DAOMaestro;
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Loadable;
-import com.guba.app.utils.Paginas;
+import com.guba.app.domain.models.PagoDocente;
+import com.guba.app.utils.*;
 import com.guba.app.domain.models.Maestro;
 import com.guba.app.domain.models.PagoDocente;
 import com.guba.app.presentation.utils.ComboCell;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
@@ -28,6 +28,8 @@ import java.util.concurrent.ExecutionException;
 public class DetailsController extends BaseController<PagoDocente> implements Initializable, Loadable<PagoDocente> {
 
     @FXML
+    private Button backButton;
+    @FXML
     private HBox containerMoney;
     @FXML
     private TextField txtCantidad;
@@ -42,6 +44,29 @@ public class DetailsController extends BaseController<PagoDocente> implements In
     private PagoDocente pagoDocente;
     private DAOMaestro daoMaestro = new DAOMaestro();
 
+    public DetailsController(Mediador<PagoDocente> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super( "/pago_docentes/Details", mediador, estadoProperty, paginasProperty);
+        txtCantidad.focusedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+                System.out.println(t1);
+                if (t1){
+                    containerMoney.getStyleClass().add("select");
+                }else{
+                    containerMoney.getStyleClass().remove("select");
+                }
+            }
+        });
+        txtCantidad.setTextFormatter(new TextFormatter<>(change -> {
+            if (change.getControlNewText().matches("\\d*(\\.\\d+)?$")){
+                return change;
+            }
+            return null;
+        }));
+        backButton.setOnAction(this::regresarAPanel);
+    }
+    
+    
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         txtCantidad.focusedProperty().addListener(new ChangeListener<Boolean>() {
@@ -116,6 +141,6 @@ public class DetailsController extends BaseController<PagoDocente> implements In
 
     @Override
     protected void cleanData() {
-
+        pagoDocente = null;
     }
 }

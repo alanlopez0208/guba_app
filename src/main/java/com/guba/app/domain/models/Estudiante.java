@@ -381,6 +381,6 @@ public class Estudiante implements ComboBoxCell {
 
     @Override
     public String toComboCell() {
-        return this.getNombre() +" " + this.getApPaterno() + " " + this.getApMaterno();
+        return this.getMatricula() + ": " + this.getNombre() +" " + this.getApPaterno() + " " + this.getApMaterno();
     }
 }

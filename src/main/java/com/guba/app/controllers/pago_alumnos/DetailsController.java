@@ -2,13 +2,12 @@ package com.guba.app.controllers.pago_alumnos;
 
 import com.guba.app.data.dao.DAOAlumno;
 import com.guba.app.data.dao.DAOPagoAlumnos;
-import com.guba.app.utils.BaseController;
-import com.guba.app.utils.Loadable;
-import com.guba.app.utils.Paginas;
+import com.guba.app.utils.*;
 import com.guba.app.domain.models.Estudiante;
 import com.guba.app.domain.models.PagoAlumno;
 import com.guba.app.presentation.utils.ComboCell;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
@@ -26,35 +25,28 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 
-public class DetailsController extends BaseController<PagoAlumno> implements Initializable, Loadable<PagoAlumno> {
+public class DetailsController extends BaseController<PagoAlumno> implements Loadable<PagoAlumno> {
 
+    @FXML
+    private Button backButton;
     @FXML
     private HBox containerMoney;
-
     @FXML
     private TextField txtCantidad;
-
     @FXML
     private TextField txtConcepto;
-
     @FXML
     private TextField txtFactura;
-
     @FXML
     private ComboBox<Estudiante> comboAlumnos;
-
     @FXML
     private DatePicker dateFeha;
 
-
     private PagoAlumno pagoAlumno;
-
     private DAOAlumno daoAlumno = new DAOAlumno();
-    private DAOPagoAlumnos daoPagoAlumno = new DAOPagoAlumnos();
 
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public DetailsController(Mediador<PagoAlumno> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
+        super( "/pago_alumnos/Details", mediador, estadoProperty, paginasProperty);
         txtCantidad.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
@@ -72,8 +64,13 @@ public class DetailsController extends BaseController<PagoAlumno> implements Ini
             }
             return null;
         }));
+        backButton.setOnAction(this::regresarAPanel);
     }
 
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
+    }
 
     private void loadAlumnosAsync(Estudiante estudiante) {
         Task<List<Estudiante>> task = new Task<>() {
@@ -109,11 +106,9 @@ public class DetailsController extends BaseController<PagoAlumno> implements Ini
         thread.start();
     }
 
-    @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
         paginasProperty.set(Paginas.LIST);
     }
-
 
     @Override
     public void loadData(PagoAlumno data) {
@@ -127,6 +122,6 @@ public class DetailsController extends BaseController<PagoAlumno> implements Ini
 
     @Override
     protected void cleanData() {
-
+        pagoAlumno = null;
     }
 }

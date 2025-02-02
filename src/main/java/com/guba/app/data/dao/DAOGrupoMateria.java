@@ -1,10 +1,8 @@
 package com.guba.app.data.dao;
 
 import com.guba.app.data.local.database.DataConsumer;
-import com.guba.app.domain.models.Grupo;
-import com.guba.app.domain.models.GrupoMateria;
-import com.guba.app.domain.models.Maestro;
-import com.guba.app.domain.models.Materia;
+import com.guba.app.data.local.database.SQLTransactionalOperation;
+import com.guba.app.domain.models.*;
 
 import java.sql.*;
 import java.util.List;
@@ -186,4 +184,39 @@ public class DAOGrupoMateria {
         });
     }
 
+    public boolean finalizarMateria(GrupoMateria grupoMateria, String fecha, String tipo ,String folio ) {
+        String actualizarGrupoMateria = "UPDATE GruposMaterias SET Cursada = ? WHERE IdGrupoMateria = ?";
+        String actualizarCalificaciones = "UPDATE Calificaciones SET Fecha = ?, Tipo = ?, Folio = ? WHERE IdMateria = ? AND IdPeriodo = ?";
+        Periodo periodo = new  DAOPeriodo().getUltimoPeriodo();
+
+
+        return dataConsumer.executeTransaction(connection -> {
+            try (PreparedStatement pstmt = connection.prepareStatement(actualizarGrupoMateria)) {
+                pstmt.setString(1, "1");
+                pstmt.setString(2, grupoMateria.getIdGrupoMateria());
+
+                int rowsAffected = pstmt.executeUpdate();
+
+                if (rowsAffected == 0) {
+                    throw new SQLException("Hubo un error al estbalacer cursada la materia: "+ grupoMateria.getMateria());
+                }
+
+                try (PreparedStatement pstmtCalificaciones = connection.prepareStatement(actualizarCalificaciones)) {
+                    pstmtCalificaciones.setString(1, fecha);
+                    pstmtCalificaciones.setString(2, tipo);
+                    pstmtCalificaciones.setString(3, folio);
+                    pstmtCalificaciones.setString(4, grupoMateria.getMateria().getIdMateria());
+                    pstmtCalificaciones.setString(5,periodo.getId());
+                    rowsAffected = pstmtCalificaciones.executeUpdate();
+
+                    System.out.println(rowsAffected);
+                    if (rowsAffected < 0) {
+                        throw new SQLException("Hubo un error al actualizar las calificaciones");
+                    }
+                }
+            }
+
+            return true;
+        }).orElse(false);
+    }
 }
