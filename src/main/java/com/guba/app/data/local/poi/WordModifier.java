@@ -285,11 +285,11 @@ public class WordModifier {
 
         XWPFTableCell celda7 = row.getCell(6);
         celda7.setWidth(array[6]);
-        celda7.setText(cal.getTipo());
+        celda7.setText(cal.getModulo());
 
         XWPFTableCell celda8 = row.getCell(7);
         celda8.setWidth(array[7]);
-        celda8.setText(cal.getModulo());
+        celda8.setText(cal.getTipo());
 
         for (int i = 3; i <= 7; i++) {
             XWPFTableCell celda = row.getCell(i);
