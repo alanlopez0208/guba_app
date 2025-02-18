@@ -5,6 +5,7 @@ import com.dlsc.gemsfx.TimePicker;
 import com.guba.app.data.dao.DAOAlumno;
 import com.guba.app.data.dao.DAOCalificiaciones;
 import com.guba.app.data.dao.DAOCarreras;
+import com.guba.app.presentation.dialogs.DialogCambioCarrera;
 import com.guba.app.utils.Estado;
 import com.guba.app.utils.*;
 import com.guba.app.data.dao.DAOTitulo;
@@ -153,7 +154,8 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
     private JFXButton btnPassword;
     @FXML
     private Button btnDetals,btnCalificaciones,btnTitulacion,btnAdicionales,backButton;
-
+    @FXML
+    private Button btnCambioCarrera;
 
     private Estudiante estudiante;
     private Titulo titulo;
@@ -181,6 +183,7 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
         btnEditarTitulo.setOnAction(this::editarTitulo);
         btnGenerarDocumento.setOnAction(this::generarDocumentos);
         btnPassword.setOnAction(this::verPassword);
+        btnCambioCarrera.setOnAction(this::cambiarCarrera);
     }
 
     @Override
@@ -246,7 +249,6 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
 
     private void guardarTitulo(ActionEvent event){
         loadDataToTiulo();
-        System.out.println("ESTE ES EL ACTA DEL TITULO: " + titulo.getActa());
         boolean seCreo = daoTitulo.crearTitulacion(titulo);
         if (seCreo){
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -324,6 +326,17 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
            });
     }
 
+
+    private void cambiarCarrera(ActionEvent actionEvent){
+        DialogCambioCarrera dialogCambioCarrera = new DialogCambioCarrera(estudiante);
+        dialogCambioCarrera.showAndWait().ifPresent(dto -> {
+            estudiante.setSemestre("1");
+            estudiante.setCarrera(dto.carrera());
+            estudiante.setMatricula(dto.matricula());
+            loadData(estudiante);
+        });
+    }
+
     private void inicializarPaneles(){
         panelDatos.setVisible(true);
         panelCalificaciones.setVisible(false);
@@ -364,22 +377,9 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
     }
 
     private void loadCarrerasAsync() {
-        Task<List<Carrera>> task = new Task<>() {
-            @Override
-            protected List<Carrera> call() throws Exception {
-                return new DAOCarreras().getAllCarreras();
-            }
-        };
-
-        task.setOnSucceeded(event -> {
-            try {
-                comboCarrera.getItems().addAll(task.get());
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
+        Utils.loadAsync(()-> new DAOCarreras().getAllCarreras(), carreras -> {
+            comboCarrera.getItems().addAll(carreras);
         });
-
-        new Thread(task).start();
     }
 
 
@@ -392,7 +392,6 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
 
         ImagePattern imagePattern = new ImagePattern(img);
         fotoEstudiante.setFill(imagePattern);
-        System.out.println(estudiante.getCarrera());
         txtMatricula.setText(estudiante.getMatricula());
         txtNombre.setText(estudiante.getNombre());
         txtApPat.setText(estudiante.getApPaterno());
@@ -433,42 +432,25 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
     }
 
     private void loadTitutoAsync(){
-        Task<Titulo> task = new Task<Titulo>() {
-            @Override
-            protected Titulo call() throws Exception {
-                Titulo titulo1 = daoTitulo.getTitulacionByIdAlumno(estudiante.getId());
-               return titulo1;
+        Utils.loadAsync(()-> daoTitulo.getTitulacionByIdAlumno(estudiante.getId()), t -> {
+            this.titulo = t;
+            if (titulo == null){
+                titulo = new Titulo();
+                btnGuardarTitulo.setVisible(true);
+                btnEditarTitulo.setVisible(false);
+            }else{
+                btnEditarTitulo.setVisible(true);
+                btnGuardarTitulo.setVisible(false);
             }
-        };
-        task.setOnSucceeded(event -> {
-            try {
-                this.titulo = task.get();
-                if (titulo == null){
-                    titulo = new Titulo();
-                    btnGuardarTitulo.setVisible(true);
-                    btnEditarTitulo.setVisible(false);
-                }else{
-                    btnEditarTitulo.setVisible(true);
-                    btnGuardarTitulo.setVisible(false);
-                }
-                setFieldTitulo();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
-            }
+            setFieldTitulo();
         });
-        task.setOnFailed(event -> System.out.println("Error al obtener el titulo" + task.getException()));
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
     }
 
     private void loadCalificaciones(String idAlumno, Consumer<List<Calificacion>> callback){
         Task<List<Calificacion>> task = new Task<List<Calificacion>>() {
             @Override
             protected List<Calificacion> call() throws Exception {
-                return daoCalificiaciones.obtenerCalificaciones(idAlumno);
+                return daoCalificiaciones.obtenerCalificacionesByCarrera(estudiante);
             }
         };
 

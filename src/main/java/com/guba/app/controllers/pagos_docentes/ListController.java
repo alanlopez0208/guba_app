@@ -101,7 +101,7 @@ public class ListController extends BaseController<PagoDocente> {
         busquedaSearch.setText("");
         yearmMonthPicker.getEditor().setText(null);
         toggleFiltroNormal.selectToggle(null);
-        //getLista().setAll(pagoList);
+        filteredList.setPredicate(null);
     }
 
 

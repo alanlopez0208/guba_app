@@ -7,81 +7,103 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class DataConsumer<T>{
-    private Connection connection;
-    public DataConsumer(){
-        connection = Conexion.getConection();
-    }
 
-    public List<T> getList(String sql, SQLConsumer preparaed, SQLResult<T> mapper){
+public class DataConsumer<T> {
+
+    public List<T> getList(String sql, SQLConsumer preparaed, SQLResult<T> mapper) {
         List<T> list = new ArrayList<>();
+        Connection connection = null;
+        PreparedStatement pstmt = null;
+        ResultSet resultSet = null;
         try {
-            PreparedStatement pstmt = connection.prepareStatement(sql);
+            connection = Conexion.getConnection();
+            pstmt = connection.prepareStatement(sql);
             preparaed.accept(pstmt);
-            ResultSet resultSet = pstmt.executeQuery();
+            resultSet = pstmt.executeQuery();
 
-
-            while (resultSet.next()){
+            while (resultSet.next()) {
                 list.add(mapper.convertData(resultSet));
             }
-
-        }catch (SQLException e){
-            System.out.println("Error: "+ e);
+        } catch (SQLException e) {
+            System.out.println("Error: " + e);
+        } finally {
+            closeResources(resultSet, pstmt, connection);
         }
         return list;
     }
 
-    public List<T> getList(String sql, SQLResult<T> mapper){
+    public List<T> getList(String sql, SQLResult<T> mapper) {
         List<T> list = new ArrayList<>();
+        Connection connection = null;
+        PreparedStatement pstmt = null;
+        ResultSet resultSet = null;
         try {
-            PreparedStatement pstmt = connection.prepareStatement(sql);
-            ResultSet resultSet = pstmt.executeQuery();
+            connection = Conexion.getConnection();
+            pstmt = connection.prepareStatement(sql);
+            resultSet = pstmt.executeQuery();
 
-            while (resultSet.next()){
-
+            while (resultSet.next()) {
                 list.add(mapper.convertData(resultSet));
             }
 
-        }catch (SQLException e){
-            System.out.println("Error "+ e);
+        } catch (SQLException e) {
+            System.out.println("Error " + e);
+        } finally {
+            closeResources(resultSet, pstmt, connection);
         }
         return list;
     }
 
-    public T getData(String sql, SQLConsumer consumer, SQLResult<T> mapper){
+    public T getData(String sql, SQLConsumer consumer, SQLResult<T> mapper) {
         T data = null;
+        Connection connection = null;
+        PreparedStatement pstmt = null;
+        ResultSet resultSet = null;
         try {
-            PreparedStatement pstmt = connection.prepareStatement(sql);
+            connection = Conexion.getConnection();
+            pstmt = connection.prepareStatement(sql);
             consumer.accept(pstmt);
-            ResultSet resultSet = pstmt.executeQuery();
+            resultSet = pstmt.executeQuery();
 
-            if (resultSet.next()){
+            if (resultSet.next()) {
                 data = mapper.convertData(resultSet);
             }
-        }catch (SQLException e){
-            System.out.println("Error "+ e);
+        } catch (SQLException e) {
+            System.out.println("Error " + e);
+        } finally {
+            closeResources(resultSet, pstmt, connection);
         }
         return data;
     }
 
-
-    public T getData(String sql ,SQLResult<T> mapper){
+    public T getData(String sql, SQLResult<T> mapper) {
         T data = null;
+        Connection connection = null;
+        PreparedStatement prepareStatement = null;
+        ResultSet resultSet = null;
         try {
-            PreparedStatement prepareStatement = connection.prepareStatement(sql);
-            ResultSet resultSet = prepareStatement.executeQuery();
-            if (resultSet.next()){
+            connection = Conexion.getConnection();
+            prepareStatement = connection.prepareStatement(sql);
+            resultSet = prepareStatement.executeQuery();
+            if (resultSet.next()) {
                 data = mapper.convertData(resultSet);
             }
-        }catch (SQLException e){
-            System.out.println("Error "+ e);
+        } catch (SQLException e) {
+            System.out.println("Error " + e);
+        } finally {
+            closeResources(resultSet, prepareStatement, connection);
         }
         return data;
     }
 
     public <T> Optional<T> executeUpdate(String sql, SQLConsumer consumer, boolean returnGeneratedKeys) {
-        try (PreparedStatement pt = connection.prepareStatement(sql,
-                returnGeneratedKeys ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS)) {
+        Connection connection = null;
+        PreparedStatement pt = null;
+        ResultSet generatedKeys = null;
+        try {
+            connection = Conexion.getConnection();
+            pt = connection.prepareStatement(sql,
+                    returnGeneratedKeys ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS);
 
             if (consumer != null) {
                 consumer.accept(pt);
@@ -92,14 +114,12 @@ public class DataConsumer<T>{
                 throw new SQLException("La operación no afectó ninguna fila.");
             }
             if (returnGeneratedKeys) {
-                try (ResultSet generatedKeys = pt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-
-                        T key = (T) Integer.valueOf(generatedKeys.getInt(1));
-                        return Optional.of(key);
-                    } else {
-                        throw new SQLException("La operación no generó ninguna clave.");
-                    }
+                generatedKeys = pt.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    T key = (T) Integer.valueOf(generatedKeys.getInt(1));
+                    return Optional.of(key);
+                } else {
+                    throw new SQLException("La operación no generó ninguna clave.");
                 }
             }
 
@@ -109,9 +129,10 @@ public class DataConsumer<T>{
         } catch (SQLException e) {
             System.err.println("Error en la consulta: " + e.getMessage());
             return Optional.empty();
+        } finally {
+            closeResources(generatedKeys, pt, connection);
         }
     }
-
 
     public boolean executeUpdate(String sql) {
         return (boolean) executeUpdate(sql, null, false).orElse(false);
@@ -126,14 +147,18 @@ public class DataConsumer<T>{
     }
 
     public <E> Optional<E> executeTransaction(SQLTransactionalOperation<E> operation) {
+        Connection connection = null;
         try {
+            connection = Conexion.getConnection();
             connection.setAutoCommit(false);
             E data = operation.execute(connection);
             connection.commit();
             return Optional.of(data);
         } catch (SQLException e) {
             try {
-                connection.rollback();
+                if (connection != null) {
+                    connection.rollback();
+                }
                 System.out.println("Transacción revertida: " + e.getMessage());
                 return Optional.empty();
             } catch (SQLException rollbackEx) {
@@ -141,20 +166,25 @@ public class DataConsumer<T>{
                 return Optional.empty();
             }
         } finally {
-            try {
-                connection.setAutoCommit(true);
-            } catch (SQLException e) {
-                System.out.println("Error al reiniciar AutoCommit: " + e.getMessage());
-               return Optional.empty();
+            if (connection != null) {
+                try {
+                    connection.setAutoCommit(true);
+                    connection.close();
+                } catch (SQLException e) {
+                    System.out.println("Error al reiniciar AutoCommit: " + e.getMessage());
+                }
             }
         }
     }
 
-    public boolean excuteBatch(String sql, SQLConsumer consumer){
+    public boolean excuteBatch(String sql, SQLConsumer consumer) {
         boolean success = false;
+        Connection connection = null;
+        PreparedStatement pt = null;
         try {
+            connection = Conexion.getConnection();
             connection.setAutoCommit(false);
-            PreparedStatement pt = connection.prepareStatement(sql);
+            pt = connection.prepareStatement(sql);
             consumer.accept(pt);
             int[] results = pt.executeBatch();
 
@@ -164,19 +194,54 @@ public class DataConsumer<T>{
             connection.commit();
         } catch (SQLException e) {
             try {
-                connection.rollback();
+                if (connection != null) {
+                    connection.rollback();
+                }
                 System.out.println("Transacción revertida: " + e.getMessage());
             } catch (SQLException rollbackEx) {
                 System.out.println("Error al realizar rollback: " + rollbackEx.getMessage());
             }
         } finally {
-            try {
-                connection.setAutoCommit(true);
-            } catch (SQLException e) {
-                System.out.println("Error al reiniciar AutoCommit: " + e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.setAutoCommit(true);
+                    connection.close();
+                } catch (SQLException e) {
+                    System.out.println("Error al reiniciar AutoCommit: " + e.getMessage());
+                }
+            }
+            if (pt != null) {
+                try {
+                    pt.close();
+                } catch (SQLException e) {
+                    System.out.println("Error al cerrar PreparedStatement: " + e.getMessage());
+                }
             }
         }
         return success;
     }
-}
 
+    private void closeResources(ResultSet resultSet, PreparedStatement pstmt, Connection connection) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                System.out.println("Error al cerrar ResultSet: " + e.getMessage());
+            }
+        }
+        if (pstmt != null) {
+            try {
+                pstmt.close();
+            } catch (SQLException e) {
+                System.out.println("Error al cerrar PreparedStatement: " + e.getMessage());
+            }
+        }
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                System.out.println("Error al cerrar Connection: " + e.getMessage());
+            }
+        }
+    }
+}

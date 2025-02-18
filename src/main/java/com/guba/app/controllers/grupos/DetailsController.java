@@ -490,6 +490,7 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
 
     private void setUpColumnsEditable(TableColumn<Calificacion,String> tableColumn,
                                       Callback<Calificacion, ObjectProperty<Float>> propertyCellDataFeatures){
+
         tableColumn.setCellValueFactory(calificacionStringCellDataFeatures -> {
             Calificacion calificacion = calificacionStringCellDataFeatures.getValue();
             ObjectProperty<Float> property = propertyCellDataFeatures.call(calificacion);
@@ -503,7 +504,9 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
                 }
             },property);
         });
-        tableColumn.setCellFactory(new Callback<TableColumn<Calificacion, String>, TableCell<Calificacion, String>>() {
+        tableColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        /*tableColumn.setCellFactory(new Callback<TableColumn<Calificacion, String>, TableCell<Calificacion, String>>() {
             @Override
             public TableCell<Calificacion, String> call(TableColumn<Calificacion, String> calificacionStringTableColumn) {
                 return new TextFieldTableCell<>(){
@@ -515,15 +518,13 @@ public class DetailsController extends BaseController<Grupo> implements Initiali
                             setGraphic(null);
                         }else{
                             Calificacion calificacion = calificacionStringTableColumn.getTableView().getItems().get(getIndex());
-                            System.out.println(calificacion.getIdCalificacion() +"-> "+ calificacion.getPerido());
-                            if (!calificacion.getPerido().getId().equals(periodo.getId())){
-                                setEditable(false);
-                            }
+
                         }
                     }
                 };
             }
-        });
+        });*/
+
         tableColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Calificacion, String>>() {
             @Override
             public void handle(TableColumn.CellEditEvent<Calificacion, String> event) {

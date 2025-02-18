@@ -95,12 +95,11 @@ public class ListController extends BaseController<PagoAlumno> {
     public void initialize(URL url, ResourceBundle resourceBundle) {
     }
 
-    @FXML
     private void openPaneAddAlumno(ActionEvent event){
-        mediador.loadContent(Paginas.ADD, new PagoAlumno());
+        PagoAlumno pagoAlumno = new PagoAlumno();
+        mediador.loadContent(Paginas.ADD, pagoAlumno);
     }
 
-    @FXML
     private void borrarFiltros(ActionEvent event){
         yearMonthSelect = null;
         toggleFiltroNormal.selectToggle(null);

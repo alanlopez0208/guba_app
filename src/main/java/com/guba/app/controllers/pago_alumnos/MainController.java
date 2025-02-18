@@ -46,7 +46,11 @@ public class MainController extends BaseMainController<PagoAlumno> {
         var optional = pagoAlumnos.crearPago(pagoAlumno);
         if (optional.isPresent()){
             pagoAlumno.setIdPago(optional.get().toString());
+
             dataList.add(pagoAlumno);
+            dataList.forEach(pago ->{
+                System.out.println(pago.toString());
+            });
             return true;
         }
         return false;

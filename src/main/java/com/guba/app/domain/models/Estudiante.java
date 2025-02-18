@@ -369,14 +369,14 @@ public class Estudiante implements ComboBoxCell {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Estudiante that)) return false;
-        return Objects.equals(getId(), that.getId()) && Objects.equals(getMatricula(), that.getMatricula()) && Objects.equals(getNombre(), that.getNombre()) && Objects.equals(getApPaterno(), that.getApPaterno()) && Objects.equals(getApMaterno(), that.getApMaterno());
+        if (o == null || getClass() != o.getClass()) return false;
+        Estudiante that = (Estudiante) o;
+        return Objects.equals(id, that.id) && Objects.equals(matricula, that.matricula) && Objects.equals(nombre, that.nombre) && Objects.equals(apPaterno, that.apPaterno) && Objects.equals(apMaterno, that.apMaterno) && Objects.equals(emailPersonal, that.emailPersonal) && Objects.equals(emailInstitucional, that.emailInstitucional) && Objects.equals(generacion, that.generacion) && Objects.equals(numCelular, that.numCelular) && Objects.equals(estado, that.estado) && Objects.equals(municipio, that.municipio) && Objects.equals(escProcedencia, that.escProcedencia) && Objects.equals(grado, that.grado) && Objects.equals(grupo, that.grupo) && Objects.equals(Status, that.Status) && Objects.equals(password, that.password) && Objects.equals(passwordTemporal, that.passwordTemporal) && Objects.equals(foto, that.foto) && Objects.equals(sexo, that.sexo) && Objects.equals(semestre, that.semestre) && Objects.equals(carrera, that.carrera) && Objects.equals(direccion, that.direccion) && Objects.equals(nacimiento, that.nacimiento) && Objects.equals(fotoPerfil, that.fotoPerfil);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getMatricula(), getNombre(), getApPaterno(), getApMaterno());
+        return Objects.hash(id, matricula, nombre, apPaterno, apMaterno, emailPersonal, emailInstitucional, generacion, numCelular, estado, municipio, escProcedencia, grado, grupo, Status, password, passwordTemporal, foto, sexo, semestre, carrera, direccion, nacimiento, fotoPerfil);
     }
 
     @Override

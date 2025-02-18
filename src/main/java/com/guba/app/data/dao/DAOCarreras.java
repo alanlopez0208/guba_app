@@ -102,7 +102,7 @@ public class DAOCarreras {
         ArrayList<Carrera> resultados = new ArrayList<>();
         String sql = "SELECT * FROM Carreras WHERE " + where + " LIKE ?";
 
-        conn = Conexion.getConection();
+        conn = Conexion.getConnection();
 
         if (conn == null) {
             throw new RuntimeException("No se pudo conectar a la base de datos");

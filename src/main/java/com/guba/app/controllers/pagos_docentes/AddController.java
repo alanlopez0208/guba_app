@@ -1,19 +1,15 @@
 package com.guba.app.controllers.pagos_docentes;
 
 import com.guba.app.data.dao.DAOMaestro;
-import com.guba.app.data.dao.DAOPagoDocentes;
-import com.guba.app.domain.models.Estudiante;
 import com.guba.app.domain.models.PagoDocente;
 import com.guba.app.utils.*;
 import com.guba.app.domain.models.Maestro;
-import com.guba.app.domain.models.PagoDocente;
 import com.guba.app.presentation.dialogs.DialogConfirmacion;
 import com.guba.app.presentation.utils.ComboCell;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -22,9 +18,7 @@ import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutionException;
 
 
 public class AddController extends BaseController<PagoDocente> implements Initializable, Loadable<PagoDocente> {
@@ -54,7 +48,6 @@ public class AddController extends BaseController<PagoDocente> implements Initia
         txtCantidad.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
-                System.out.println(t1);
                 if (t1){
                     containerMoney.getStyleClass().add("select");
                 }else{
@@ -74,6 +67,21 @@ public class AddController extends BaseController<PagoDocente> implements Initia
                 return new ComboCell<Maestro>();
             }
         });
+        txtCantidad.textProperty().addListener((observableValue, s, t1) -> {
+            if (t1 != null) {
+                pagoDocente.setCantidad(t1);
+            }
+        });
+        txtConcepto.textProperty().addListener((observableValue, s, t1) -> {
+            if (t1 != null) {
+                pagoDocente.setConcepto(t1);
+            }
+        });
+        txtFactura.textProperty().addListener((observableValue, s, t1) -> {
+            if (t1 != null) {
+                pagoDocente.setFactura(t1);
+            }
+        });
         comboMaestros.setButtonCell(new ComboCell<>());
         comboMaestros.setButtonCell(new ComboCell<>());
         backButton.setOnAction(this::regresarAPanel);
@@ -82,14 +90,12 @@ public class AddController extends BaseController<PagoDocente> implements Initia
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
     }
 
 
     @FXML
     private void regresarAPanel(ActionEvent actionEvent) {
         pagoDocente = null;
-        //mediador.changePane(Paginas.LIST);
         paginasProperty.set(Paginas.LIST);
     }
 
@@ -97,6 +103,7 @@ public class AddController extends BaseController<PagoDocente> implements Initia
     private void guardar(ActionEvent event){
         if (mostrarConfirmacion()){
             pagoDocente.setMaestro(comboMaestros.getValue());
+            pagoDocente.setDate(dateFeha.getValue());
             boolean seAgrego = mediador.guardar(pagoDocente);
             if (seAgrego){
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -107,39 +114,26 @@ public class AddController extends BaseController<PagoDocente> implements Initia
                 alert.setContentText("Error al guardar contecta con soporte");
                 alert.showAndWait();
             }
+            cleanData();
             paginasProperty.set(Paginas.LIST);
         }
     }
 
-    private void loadAlumnosAsync() {
-        comboMaestros.setDisable(true);
-        Task<List<Maestro>> task = new Task<>() {
-            @Override
-            protected List<Maestro> call() throws Exception {
-                return daoMaestro.getDocentes();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            try {
-                comboMaestros.getItems().setAll(task.get());
-                comboMaestros.setDisable(false);
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        new Thread(task).start();
+    private void loadMaestrosAsync() {
+        Utils.loadAsync(()->{
+            comboMaestros.setDisable(true);
+            return daoMaestro.getDocentes();
+        },maestros -> {
+            comboMaestros.getItems().setAll(maestros);
+            comboMaestros.setDisable(false);
+        } );
     }
 
 
     @Override
     public void loadData(PagoDocente data) {
         pagoDocente = data;
-        txtCantidad.textProperty().bindBidirectional(pagoDocente.cantidadProperty());
-        txtConcepto.textProperty().bindBidirectional(pagoDocente.conceptoProperty());
-        txtFactura.textProperty().bindBidirectional(pagoDocente.facturaProperty());
-        Bindings.bindBidirectional(comboMaestros.valueProperty(), pagoDocente.maestroProperty());
-        Bindings.bindBidirectional(dateFeha.valueProperty(), pagoDocente.dateProperty());
-        loadAlumnosAsync();
+        loadMaestrosAsync();
     }
 
     private boolean mostrarConfirmacion() {
@@ -150,5 +144,11 @@ public class AddController extends BaseController<PagoDocente> implements Initia
     @Override
     protected void cleanData() {
         pagoDocente = null;
+        dateFeha.setValue(null);
+        comboMaestros.setValue(null);
+        txtCantidad.setText(null);
+        txtConcepto.setText(null);
+        txtFactura.setText(null);
+        dateFeha.setValue(null);
     }
 }

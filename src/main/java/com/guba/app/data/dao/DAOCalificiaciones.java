@@ -143,9 +143,18 @@ public class DAOCalificiaciones {
     public List<Calificacion> obtenerCalificaciones(String idAlumno) {
         String sql = SELECT_ALL+ " WHERE Calificaciones.IdAlumno = ? ";
 
-
         return dataConsumer.getList(sql,pstmt->{
             pstmt.setString(1, idAlumno);
+        },this::mapResultSetToCalificacion);
+    }
+
+    public List<Calificacion> obtenerCalificacionesByCarrera(Estudiante estudiante) {
+        String sql = SELECT_ALL+ " WHERE Calificaciones.IdAlumno = ? AND Calificaciones.IdMateria IN ( " +
+                "SELECT IdMateria FROM Materias WHERE IdCarrera = ? )";
+
+        return dataConsumer.getList(sql,pstmt->{
+            pstmt.setString(1, estudiante.getId());
+            pstmt.setString(2, estudiante.getCarrera().getIdCarrera());
         },this::mapResultSetToCalificacion);
     }
 

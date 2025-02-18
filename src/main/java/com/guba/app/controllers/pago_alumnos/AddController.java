@@ -52,7 +52,6 @@ public class AddController extends BaseController<PagoAlumno> implements Loadabl
         txtCantidad.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
-                System.out.println(t1);
                 if (t1){
                     containerMoney.getStyleClass().add("select");
                 }else{
@@ -72,6 +71,21 @@ public class AddController extends BaseController<PagoAlumno> implements Loadabl
                 return new ComboCell<Estudiante>();
             }
         });
+        txtCantidad.textProperty().addListener((observableValue, s, t1) -> {
+            if (t1 != null) {
+                pagoAlumno.setCantidad(t1);
+            }
+        });
+        txtConcepto.textProperty().addListener((observableValue, s, t1) -> {
+            if (t1 != null) {
+                pagoAlumno.setConcepto(t1);
+            }
+        });
+        txtFactura.textProperty().addListener((observableValue, s, t1) -> {
+            if (t1 != null) {
+                pagoAlumno.setFactura(t1);
+            }
+        });
         comboAlumnos.setButtonCell(new ComboCell<>());
         backButton.setOnAction(this::regresarAPanel);
         btnGuardar.setOnAction(this::guardar);
@@ -83,13 +97,14 @@ public class AddController extends BaseController<PagoAlumno> implements Loadabl
     }
 
     private void regresarAPanel(ActionEvent actionEvent) {
-        pagoAlumno = null;
+        cleanData();
         paginasProperty.set(Paginas.LIST);
     }
 
     private void guardar(ActionEvent event){
         if (mostrarConfirmacion()){
             pagoAlumno.setAlumno(comboAlumnos.getValue());
+            pagoAlumno.setDate(dateFeha.getValue());
             boolean seAgrego = mediador.guardar(pagoAlumno);
             if (seAgrego){
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -97,10 +112,11 @@ public class AddController extends BaseController<PagoAlumno> implements Loadabl
                 alert.showAndWait();
             }else{
                 Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setContentText("Error al guardar contecta con soporte");
+                alert.setContentText("Error al guardar contacta a soporte");
                 alert.showAndWait();
             }
             paginasProperty.set(Paginas.LIST);
+            cleanData();
         }
     }
 
@@ -117,10 +133,6 @@ public class AddController extends BaseController<PagoAlumno> implements Loadabl
     @Override
     public void loadData(PagoAlumno data) {
         pagoAlumno = data;
-        txtCantidad.textProperty().bindBidirectional(pagoAlumno.cantidadProperty());
-        txtConcepto.textProperty().bindBidirectional(pagoAlumno.conceptoProperty());
-        txtFactura.textProperty().bindBidirectional(pagoAlumno.facturaProperty());
-        Bindings.bindBidirectional(dateFeha.valueProperty(),pagoAlumno.dateProperty());
         loadAlumnosAsync();
     }
 
@@ -132,5 +144,9 @@ public class AddController extends BaseController<PagoAlumno> implements Loadabl
     @Override
     protected void cleanData() {
         pagoAlumno = null;
+        txtCantidad.setText(null);
+        txtConcepto.setText(null);
+        txtFactura.setText(null);
+        dateFeha.setValue(null);
     }
 }

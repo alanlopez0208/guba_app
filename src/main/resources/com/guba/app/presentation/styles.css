@@ -1,3 +1,4 @@
+
 .root{
     -fx-font-family: 'Montserrat';
     -fx-background-color:#F4F4F4;
@@ -324,10 +325,6 @@
     -fx-background-radius: 10;
 }
 
-.list-view{
-    -fx-padding: 10 20;
-}
-
 
 .list-view .list-cell{
     -fx-border-insets: 10 10;
@@ -422,12 +419,9 @@
     -fx-background-radius: 10;
 }
 
-
 .contextMenu .radio-menu-item .radio {
     -fx-background-color: #894957;
 }
-
-
 
 .monthPicker {
     -fx-background-color: white;

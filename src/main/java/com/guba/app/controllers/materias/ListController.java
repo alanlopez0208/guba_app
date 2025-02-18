@@ -59,6 +59,7 @@ public class ListController extends BaseController<Materia> implements Initializ
     private Filtros filtroSeleccionado = Filtros.CLAVE;
     private Carrera carreraSelecionada;
     private String semestreSeleccioando;
+    private DAOCarreras daoCarreras = new DAOCarreras();
 
 
     public ListController( Mediador<Materia> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty, ObservableList<Materia> list) {
@@ -241,7 +242,7 @@ public class ListController extends BaseController<Materia> implements Initializ
     }
 
     private void loadCarrerasAsync() {
-        Utils.loadAsync(()-> new DAOCarreras().getAllCarreras(), carreras -> {
+        Utils.loadAsync(()-> daoCarreras.getAllCarreras(), carreras -> {
             carreras.forEach(carrera -> {
                 RadioMenuItem radioButton = new RadioMenuItem();
                 radioButton.setText(carrera.getNombre() + " " + carrera.getModalidad());

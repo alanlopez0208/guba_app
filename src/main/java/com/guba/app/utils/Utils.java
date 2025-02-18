@@ -11,7 +11,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 public class Utils {
-    public static <T> void loadAsync(Callable<T> callable, Consumer<T> consumer){
+    public static <T> void  loadAsync(Callable<T> callable, Consumer<T> consumer){
         Task<T> task = new Task<T>() {
             @Override
             protected T call() throws Exception {
@@ -24,6 +24,10 @@ public class Utils {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        });
+
+        task.setOnFailed(event -> {
+            System.out.println("Ocurrio un error: "+ task.getException().getMessage());
         });
         Thread thread = new Thread(task);
         thread.setDaemon(true);

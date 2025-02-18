@@ -214,7 +214,7 @@ public class DAOAlumno {
 
         String sql = "INSERT INTO Calificaciones (IdAlumno, IdDocente, IdMateria, IdPeriodo) VALUES (?, ?, ?, ?)";
 
-        try (Connection conn = Conexion.getConection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = Conexion.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, alumno.getId()); // IdAlumno
             pstmt.setString(2, idDocente); // IdDocente
@@ -233,7 +233,7 @@ public class DAOAlumno {
         String sqlVerificacion = "SELECT COUNT(*) FROM Calificaciones WHERE IdAlumno = ? AND IdMateria = ?";
         String sqlInsercion = "INSERT INTO Calificaciones (IdAlumno, IdDocente, IdMateria, IdPeriodo) VALUES (?, ?, ?, ?)";
 
-        try (Connection conn = Conexion.getConection(); PreparedStatement pstmtVerificacion = conn.prepareStatement(sqlVerificacion); PreparedStatement pstmtInsercion = conn.prepareStatement(sqlInsercion)) {
+        try (Connection conn = Conexion.getConnection(); PreparedStatement pstmtVerificacion = conn.prepareStatement(sqlVerificacion); PreparedStatement pstmtInsercion = conn.prepareStatement(sqlInsercion)) {
 
             conn.setAutoCommit(false);
 
@@ -275,10 +275,9 @@ public class DAOAlumno {
     }
 
     public boolean eliminarCalificaciones(String idAlumno, String idMateria) {
-
         String sql = "DELETE FROM Calificaciones WHERE IdAlumno = ? AND IdMateria = ?";
 
-        try (Connection conn = Conexion.getConection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = Conexion.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, idAlumno);
             pstmt.setString(2, idMateria);
@@ -305,7 +304,7 @@ public class DAOAlumno {
     public boolean actualizarIdGrupoEstudiante(String idGrupo, Estudiante estudiante) {
         String sql = "UPDATE Alumnos SET IdGrupo = ? WHERE Matricula = ?";
 
-        try (Connection conn = Conexion.getConection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = Conexion.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, idGrupo);
             pstmt.setString(2, estudiante.getMatricula());
@@ -324,6 +323,15 @@ public class DAOAlumno {
         return dataConsumer.executeUpdate(sql, pstmt->{
            pstmt.setString(1,estudiante.getPassword());
            pstmt.setString(2,estudiante.getPassword());
+        });
+    }
+
+    public boolean changeDegree(String matricula, String idCarrera, String idAlumno){
+        String sql = "UPDATE Alumnos SET Matricula = ?, IdCarrera = ? WHERE IdAlumno = ?";
+        return dataConsumer.executeUpdate(sql, pstmt->{
+            pstmt.setString(1,matricula);
+            pstmt.setString(2, idCarrera);
+            pstmt.setString(3,idAlumno);
         });
     }
 }

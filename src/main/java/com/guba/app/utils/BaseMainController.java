@@ -25,8 +25,6 @@ public abstract class BaseMainController<T> implements Mediador<T>, Initializabl
     protected StackPane stack;
     protected final ObjectProperty<Estado> estadoProperty = new SimpleObjectProperty<>(Estado.INICIAL);
     protected final ObjectProperty<Paginas> paginaProperty = new SimpleObjectProperty<>();
-    protected Map<Paginas, Node> paginas = new HashMap<>();
-    protected Map<Paginas, BaseController<T>> controladores = new HashMap<>();
     protected ObservableList<T> dataList = FXCollections.observableArrayList();
     protected Map<Paginas,BaseController<T>> nodos = new HashMap<>();
 
@@ -39,24 +37,6 @@ public abstract class BaseMainController<T> implements Mediador<T>, Initializabl
             nodos.get(newValue).setVisible(true);
         });
     }
-
-    protected void registrarPagina(Paginas pagina, String rutaVista) {
-        try {
-            FXMLLoader loader = new FXMLLoader(this.getClass().getResource(Constants.URL_MODULES+ rutaVista +".fxml"));
-            Parent parent = loader.load();
-            parent.setVisible(false);
-            BaseController<T> controller = loader.getController();
-            controller.setMediador(this);
-            controller.setEstadoProperty(estadoProperty);
-            controller.setPaginasProperty(paginaProperty);
-            controladores.put(pagina, controller);
-            paginas.put(pagina, parent);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            throw new RuntimeException(e);
-        }
-    }
-
     protected void registrarPagina(Paginas pagina, BaseController<T> controller) {
         controller.setVisible(false);
         nodos.put(pagina, controller);
@@ -81,9 +61,12 @@ public abstract class BaseMainController<T> implements Mediador<T>, Initializabl
     public void loadBD() {
         Utils.loadAsync(() -> {
             estadoProperty.setValue(Estado.CARGANDO);
+            System.out.println("CARGANDOOO");
             return fetchData();
+
         }, data -> {
             estadoProperty.setValue(Estado.CARGADO);
+            System.out.println("CARGADOOO");
             dataList.setAll(data);
         });
     }

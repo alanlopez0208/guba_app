@@ -17,9 +17,7 @@ public class PagoAlumno {
     private SimpleStringProperty concepto;
     private SimpleStringProperty factura;
     private ObjectProperty<Estudiante> alumno;
-
     private ObjectProperty<LocalDate> date;
-
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public PagoAlumno() {
@@ -141,20 +139,35 @@ public class PagoAlumno {
         this.setFecha(dateTimeFormatter.format(this.date.get()));
     }
 
+    public String toStringDate(){
+        this.setFecha(dateTimeFormatter.format(this.getDate()));
+        return dateTimeFormatter.format(this.getDate());
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PagoAlumno that)) return false;
-        return Objects.equals(getIdPago(), that.getIdPago()) && Objects.equals(getIdAlumno(), that.getIdAlumno()) && Objects.equals(getFecha(), that.getFecha()) && Objects.equals(getCantidad(), that.getCantidad()) && Objects.equals(getConcepto(), that.getConcepto()) && Objects.equals(getFactura(), that.getFactura()) && Objects.equals(getAlumno(), that.getAlumno()) && Objects.equals(getDate(), that.getDate());
+        if (o == null || getClass() != o.getClass()) return false;
+        PagoAlumno that = (PagoAlumno) o;
+        return Objects.equals(idPago, that.idPago) && Objects.equals(idAlumno, that.idAlumno) && Objects.equals(fecha, that.fecha) && Objects.equals(cantidad, that.cantidad) && Objects.equals(concepto, that.concepto) && Objects.equals(factura, that.factura) && Objects.equals(alumno, that.alumno) && Objects.equals(date, that.date) && Objects.equals(dateTimeFormatter, that.dateTimeFormatter);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getIdPago(), getIdAlumno(), getFecha(), getCantidad(), getConcepto(), getFactura(), getAlumno(), getDate());
+        return Objects.hash(idPago, idAlumno, fecha, cantidad, concepto, factura, alumno, date, dateTimeFormatter);
     }
 
-    public String toStringDate(){
-        this.setFecha(dateTimeFormatter.format(this.getDate()));
-        return dateTimeFormatter.format(this.getDate());
+    @Override
+    public String toString() {
+        return "PagoAlumno{" +
+                "idPago=" + idPago +
+                ", idAlumno=" + idAlumno +
+                ", fecha=" + fecha +
+                ", cantidad=" + cantidad +
+                ", concepto=" + concepto +
+                ", factura=" + factura +
+                ", alumno=" + alumno +
+                ", date=" + date +
+                ", dateTimeFormatter=" + dateTimeFormatter +
+                '}';
     }
 }
