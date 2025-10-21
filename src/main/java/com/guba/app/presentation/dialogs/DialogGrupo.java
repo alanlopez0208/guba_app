@@ -46,7 +46,6 @@ public class DialogGrupo extends Dialog<Grupo> {
 
         carreraComboBox.setButtonCell(new ComboCell<>());
         carreraComboBox.getStyleClass().add("combo");
-        carreraComboBox.getStyleClass().add("combo");
         carreraComboBox.minWidth(500);
         carreraComboBox.setButtonCell(new ComboCell<Carrera>());
         carreraComboBox.setCellFactory(carreraListView -> new ComboCell<Carrera>());

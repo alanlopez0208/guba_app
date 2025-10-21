@@ -59,12 +59,6 @@ public class AddController extends BaseController<PagoAlumno> implements Loadabl
                 }
             }
         });
-        txtCantidad.setTextFormatter(new TextFormatter<>(change -> {
-            if (change.getControlNewText().matches("\\d*(\\.\\d+)?$")){
-                return change;
-            }
-            return null;
-        }));
         comboAlumnos.setCellFactory(new Callback<ListView<Estudiante>, ListCell<Estudiante>>() {
             @Override
             public ListCell<Estudiante> call(ListView<Estudiante> carreraListView) {

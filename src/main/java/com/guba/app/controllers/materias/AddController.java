@@ -74,6 +74,49 @@ public class AddController extends BaseController<Materia> implements Initializa
                 return new ComboCell<Carrera>();
             }
         });
+        // Para los campos de texto (TextField)
+        txtNombre.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                materia.setNombre(newValue);
+            }
+        });
+        txtModalidad.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                materia.setModalidad(newValue);
+            }
+        });
+        txtHbca.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                materia.setHcba(newValue);
+            }
+        });
+        txtHti.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                materia.setHti(newValue);
+            }
+        });
+        txtSemestre.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                materia.setSemestre(newValue);
+            }
+        });
+        txtClave.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                materia.setClave(newValue);
+            }
+        });
+        txtCreditos.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                materia.setCreditos(newValue);
+            }
+        });
+
+        comboCarreras.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                materia.setCarreraModelo(newValue);
+            }
+        });
+
         comboCarreras.setButtonCell(new ComboCell<>());
         backButton.setOnAction(this::regresarAPanel);
         btnGuardar.setOnAction(this::guardar);
@@ -119,14 +162,14 @@ public class AddController extends BaseController<Materia> implements Initializa
 
     public void loadData(Materia data) {
         materia = data;
-        txtNombre.textProperty().bindBidirectional(materia.nombreProperty());
+        /*txtNombre.textProperty().bindBidirectional(materia.nombreProperty());
         txtModalidad.textProperty().bindBidirectional(materia.modalidadProperty());
         txtHbca.textProperty().bindBidirectional(materia.hcbaProperty());
         txtHti.textProperty().bindBidirectional(materia.htiProperty());
         txtSemestre.textProperty().bindBidirectional(materia.semestreProperty());
         txtClave.textProperty().bindBidirectional(materia.claveProperty());
         txtCreditos.textProperty().bindBidirectional(materia.creditosProperty());
-        Bindings.bindBidirectional(comboCarreras.valueProperty(), materia.carreraModeloProperty());
+        Bindings.bindBidirectional(comboCarreras.valueProperty(), materia.carreraModeloProperty());*/
         loadCarrerasAsync(materia.getCarreraModelo());
     }
 
@@ -138,5 +181,13 @@ public class AddController extends BaseController<Materia> implements Initializa
     @Override
     protected void cleanData() {
         materia = null;
+        txtNombre.setText(null);
+        txtModalidad.setText(null);
+        txtHbca.setText(null);
+        txtHti.setText(null);
+        txtSemestre.setText(null);
+        txtClave.setText(null);
+        txtCreditos.setText(null);
+        comboCarreras.setValue(null);
     }
 }

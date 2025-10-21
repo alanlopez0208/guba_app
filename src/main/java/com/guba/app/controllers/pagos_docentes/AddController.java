@@ -55,12 +55,6 @@ public class AddController extends BaseController<PagoDocente> implements Initia
                 }
             }
         });
-        txtCantidad.setTextFormatter(new TextFormatter<>(change -> {
-            if (change.getControlNewText().matches("\\d*(\\.\\d+)?$")){
-                return change;
-            }
-            return null;
-        }));
         comboMaestros.setCellFactory(new Callback<ListView<Maestro>, ListCell<Maestro>>() {
             @Override
             public ListCell<Maestro> call(ListView<Maestro> carreraListView) {

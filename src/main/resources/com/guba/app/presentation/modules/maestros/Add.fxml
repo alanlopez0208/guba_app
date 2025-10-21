@@ -76,7 +76,7 @@
                     <Label text="CV:" />
                     <HBox>
                         <TextField fx:id="txtPathCurriculo" editable="false"/>
-                        <Button fx:id="btnAddCurriculo" text="Add Curriculo"/>
+                        <Button fx:id="btnAddCurriculo" text="Add Curriculo" styleClass="btnsAgregar"/>
                     </HBox>
                 </VBox>
                 <VBox spacing="10.0">

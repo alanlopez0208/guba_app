@@ -2,6 +2,9 @@ package com.guba.app.controllers.pago_alumnos;
 
 import com.dlsc.gemsfx.YearMonthPicker;
 import com.guba.app.data.dao.DAOPagoAlumnos;
+import com.guba.app.data.local.database.conexion.Config;
+import com.guba.app.data.local.jasper.Jasper;
+import com.guba.app.presentation.dialogs.DialogFecha;
 import com.guba.app.utils.BaseController;
 import com.guba.app.utils.Estado;
 import com.guba.app.utils.Mediador;
@@ -29,14 +32,22 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimpleXlsExporterConfiguration;
+import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
+import net.sf.jasperreports.view.JasperViewer;
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import javax.swing.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class ListController extends BaseController<PagoAlumno> {
@@ -49,6 +60,8 @@ public class ListController extends BaseController<PagoAlumno> {
     private Button btnBorrarFiltros;
     @FXML
     private JFXButton btnActualizar;
+    @FXML
+    private JFXButton btnImprimir;
     @FXML
     private TableView<PagoAlumno> tableView;
     @FXML
@@ -78,6 +91,7 @@ public class ListController extends BaseController<PagoAlumno> {
         btnActualizar.setOnAction(event -> {
             cargarPagoAlumnos();
         });
+        btnImprimir.setOnAction(this::imprimirData);
         estadoProperty.addListener((observableValue, oldValue, newValue) -> {
             if (newValue.equals(Estado.CARGANDO)){
                 label.setVisible(true);
@@ -89,6 +103,25 @@ public class ListController extends BaseController<PagoAlumno> {
                 tableView.setItems(filteredList);
             }
         });
+    }
+
+    private void imprimirData(ActionEvent actionEvent) {
+        DialogFecha dialogFecha = new DialogFecha();
+        dialogFecha.showAndWait().ifPresent(value -> {
+            List<PagoAlumno> lista = filteredList.stream()
+                    .filter(pagoAlumno -> {
+                        YearMonth fechaPago = YearMonth.from(pagoAlumno.getDate());
+                        if (value.fin() == null){
+                            return fechaPago.compareTo(value.inicio()) >= 0;
+                        }
+
+                        return fechaPago.compareTo(value.inicio()) >= 0 && fechaPago.compareTo(value.fin()) <= 0;
+                    })
+                    .toList();
+            Jasper jasper = new Jasper();
+            jasper.generateDocument(Config.getConif().obtenerConfiguracion("11 RUTA PAGO ALUMNO"),lista);
+        });
+
     }
 
     @Override
@@ -214,8 +247,10 @@ public class ListController extends BaseController<PagoAlumno> {
     }
 
 
-    private void setFiltro(){
+    private void setFiltro() {
         yearmMonthPicker.getEditor().setText(null);
+
+
         busquedaSearch.textProperty().addListener((observableValue, s, t1) -> {
             aplicarFiltro();
         });
@@ -226,11 +261,11 @@ public class ListController extends BaseController<PagoAlumno> {
             aplicarFiltro();
         });
 
-
         yearmMonthPicker.valueProperty().addListener((observableValue, yearMonth, t1) -> {
             yearMonthSelect = t1;
             aplicarFiltro();
         });
+
     }
 
     private void aplicarFiltro(){

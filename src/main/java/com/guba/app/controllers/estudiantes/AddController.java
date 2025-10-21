@@ -124,6 +124,114 @@ public class AddController extends BaseController<Estudiante> implements Loadabl
                 estudiante.nacimientoProperty().set(format.format(t1));
             }
         });
+        txtMatricula.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                estudiante.matriculaProperty().set(newVal);
+            }
+        });
+
+        txtNombre.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                estudiante.nombreProperty().set(newVal);
+            }
+        });
+
+        txtApPat.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                estudiante.apPaternoProperty().set(newVal);
+            }
+        });
+
+        txtApMat.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                estudiante.apMaternoProperty().set(newVal);
+            }
+        });
+
+        txtCorreoInst.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                estudiante.emailInstitucionalProperty().set(newVal);
+            }
+        });
+
+        txtCorreoPer.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                estudiante.emailPersonalProperty().set(newVal);
+            }
+        });
+
+        txtGeneracion.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                estudiante.generacionProperty().set(newVal);
+            }
+        });
+
+        txtDireccion.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                estudiante.direccionProperty().set(newVal);
+            }
+        });
+
+        txtEscuelaProc.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                estudiante.escProcedenciaProperty().set(newVal);
+            }
+        });
+
+        txtGrado.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                estudiante.gradoProperty().set(newVal);
+            }
+        });
+
+        txtMunicipio.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                estudiante.municipioProperty().set(newVal);
+            }
+        });
+
+        txtEstado.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                estudiante.estadoProperty().set(newVal);
+            }
+        });
+
+        txtCelular.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                estudiante.numCelularProperty().set(newVal);
+            }
+        });
+
+        comboStatus.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                estudiante.statusProperty().set(newVal);
+            }
+        });
+
+        comboCarrera.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                estudiante.carreraProperty().set(newVal);
+            }
+        });
+
+        comboSemestre.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                estudiante.semestreProperty().set(newVal);
+            }
+        });
+
+        comboSexo.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                estudiante.sexoProperty().set(newVal);
+            }
+        });
+
+        txtMatricula.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                estudiante.passwordTemporalProperty().set(newVal);
+            }
+        });
+
     }
 
     private void regresarAPanel(ActionEvent actionEvent) {
@@ -264,7 +372,7 @@ public class AddController extends BaseController<Estudiante> implements Loadabl
         this.estudiante = data;
         ImagePattern imagePattern = new ImagePattern(estudiante.getFotoPerfil() != null ? estudiante.fotoPerfilProperty().get() : new Image(Objects.requireNonNull(getClass().getResource(Constants.URL_FOTO_PREDETERMINADA)).toString()));
         fotoEstudiante.setFill(imagePattern);
-        txtMatricula.textProperty().bindBidirectional(estudiante.matriculaProperty());
+        /*txtMatricula.textProperty().bindBidirectional(estudiante.matriculaProperty());
         txtNombre.textProperty().bindBidirectional(estudiante.nombreProperty());
         txtApPat.textProperty().bindBidirectional(estudiante.apPaternoProperty());
         txtApMat.textProperty().bindBidirectional(estudiante.apMaternoProperty());
@@ -281,7 +389,7 @@ public class AddController extends BaseController<Estudiante> implements Loadabl
         Bindings.bindBidirectional(comboCarrera.valueProperty(), estudiante.carreraProperty());
         Bindings.bindBidirectional(comboSemestre.valueProperty(), estudiante.semestreProperty());
         Bindings.bindBidirectional(comboSexo.valueProperty(), estudiante.sexoProperty());
-        estudiante.passwordTemporalProperty().bind(txtMatricula.textProperty());
+        estudiante.passwordTemporalProperty().bind(txtMatricula.textProperty());*/
         loadCarrerasAsync();
     }
 
@@ -290,5 +398,23 @@ public class AddController extends BaseController<Estudiante> implements Loadabl
         estudiante = null;
         comboSexo.setValue(null);
         comboNacimiento.setValue(null);
+        fotoEstudiante.setFill(null);
+        txtMatricula.setText(null);
+        txtNombre.setText(null);
+        txtApPat.setText(null);
+        txtApMat.setText(null);
+        txtCorreoInst.setText(null);
+        txtCorreoPer.setText(null);
+        txtGeneracion.setText(null);
+        txtDireccion.setText(null);
+        txtEscuelaProc.setText(null);
+        txtGrado.setText(null);
+        txtMunicipio.setText(null);
+        txtEstado.setText(null);
+        txtCelular.setText(null);
+        comboStatus.setValue(null);
+        comboCarrera.setValue(null);
+        comboSemestre.setValue(null);
+        comboSexo.setValue(null);
     }
 }

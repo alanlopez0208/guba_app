@@ -2,7 +2,7 @@ package com.guba.app.data.local.poi;
 
 public enum Presentacion {
     Asesor("asesor.pptx"),
-    Participante("participante.pptx");
+    Participante("p.pptx");
 
     private String nombre;
     Presentacion(String nombre){

@@ -154,8 +154,7 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
     private JFXButton btnPassword;
     @FXML
     private Button btnDetals,btnCalificaciones,btnTitulacion,btnAdicionales,backButton;
-    @FXML
-    private Button btnCambioCarrera;
+
 
     private Estudiante estudiante;
     private Titulo titulo;
@@ -183,7 +182,7 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
         btnEditarTitulo.setOnAction(this::editarTitulo);
         btnGenerarDocumento.setOnAction(this::generarDocumentos);
         btnPassword.setOnAction(this::verPassword);
-        btnCambioCarrera.setOnAction(this::cambiarCarrera);
+
     }
 
     @Override
@@ -299,42 +298,18 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
     private void verPassword(ActionEvent event){
            DialogLogin dialogLogin = new DialogLogin();
            dialogLogin.showAndWait().ifPresent(aBoolean -> {
-               Task<Estudiante> task = new Task<Estudiante>() {
-                   @Override
-                   protected Estudiante call() throws Exception {
-                       String body = http.request("SELECT * FROM Estudiantes");
-                       AlumnoDto alumnoDto = converter.getData(body, AlumnoDto.class );
-                       return new Estudiante(alumnoDto);
-                   }
-               };
-               task.setOnSucceeded(workerStateEvent -> {
-                   try {
-                       daoAlumno.updatePassword(task.get());
-                       Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                       alert.setTitle("Contraseña del usuario");
-                       alert.setContentText(estudiante.getPassword());
-                       alert.show();
-                   } catch (InterruptedException e) {
-                       throw new RuntimeException(e);
-                   } catch (ExecutionException e) {
-                       throw new RuntimeException(e);
-                   }
+               Utils.loadAsync(()->{
+                   String reponse = http.request("SELECT * FROM Estudiantes");
+                   AlumnoDto alumnoDto = converter.getData(reponse, AlumnoDto.class);
+                   return new Estudiante(alumnoDto);
+               } ,estudiante ->{
+                   daoAlumno.updatePassword(estudiante);
+                   Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                   alert.setTitle("Contraseña del usuario");
+                   alert.setContentText(estudiante.getPassword());
+                   alert.show();
                });
-               Thread thread = new Thread(task);
-               thread.setDaemon(true);
-               thread.start();
            });
-    }
-
-
-    private void cambiarCarrera(ActionEvent actionEvent){
-        DialogCambioCarrera dialogCambioCarrera = new DialogCambioCarrera(estudiante);
-        dialogCambioCarrera.showAndWait().ifPresent(dto -> {
-            estudiante.setSemestre("1");
-            estudiante.setCarrera(dto.carrera());
-            estudiante.setMatricula(dto.matricula());
-            loadData(estudiante);
-        });
     }
 
     private void inicializarPaneles(){

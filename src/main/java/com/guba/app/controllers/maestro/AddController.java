@@ -96,6 +96,84 @@ public class AddController extends BaseController<Maestro> implements Initializa
         btnArchivos.setOnAction(this::abrirArchivos);
         btnBorrarFoto.setOnAction(this::borrarFoto);
         btnAddCurriculo.setOnAction(this::addCurriculo);
+        txtRfc.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                maestro.rfcProperty().set(newVal);
+            }
+        });
+
+        txtNombre.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                maestro.nombreProperty().set(newVal);
+            }
+        });
+
+        txtApPat.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                maestro.apPatProperty().set(newVal);
+            }
+        });
+
+        txtApMat.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                maestro.apMatProperty().set(newVal);
+            }
+        });
+
+        txtCorreoInst.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                maestro.correoInsProperty().set(newVal);
+            }
+        });
+
+        txtCorreoPer.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                maestro.correoPerProperty().set(newVal);
+            }
+        });
+
+        txtDireccion.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                maestro.domicilioProperty().set(newVal);
+            }
+        });
+
+        txtGrado.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                maestro.gradoProperty().set(newVal);
+            }
+        });
+
+        txtMunicipio.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                maestro.municipioProperty().set(newVal);
+            }
+        });
+
+        txtEstado.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                maestro.estadoProperty().set(newVal);
+            }
+        });
+
+        txtCelular.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                maestro.celularProperty().set(newVal);
+            }
+        });
+
+        txtCurp.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                maestro.curpProperty().set(newVal);
+            }
+        });
+
+        comboSexo.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                maestro.generoProperty().set(newVal);
+            }
+        });
+
     }
 
     @Override
@@ -224,7 +302,7 @@ public class AddController extends BaseController<Maestro> implements Initializa
         Image img = new Image(String.valueOf(maestro.getFoto() != null ?  new File(maestro.getFoto()).toURI().toString() : getClass().getResource(Constants.URL_ASSETS+"img/usuario.png")));
         ImagePattern imagePattern = new ImagePattern(img);
         this.foto.setFill(imagePattern);
-        txtRfc.textProperty().bindBidirectional(maestro.rfcProperty());
+        /*txtRfc.textProperty().bindBidirectional(maestro.rfcProperty());
         txtNombre.textProperty().bindBidirectional(maestro.nombreProperty());
         txtApPat.textProperty().bindBidirectional(maestro.apPatProperty());
         txtApMat.textProperty().bindBidirectional(maestro.apMatProperty());
@@ -236,11 +314,25 @@ public class AddController extends BaseController<Maestro> implements Initializa
         txtEstado.textProperty().bindBidirectional(maestro.estadoProperty());
         txtCelular.textProperty().bindBidirectional(maestro.celularProperty());
         txtCurp.textProperty().bindBidirectional(maestro.curpProperty());
-        comboSexo.valueProperty().bindBidirectional(maestro.generoProperty());
+        comboSexo.valueProperty().bindBidirectional(maestro.generoProperty());*/
     }
 
     @Override
     protected void cleanData() {
         maestro = null;
+        txtRfc.setText(null);
+        txtNombre.setText(null);
+        txtApPat.setText(null);
+        txtApMat.setText(null);
+        txtCorreoInst.setText(null);
+        txtCorreoPer.setText(null);
+        txtDireccion.setText(null);
+        txtGrado.setText(null);
+        txtMunicipio.setText(null);
+        txtEstado.setText(null);
+        txtCelular.setText(null);
+        txtCurp.setText(null);
+        comboSexo.setValue(null);
+
     }
 }

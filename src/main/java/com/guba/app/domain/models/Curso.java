@@ -24,6 +24,8 @@ public class Curso {
     private ObjectProperty<LocalDate> dateInicio;
     private ObjectProperty<LocalDate> dateFin;
     private ObjectProperty<LocalDate> dateRealizacion;
+    private StringProperty image;
+    private ObservableList<Tema> temas ;
 
     public Curso() {
         this.idCurso = new SimpleIntegerProperty();
@@ -39,10 +41,13 @@ public class Curso {
         this.dateFin = new SimpleObjectProperty<>();
         this.dateInicio = new SimpleObjectProperty<>();
         this.dateRealizacion = new SimpleObjectProperty<>();
+        this.image = new SimpleStringProperty();
+        this.temas = FXCollections.observableArrayList();
     }
 
     public Curso(int idCurso, String nombre, String modalidad, String fechaFin,
-                 String fechaRealizacion, int duracionHoras, String fechaInicio) {
+                 String fechaRealizacion, int duracionHoras, String fechaInicio,
+                 String image, ObservableList<Tema> temas) {
         this.idCurso = new SimpleIntegerProperty(idCurso);
         this.nombre = new SimpleStringProperty(nombre);
         this.modalidad = new SimpleStringProperty(modalidad);
@@ -50,10 +55,11 @@ public class Curso {
         this.fechaRealizacion = new SimpleStringProperty(fechaRealizacion);
         this.duracionHoras = new SimpleIntegerProperty(duracionHoras);
         this.fechaInicio = new SimpleStringProperty(fechaInicio);
-
         this.participantes = FXCollections.observableArrayList();
         this.asesor = new SimpleObjectProperty<>();
         this.unidades = FXCollections.observableArrayList();
+        this.image = new SimpleStringProperty(image);
+        this.temas = FXCollections.observableArrayList();
     }
 
     // Getters y Setters
@@ -217,6 +223,26 @@ public class Curso {
         this.setFechaRealizacion(this.dateToStringBD(dateRealizacion));
     }
 
+    public String getImage() {
+        return image.get();
+    }
+
+    public StringProperty imageProperty() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image.set(image);
+    }
+
+    public ObservableList<Tema> getTemas() {
+        return temas;
+    }
+
+    public void setTemas(ObservableList<Tema> temas) {
+        this.temas = temas;
+    }
+
     @Override
     public String toString() {
         return "Curso{" +
@@ -233,7 +259,7 @@ public class Curso {
                 '}';
     }
 
-    public  String dateToStringLocale(LocalDate localDate ){
+    public  String dateToStringLocale(LocalDate localDate){
         return formatterLocale.format(localDate);
     }
 

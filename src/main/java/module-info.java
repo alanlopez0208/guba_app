@@ -24,6 +24,8 @@ module com.guba.app {
     requires java.net.http;
     requires org.apache.commons.net;
     requires org.apache.poi.ooxml;
+    requires net.sf.jasperreports.core;
+    requires org.apache.commons.compress;
 
     opens com.guba.app to javafx.fxml;
     opens com.guba.app.presentation.componets to javafx.fxml;

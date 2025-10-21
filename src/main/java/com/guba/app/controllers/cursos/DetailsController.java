@@ -4,27 +4,18 @@ import com.dlsc.gemsfx.CalendarPicker;
 import com.guba.app.utils.*;
 import com.guba.app.data.dao.DAOAseor;
 import com.guba.app.data.dao.DAOParticipante;
-import com.guba.app.domain.models.Asesor;
 import com.guba.app.domain.models.Curso;
 import com.guba.app.domain.models.Participante;
 import javafx.beans.property.ObjectProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 
 public class DetailsController extends BaseController<Curso> implements Loadable<Curso> {
 
@@ -132,7 +123,7 @@ public class DetailsController extends BaseController<Curso> implements Loadable
     public void loadParticipantes(int idcurso){
         Utils.loadAsync(() -> daoParticipante.obtenerParticipantesPorCurso(idcurso), participantes -> {
             curso.getParticipantes().setAll(participantes);
-            listviewParticipanetes.getItems().setAll(participantes);
+            listviewParticipanetes.getItems().setAll(curso.getParticipantes());
         });
     }
 

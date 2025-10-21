@@ -69,21 +69,42 @@
                         <Label text="Puesto:" />
                         <TextField fx:id="impartidorPuestoFlied"  prefWidth="200" styleClass="textField" />
                     </VBox>
-                    <VBox maxWidth="Infinity" spacing="10.0">
-                        <Label text="Lugar:" />
-                        <TextField fx:id="impartdiorLugarField"  prefWidth="200" styleClass="textField" />
-                    </VBox>
+                    <HBox spacing="30" VBox.vgrow="ALWAYS">
+                        <VBox HBox.hgrow="ALWAYS" spacing="10.0">
+                            <Label text="Lugar:" />
+                            <TextField fx:id="impartdiorLugarField"  styleClass="textField" />
+                        </VBox>
+                        <VBox maxWidth="Infinity" spacing="10.0">
+                            <Label text="Imagen:" />
+                            <HBox>
+                                <TextField fx:id="txtPathImagen" editable="false"  prefWidth="200" styleClass="textField" />
+                                <Button fx:id="btnAddImage" text="Insertar Imagen" styleClass="btnsAgregar"/>
+                            </HBox>
+                        </VBox>
+
+                    </HBox>
+
                 </VBox>
             </VBox>
         </HBox>
-        <VBox styleClass="panelShadow" maxWidth="Infinity" minWidth="-Infinity">
-            <HBox>
-                <Label text="Participantes" styleClass="subtitulo"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <JFXButton fx:id="btnAgregarAlumnos" styleClass="btnNormal" text="Agregar Participantes" />
-            </HBox>
-            <ListView styleClass="listView" focusTraversable="false" fx:id="listParticipantes"  orientation="HORIZONTAL">
-            </ListView>
-        </VBox>
+        <HBox spacing="30">
+            <VBox HBox.hgrow="ALWAYS" styleClass="panelShadow" maxWidth="Infinity" minWidth="-Infinity">
+                <HBox>
+                    <Label text="Participantes" styleClass="subtitulo"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <JFXButton fx:id="btnAgregarAlumnos" styleClass="btnNormal" text="Agregar Participantes" />
+                </HBox>
+                <ListView styleClass="listView" focusTraversable="false" fx:id="listParticipantes"  orientation="HORIZONTAL">
+                </ListView>
+            </VBox>
+            <VBox styleClass="panelShadow" maxWidth="Infinity" minWidth="-Infinity" spacing="10">
+                <HBox spacing="20">
+                    <Label text="Temas Impartidos" styleClass="subtitulo"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <JFXButton fx:id="btnAgregarTemas" styleClass="btnNormal" text="Agregar Temas" />
+                </HBox>
+                <ListView styleClass="listView" focusTraversable="false" fx:id="listTemas"/>
+            </VBox>
+        </HBox>
     </VBox>
 </fx:root>

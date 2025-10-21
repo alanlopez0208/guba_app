@@ -280,4 +280,7 @@ public class Maestro implements ComboBoxCell {
     public String toComboCell() {
         return this.getNombre() + " " + this.getApPat() +" " + this.getApMat();
     }
+
+
+
 }

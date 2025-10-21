@@ -1,8 +1,7 @@
 package com.guba.app.domain.models;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
+import javafx.beans.value.ObservableObjectValue;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -12,20 +11,26 @@ public class Acuerdo {
     private SimpleStringProperty fecha;
     private SimpleStringProperty cc;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
+    private IntegerProperty id = new SimpleIntegerProperty();
+    private ObjectProperty<Carrera> carrera;
 
     public Acuerdo(){
         this.numero = new SimpleStringProperty();
         this.fecha = new SimpleStringProperty();
         this.cc = new SimpleStringProperty();
         this.date = new SimpleObjectProperty<>();
+        this.id = new SimpleIntegerProperty();
+        this.carrera = new SimpleObjectProperty<>();
     }
 
-    public Acuerdo(SimpleStringProperty numero, SimpleStringProperty fecha, SimpleStringProperty cc, ObjectProperty<LocalDate> date) {
+    public Acuerdo(SimpleStringProperty numero, SimpleStringProperty fecha, SimpleStringProperty cc, ObjectProperty<LocalDate> date, IntegerProperty id, ObjectProperty<Carrera> carrera) {
         this.numero = numero;
         this.fecha = fecha;
         this.cc = cc;
         this.date = date;
+        this.id = id;
+        this.carrera = carrera;
+
     }
 
     private ObjectProperty<LocalDate> date;
@@ -86,5 +91,29 @@ public class Acuerdo {
 
     public LocalDate toDateString(){
         return LocalDate.parse(this.getFecha(),dateTimeFormatter);
+    }
+
+    public int getId() {
+        return id.get();
+    }
+
+    public IntegerProperty idProperty() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id.set(id);
+    }
+
+    public Carrera getCarrera() {
+        return carrera.get();
+    }
+
+    public ObservableObjectValue<Carrera> carreraProperty() {
+        return carrera;
+    }
+
+    public void setCarrera(Carrera carrera) {
+        this.carrera.set(carrera);
     }
 }

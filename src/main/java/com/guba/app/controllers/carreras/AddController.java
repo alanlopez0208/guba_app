@@ -77,6 +77,54 @@ public class AddController extends BaseController<Carrera> implements Initializa
             }
             return null;
         }));
+        txtNombre.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.trim().isEmpty()) {
+                carrera.setNombre(newValue);
+            }
+        });
+
+        txtModalidad.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.trim().isEmpty()) {
+                carrera.setModalidad(newValue);
+            }
+        });
+
+        txtHbca.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.trim().isEmpty()) {
+                carrera.setHbca(newValue);
+            }
+        });
+
+        txtHti.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.trim().isEmpty()) {
+                carrera.setHti(newValue);
+            }
+        });
+
+        txtTotalHoras.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.trim().isEmpty()) {
+                carrera.setTotalHoras(newValue);
+            }
+        });
+
+        txtClave.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.trim().isEmpty()) {
+                carrera.setIdClave(newValue);
+            }
+        });
+
+        txtCreditos.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.trim().isEmpty()) {
+                carrera.setCreditos(newValue);
+            }
+        });
+
+        txtTotalAsignaturas.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.trim().isEmpty()) {
+                carrera.setTotalAsignaturas(newValue);
+            }
+        });
+
     }
 
     @Override
@@ -88,14 +136,14 @@ public class AddController extends BaseController<Carrera> implements Initializa
     @Override
     public void loadData(Carrera data) {
       this.carrera = data;
-      carrera.nombreProperty().bindBidirectional(txtNombre.textProperty());
+      /*carrera.nombreProperty().bindBidirectional(txtNombre.textProperty());
       carrera.modalidadProperty().bindBidirectional(txtModalidad.textProperty());
       carrera.hbcaProperty().bindBidirectional(txtHbca.textProperty());
       carrera.htiProperty().bindBidirectional(txtHti.textProperty());
       carrera.totalHorasProperty().bindBidirectional(txtTotalHoras.textProperty());
       carrera.idClaveProperty().bindBidirectional(txtClave.textProperty());
       carrera.creditosProperty().bindBidirectional(txtCreditos.textProperty());
-      carrera.totalAsignaturasProperty().bindBidirectional(txtTotalAsignaturas.textProperty());
+      carrera.totalAsignaturasProperty().bindBidirectional(txtTotalAsignaturas.textProperty());*/
     }
 
     private void regresarAPanel(ActionEvent actionEvent) {
@@ -118,5 +166,13 @@ public class AddController extends BaseController<Carrera> implements Initializa
     @Override
     protected void cleanData() {
         carrera = null;
+        txtNombre.setText(null);
+        txtModalidad.setText(null);
+        txtHbca.setText(null);
+        txtHti.setText(null);
+        txtTotalHoras.setText(null);
+        txtClave.setText(null);
+        txtCreditos.setText(null);
+        txtTotalAsignaturas.setText(null);
     }
 }

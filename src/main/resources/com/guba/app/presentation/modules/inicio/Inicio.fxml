@@ -11,8 +11,6 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml">
     <center>
-        <ImageView fitWidth="1000" fitHeight="600">
-            <Image url="@../../../assets/img/fondo.jpg"/>
-        </ImageView>
+
     </center>
 </BorderPane>

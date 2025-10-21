@@ -68,17 +68,16 @@ public class DAOCarreras {
     }
 
 
-
     public Carrera getCarreraByd(String id) {
         Carrera Carrera = new Carrera();
         String sql = "SELECT * FROM Carreras WHERE IdCarrera = ?";
-        return dataConsumer.getData(sql,pstmt->{
+        return dataConsumer.getData(sql, pstmt -> {
             pstmt.setString(1, id);
         }, this::mapResultSetToCarrera);
     }
 
 
-    private Carrera mapResultSetToCarrera(ResultSet rs)  {
+    private Carrera mapResultSetToCarrera(ResultSet rs) {
         try {
             Carrera carrera = new Carrera();
             carrera.setCreditos(rs.getString("Creditos"));
@@ -122,5 +121,11 @@ public class DAOCarreras {
             throw new RuntimeException("Error al buscar las Carrera ", e);
         }
         return resultados;
+    }
+
+
+    public List<Carrera> getCarreraWithoutAcuerdo(){
+        String sql = "SELECT * FROM Carreras WHERE IdCarrera NOT IN ( SELECT IdCarrera FROM Acuerdo );";
+        return dataConsumer.getList(sql, this::mapResultSetToCarrera);
     }
 }

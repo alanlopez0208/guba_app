@@ -4,6 +4,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -19,6 +20,7 @@ public class PagoAlumno {
     private ObjectProperty<Estudiante> alumno;
     private ObjectProperty<LocalDate> date;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    DecimalFormat df = new DecimalFormat("#,##0.00");
 
     public PagoAlumno() {
         this.idPago = new SimpleStringProperty();
@@ -142,6 +144,15 @@ public class PagoAlumno {
     public String toStringDate(){
         this.setFecha(dateTimeFormatter.format(this.getDate()));
         return dateTimeFormatter.format(this.getDate());
+    }
+
+
+    public String getEstudiante(){
+        return this.getAlumno().toString();
+    }
+
+    public float getCantidadP(){
+        return (float) Float.parseFloat(cantidad.get());
     }
 
     @Override

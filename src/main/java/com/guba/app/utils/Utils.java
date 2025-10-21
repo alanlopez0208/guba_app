@@ -7,6 +7,10 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
@@ -40,6 +44,18 @@ public class Utils {
             ImageIO.write(bufferedImage, "jpg", outputFile);
             return  outputFile.getAbsolutePath();
         } catch (IOException ex) {
+            return null;
+        }
+    }
+
+    public static LocalDate parseLocalDate(String input) {
+        if (input == null || input.isBlank()) {
+            return null;
+        }
+        try {
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("d/M/yyyy").withLocale(Locale.getDefault());
+            return LocalDate.parse(input, fmt);
+        } catch (DateTimeParseException ex) {
             return null;
         }
     }

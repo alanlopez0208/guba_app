@@ -62,6 +62,11 @@
                 </contextMenu>
             </JFXButton>
             <YearMonthPicker fx:id="yearmMonthPicker"/>
+            <JFXButton fx:id="btnImprimir" styleClass="btnFiltro" maxHeight="Infinity" >
+                <graphic>
+                    <FontIcon  iconLiteral="mdi-printer" fill="green" iconSize="15" />
+                </graphic>
+            </JFXButton>
             <JFXButton fx:id="btnActualizar" styleClass="btnFiltro, btnFiltroFinal" maxHeight="Infinity" >
                 <graphic>
                     <FontIcon  iconLiteral="mdi-autorenew" fill="green" iconSize="15" />

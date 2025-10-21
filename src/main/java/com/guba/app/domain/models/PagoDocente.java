@@ -139,6 +139,15 @@ public class PagoDocente {
         this.setFecha(dateTimeFormatter.format(this.date.get()));
     }
 
+    public String getDocente(){
+        return this.getMaestro().toComboCell();
+    }
+
+    public float getCantidadP(){
+        return (float) Float.parseFloat(cantidad.get());
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

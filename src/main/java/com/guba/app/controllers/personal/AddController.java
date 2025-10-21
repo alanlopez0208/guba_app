@@ -87,6 +87,72 @@ public class AddController extends BaseController<Personal> implements Initializ
         btnCamera.setOnAction(this::abrirCamara);
         btnArchivos.setOnAction(this::abrirArchivos);
         btnBorrar.setOnAction(this::borrarFoto);
+        txtRfc.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                personal.setRfc(newValue);
+            }
+        });
+        txtNombre.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                personal.setNombre(newValue);
+            }
+        });
+        txtApPat.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                personal.setApPat(newValue);
+            }
+        });
+        txtApMat.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                personal.setApMat(newValue);
+            }
+        });
+        txtCorreoInst.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                personal.setCorreoIns(newValue);
+            }
+        });
+        txtCorreoPer.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                personal.setCorreoPer(newValue);
+            }
+        });
+        txtDireccion.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                personal.setDomicilio(newValue);
+            }
+        });
+        txtMatricula.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                personal.setMatricula(newValue);
+            }
+        });
+        txtMunicipio.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                personal.setMunicipio(newValue);
+            }
+        });
+        txtEstado.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                personal.setEstado(newValue);
+            }
+        });
+        txtCelular.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                personal.setCelular(newValue);
+            }
+        });
+        txtCurp.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                personal.setCurp(newValue);
+            }
+        });
+        comboSexo.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                personal.setGenero(newValue);
+            }
+        });
+
     }
 
     @Override
@@ -185,7 +251,7 @@ public class AddController extends BaseController<Personal> implements Initializ
         Image img = new Image(String.valueOf(personal.getFoto() != null ?  new File(personal.getFoto()).toURI().toString() : getClass().getResource(Constants.URL_ASSETS+"img/usuario.png")));
         ImagePattern imagePattern = new ImagePattern(img);
         this.foto.setFill(imagePattern);
-        txtRfc.textProperty().bindBidirectional(personal.rfcProperty());
+        /*txtRfc.textProperty().bindBidirectional(personal.rfcProperty());
         txtNombre.textProperty().bindBidirectional(personal.nombreProperty());
         txtApPat.textProperty().bindBidirectional(personal.apPatProperty());
         txtApMat.textProperty().bindBidirectional(personal.apMatProperty());
@@ -197,11 +263,25 @@ public class AddController extends BaseController<Personal> implements Initializ
         txtEstado.textProperty().bindBidirectional(personal.estadoProperty());
         txtCelular.textProperty().bindBidirectional(personal.celularProperty());
         txtCurp.textProperty().bindBidirectional(personal.curpProperty());
-        comboSexo.valueProperty().bindBidirectional(personal.generoProperty());
+        comboSexo.valueProperty().bindBidirectional(personal.generoProperty());*/
     }
 
     @Override
     protected void cleanData() {
         personal = null;
+        txtRfc.setText(null);
+        txtNombre.setText(null);
+        txtApPat.setText(null);
+        txtApMat.setText(null);
+        txtCorreoInst.setText(null);
+        txtCorreoPer.setText(null);
+        txtDireccion.setText(null);
+        txtMatricula.setText(null);
+        txtMunicipio.setText(null);
+        txtEstado.setText(null);
+        txtCelular.setText(null);
+        txtCurp.setText(null);
+        comboSexo.setValue(null);
+
     }
 }

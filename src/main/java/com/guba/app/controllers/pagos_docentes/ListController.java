@@ -2,6 +2,9 @@ package com.guba.app.controllers.pagos_docentes;
 
 import com.dlsc.gemsfx.YearMonthPicker;
 import com.guba.app.data.dao.DAOPagoDocentes;
+import com.guba.app.data.local.database.conexion.Config;
+import com.guba.app.data.local.jasper.Jasper;
+import com.guba.app.presentation.dialogs.DialogFecha;
 import com.guba.app.utils.BaseController;
 import com.guba.app.utils.Estado;
 import com.guba.app.utils.Mediador;
@@ -47,6 +50,8 @@ public class ListController extends BaseController<PagoDocente> {
     @FXML
     private JFXButton btnActualizar;
     @FXML
+    private JFXButton btnImprimir;
+    @FXML
     private TableView<PagoDocente> tableView;
     @FXML
     TableColumn<PagoDocente, String> rfc, nombre, fecha,cantidad, concepto,acciones;
@@ -73,6 +78,7 @@ public class ListController extends BaseController<PagoDocente> {
         btnActualizar.setOnAction(event -> {
             cargarPagoDocentes();
         });
+        btnImprimir.setOnAction(this::imprimirData);
         estadoProperty.addListener((observableValue, oldValue, newValue) -> {
             if (newValue.equals(Estado.CARGANDO)){
                 label.setVisible(true);
@@ -83,6 +89,24 @@ public class ListController extends BaseController<PagoDocente> {
                 tableView.setVisible(true);
                 tableView.setItems(filteredList);
             }
+        });
+    }
+
+    private void imprimirData(ActionEvent actionEvent) {
+        DialogFecha dialogFecha = new DialogFecha();
+        dialogFecha.showAndWait().ifPresent(value -> {
+            List<PagoDocente> lista = filteredList.stream()
+                    .filter(pagoDocente -> {
+                        YearMonth fechaPago = YearMonth.from(pagoDocente.getDate());
+                        if (value.fin() == null){
+                            return fechaPago.compareTo(value.inicio()) >= 0;
+                        }
+
+                        return fechaPago.compareTo(value.inicio()) >= 0 && fechaPago.compareTo(value.fin()) <= 0;
+                    })
+                    .toList();
+            Jasper jasper = new Jasper();
+            jasper.generateDocument(Config.getConif().obtenerConfiguracion("12 RUTA PAGO DOCENTE"),lista);
         });
     }
 

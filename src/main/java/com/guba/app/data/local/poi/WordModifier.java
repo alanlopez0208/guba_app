@@ -36,21 +36,11 @@ public class WordModifier {
             XWPFDocument document = new XWPFDocument(fis);
 
             switch (documento) {
-                case Boleta -> {
-                    rellenarBoleta(estudiante, fecha);
-                }
-                case Certificado -> {
-                    rellenarCertificado(estudiante, fecha);
-                }
-                case Constancia -> {
-                    rellenarConstancia(estudiante, fecha);
-                }
-                case Kardex -> {
-                    rellenarKardek(estudiante, fecha);
-                }
-                case Diploma->{
-                    rellenarDiploma(estudiante, fecha);
-                }
+                case Boleta -> rellenarBoleta(estudiante, fecha);
+                case Certificado -> rellenarCertificado(estudiante, fecha);
+                case Constancia -> rellenarConstancia(estudiante, fecha);
+                case Kardex -> rellenarKardek(estudiante, fecha);
+                case Diploma-> rellenarDiploma(estudiante, fecha);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -123,7 +113,7 @@ public class WordModifier {
             return Integer.compare(materia1,materia2);
         });
         DAOAcuerdo opAcuerdo = new DAOAcuerdo();
-        Acuerdo acuerdo = opAcuerdo.getAcuerdo();
+        Acuerdo acuerdo = opAcuerdo.getAcuerdo(modelo.getCarrera().getIdCarrera());
 
         try {
             String filePath = FOLDER_PATH + "\\" + Documentos.Boleta.getNombre() + ".docx";
@@ -178,7 +168,7 @@ public class WordModifier {
             replaceInDocument(d, "ciclo-inicio", opPeriodo.getUltimoPeriodo().getInicio());
             replaceInDocument(d, "date", fecha);
 
-            String generatedFolderPath = filePath + "\\Generados";
+            String generatedFolderPath = Config.getConif().obtenerConfiguracion("06 RUTA Documentos") + "\\Generados";
             new File(generatedFolderPath).mkdirs();
 
             String modifiedFilePath = generatedFolderPath + "\\" + modelo.getMatricula() + "_" + "acta" + ".docx";
@@ -186,8 +176,7 @@ public class WordModifier {
             d.write(fos);
             fos.close();
             d.close();
-
-            System.out.println("Documento modificado guardado en: " + modifiedFilePath);
+            openModifiedDocument(modifiedFilePath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -221,7 +210,7 @@ public class WordModifier {
         String genero = modelo.getSexo().equals("Hombre") ? "el alumno" : "la alumna";
         String[] fechaArray = fecha.split("de");
         DAOAcuerdo opAcuerdo = new DAOAcuerdo();
-        Acuerdo acuerdo = opAcuerdo.getAcuerdo();
+        Acuerdo acuerdo = opAcuerdo.getAcuerdo(modelo.getCarrera().getIdCarrera());
         ValueConverters converter1 = ValueConverters.SPANISH_INTEGER;
         String yeartoWord = converter1.asWords(Integer.valueOf(fechaArray[2].trim()));
 
@@ -324,7 +313,7 @@ public class WordModifier {
     private void rellenarKardek( Estudiante modelo, String fecha) {
         DAOCalificiaciones opCalificaciones = new DAOCalificiaciones();
         DAOAcuerdo opAcuerdo = new DAOAcuerdo();
-        Acuerdo acuerdo = opAcuerdo.getAcuerdo();
+        Acuerdo acuerdo = opAcuerdo.getAcuerdo(modelo.getCarrera().getIdCarrera());
         List<Calificacion> calificaciones = opCalificaciones.obtenerCalificaciones(modelo.getId());
         double promedio = calificaciones.stream().mapToDouble((Calificacion cal) -> {
             cal.establecerPromedioFinal();
@@ -405,7 +394,7 @@ public class WordModifier {
         String rutaBD = Config.getConif().obtenerConfiguracion("06 RUTA Documentos");
         String folderPath = rutaBD;
         String filePath = folderPath + "\\Acta de Examen\\" + "acta" + ".docx";
-        Acuerdo acuerdo = new DAOAcuerdo().getAcuerdo();
+        Acuerdo acuerdo = new DAOAcuerdo().getAcuerdo(modelo.getCarrera().getIdCarrera());
         try {
 
             FileInputStream fis = new FileInputStream(filePath);

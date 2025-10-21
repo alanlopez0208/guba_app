@@ -1,6 +1,7 @@
 package com.guba.app.controllers.estudiantes;
 
 import com.guba.app.data.local.database.conexion.Config;
+import com.guba.app.presentation.dialogs.DialogCambioCarrera;
 import com.guba.app.utils.Estado;
 import com.guba.app.utils.*;
 import com.guba.app.data.dao.DAOCarreras;
@@ -90,6 +91,9 @@ public class EditController extends BaseController<Estudiante> implements Loadab
     private ComboBox<String> comboSexo;
     @FXML
     private DatePicker comboNacimiento;
+    @FXML
+    private Button btnCambioCarrera;
+
     private Estudiante estudiante;
     private BufferedImage bufferedImage;
 
@@ -111,7 +115,7 @@ public class EditController extends BaseController<Estudiante> implements Loadab
             }
             return null;
         }));
-
+        btnCambioCarrera.setOnAction(this::cambiarCarrera);
     }
 
     private void abrirCamara(ActionEvent event) {
@@ -222,6 +226,18 @@ public class EditController extends BaseController<Estudiante> implements Loadab
         estudiante.setFoto(null);
         estudiante.setFotoPerfil(null);
     }
+
+
+    private void cambiarCarrera(ActionEvent actionEvent){
+        DialogCambioCarrera dialogCambioCarrera = new DialogCambioCarrera(estudiante);
+        dialogCambioCarrera.showAndWait().ifPresent(dto -> {
+            estudiante.setSemestre("1");
+            estudiante.setCarrera(dto.carrera());
+            estudiante.setMatricula(dto.matricula());
+            loadData(estudiante);
+        });
+    }
+
 
     private void regresarAPanel(ActionEvent actionEvent) {
         paginasProperty.set(Paginas.LIST);

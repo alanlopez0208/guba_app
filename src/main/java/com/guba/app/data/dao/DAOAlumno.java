@@ -23,7 +23,7 @@ public class DAOAlumno {
     }
 
     public List<Estudiante> getEstudiantes() {
-        String sql = "SELECT * FROM Alumnos";
+        String sql = "SELECT * FROM Alumnos ASC";
         return dataConsumer.getList(sql, this::mapResultSetToEstudiante);
     }
 
