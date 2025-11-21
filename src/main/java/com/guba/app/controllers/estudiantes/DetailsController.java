@@ -149,6 +149,8 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
     @FXML
     private JFXButton btnEditarTitulo;
     @FXML
+    private JFXButton btnRecargarTitulo;
+    @FXML
     private JFXButton btnGenerarDocumento;
     @FXML
     private JFXButton btnPassword;
@@ -181,8 +183,8 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
         btnGuardarTitulo.setOnAction(this::guardarTitulo);
         btnEditarTitulo.setOnAction(this::editarTitulo);
         btnGenerarDocumento.setOnAction(this::generarDocumentos);
+        btnRecargarTitulo.setOnAction(this::recargarTitulo);
         btnPassword.setOnAction(this::verPassword);
-
     }
 
     @Override
@@ -248,28 +250,43 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
 
     private void guardarTitulo(ActionEvent event){
         loadDataToTiulo();
-        boolean seCreo = daoTitulo.crearTitulacion(titulo);
-        if (seCreo){
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setContentText("Se ha creado el titulo con exito");
-            alert.show();
-            btnGuardarTitulo.setVisible(false);
-            btnEditarTitulo.setVisible(true);
-            Task<Void> task = new Task<Void>() {
-                @Override
-                protected Void call() throws Exception {
-                    wordModifier.rellarTitulo(estudiante, titulo);
-                    return null;
-                }
-            };
-            Thread thread = new Thread(task);
-            thread.setDaemon(true);
-            thread.start();
-        }else{
+        Task<Boolean> task = new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception {
+                String src = wordModifier.crearTitulo(estudiante, titulo);
+                titulo.setSrc(src);
+                return daoTitulo.crearTitulacion(titulo);
+            }
+        };
+
+        task.setOnSucceeded(workerStateEvent -> {
+            Boolean resultado = task.getValue();
+
+            if (resultado != null && resultado) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Éxito");
+                alert.setHeaderText(null);
+                alert.setContentText("El título fue creado con éxito");
+                btnRecargarTitulo.setVisible(true);
+                alert.showAndWait();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("No se pudo crear el título");
+                alert.showAndWait();
+            }
+        });
+
+        task.setOnFailed(workerStateEvent -> {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText("Error al crear el titulo intentelo de nuevo porfavor");
-            alert.show();
-        }
+            alert.setTitle("Error");
+            alert.setHeaderText("Ocurrió un error");
+            alert.setContentText(task.getException().getMessage());
+            alert.showAndWait();
+        });
+
+        new Thread(task).start();
     }
 
     private void editarTitulo(ActionEvent event){
@@ -294,6 +311,32 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
         }
     }
 
+    private void recargarTitulo(ActionEvent event){
+        if (this.titulo.getSrc() != null){
+            wordModifier.openModifiedDocument(this.titulo.getSrc());
+            return;
+        }
+
+        Thread thread = new Thread(()->{
+            String src = wordModifier.crearTitulo(this.estudiante, this.titulo);
+            boolean sucess = daoTitulo.editarSrc(titulo.getIdTitulacion(),src);
+            if (sucess) {
+                Platform.runLater(()->{
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setContentText("Se ha recargado el titulo con exito");
+                    alert.show();
+                });
+            }else{
+                Platform.runLater(()->{
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setContentText("Error al recargar el titulo intentelo de nuevo porfavor");
+                    alert.show();
+                });
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
 
     private void verPassword(ActionEvent event){
            DialogLogin dialogLogin = new DialogLogin();
@@ -413,9 +456,11 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
                 titulo = new Titulo();
                 btnGuardarTitulo.setVisible(true);
                 btnEditarTitulo.setVisible(false);
+                btnRecargarTitulo.setVisible(false);
             }else{
-                btnEditarTitulo.setVisible(true);
                 btnGuardarTitulo.setVisible(false);
+                btnEditarTitulo.setVisible(true);
+                btnRecargarTitulo.setVisible(true);
             }
             setFieldTitulo();
         });

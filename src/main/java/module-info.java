@@ -19,13 +19,13 @@ module com.guba.app {
     requires n2w;
     requires org.controlsfx.controls;
     requires java.sql;
-    requires java.desktop;
     requires javafx.swing;
     requires java.net.http;
     requires org.apache.commons.net;
     requires org.apache.poi.ooxml;
     requires net.sf.jasperreports.core;
     requires org.apache.commons.compress;
+    requires org.apache.commons.lang3;
 
     opens com.guba.app to javafx.fxml;
     opens com.guba.app.presentation.componets to javafx.fxml;

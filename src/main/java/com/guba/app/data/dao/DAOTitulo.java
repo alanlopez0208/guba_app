@@ -18,11 +18,18 @@ public class DAOTitulo {
         },this::mapResultSetToTitulacionModelo);
     }
 
+    public Titulo getTitulacionByIdTitulo(String idTitulo) {
+        String sql = "SELECT * FROM Titulacion WHERE IdTitulacion = ? LIMIT 1 ";
+        return dataConsumer.getData(sql, pstmt->{
+            pstmt.setString(1,idTitulo);
+        },this::mapResultSetToTitulacionModelo);
+    }
+
 
     public boolean updateTitulacionByIdAlumno(Titulo titulo) {
         String sql = "UPDATE Titulacion SET Nombre = ?, Registro = ?, Libro = ?, Foja = ?, Folio = ?, "
                 + "Acta = ?, TipoExamen = ?, FechaAplicacion = ?, HoraAplicacion = ?, "
-                + "Duracion = ?, HoraFinalizacion = ?, Presidente = ?, Secretario = ?, Vocal = ?, Nombre = ? "
+                + "Duracion = ?, HoraFinalizacion = ?, Presidente = ?, Secretario = ?, Vocal = ?, Nombre = ?, src = ?? "
                 + "WHERE IdAlumno = ?";
 
         return dataConsumer.executeUpdate(sql, pstmt -> {
@@ -41,7 +48,8 @@ public class DAOTitulo {
             pstmt.setString(13, titulo.getSecretario());
             pstmt.setString(14, titulo.getVocal());
             pstmt.setString(15, titulo.getNombre());
-            pstmt.setString(16, titulo.getIdAlumno());
+            pstmt.setString(16, titulo.getSrc());
+            pstmt.setString(17,titulo.getIdAlumno());
         });
     }
 
@@ -54,8 +62,8 @@ public class DAOTitulo {
 
     public boolean crearTitulacion(Titulo titulo) {
         String sql = "INSERT INTO Titulacion (IdAlumno, Registro, Libro, Foja, Folio, Acuerdo, TipoExamen, FechaAplicacion, "
-                + "HoraAplicacion, Duracion, HoraFinalizacion, Presidente, Secretario, Vocal, Nombre, Acta) "
-                + "VALUES (?, ?, ?, ?, ?, (SELECT IdAcuerdo FROM Acuerdo ORDER BY IdAcuerdo DESC LIMIT 1),?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+                + "HoraAplicacion, Duracion, HoraFinalizacion, Presidente, Secretario, Vocal, Nombre, Acta, src) "
+                + "VALUES (?, ?, ?, ?, ?, (SELECT IdAcuerdo FROM Acuerdo ORDER BY IdAcuerdo DESC LIMIT 1),?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)";
 
         return dataConsumer.executeUpdate(sql, pstmt -> {
             pstmt.setString(1, titulo.getIdAlumno());
@@ -73,9 +81,19 @@ public class DAOTitulo {
             pstmt.setString(13, titulo.getVocal());
             pstmt.setString(14, titulo.getNombre());
             pstmt.setString(15,titulo.getActa());
+            pstmt.setString(16,titulo.getSrc());
         });
     }
 
+
+    public boolean editarSrc(String idTitulo, String src) {
+        String sql = "UPDATE Titulacion SET src = ? WHERE IdTitulacion = ?";
+        boolean success = dataConsumer.executeUpdate(sql, pstmt -> {
+            pstmt.setString(1, src);
+            pstmt.setString(2, idTitulo);
+        });
+        return success;
+    }
 
     private Titulo mapResultSetToTitulacionModelo(ResultSet rs)  {
         try {
@@ -97,6 +115,7 @@ public class DAOTitulo {
             titulacion.setSecretario(rs.getString("Secretario"));
             titulacion.setVocal(rs.getString("Vocal"));
             titulacion.setActa(rs.getString("Acta"));
+            titulacion.setSrc(rs.getString("src"));
             return titulacion;
         } catch (SQLException e) {
             throw new RuntimeException(e);

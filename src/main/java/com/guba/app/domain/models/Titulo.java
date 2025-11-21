@@ -31,6 +31,7 @@ public class Titulo {
     private final StringProperty acta;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    private final StringProperty src;
 
     public Titulo() {
         this.idTitulacion = new SimpleStringProperty();
@@ -52,12 +53,13 @@ public class Titulo {
         this.vocal = new SimpleStringProperty();
         this.nombre = new SimpleStringProperty();
         this.acta = new SimpleStringProperty();
+        this.src = new SimpleStringProperty();
     }
 
     public Titulo(String idTitulacion, String idAlumno, String numero, String registro, String libro, String foja,
                   String folio, String acuerdo, String tipoExamen, String fechaAcuerdo, String fechaAplicacion,
                   String horaAplicacion, String duracion, String horaFinalizacion, String presidente,
-                  String secretario, String vocal, String nombre, String acta) {
+                  String secretario, String vocal, String nombre, String acta, String src) {
         this.idTitulacion = new SimpleStringProperty(idTitulacion);
         this.idAlumno = new SimpleStringProperty(idAlumno);
         this.numero = new SimpleStringProperty(numero);
@@ -77,7 +79,9 @@ public class Titulo {
         this.vocal = new SimpleStringProperty(vocal);
         this.nombre = new SimpleStringProperty(nombre);
         this.acta = new SimpleStringProperty(acta);
+        this.src = new SimpleStringProperty(src);
     }
+
 
     public String getActa() {
         return acta.get();
@@ -303,9 +307,22 @@ public class Titulo {
         this.nombre.set(nombre);
     }
 
+    public void setSrc(String src) {
+        this.src.set(src);
+    }
+
     public StringProperty nombreProperty() {
         return nombre;
     }
+
+    public String getSrc() {
+        return src.get();
+    }
+
+    public StringProperty srcProperty() {
+        return src;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -330,7 +347,7 @@ public class Titulo {
                 Objects.equals(secretario.get(), titulo.secretario.get()) &&
                 Objects.equals(vocal.get(), titulo.vocal.get()) &&
                 Objects.equals(nombre.get(), titulo.nombre.get()) &&
-                Objects.equals(acta.get(), titulo.acta.get());
+                Objects.equals(acta.get(), titulo.acta.get()) ;
     }
 
     @Override

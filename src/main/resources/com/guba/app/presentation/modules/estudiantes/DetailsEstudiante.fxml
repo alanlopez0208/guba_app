@@ -236,18 +236,26 @@
                </VBox>
             </VBox>
          </HBox>
-         <StackPane>
-            <JFXButton text="Guardar Titulo" fx:id="btnGuardarTitulo"  styleClass="btnsAgregar">
+         <HBox alignment="CENTER" spacing="20">
+            <StackPane>
+               <JFXButton text="Guardar Titulo" fx:id="btnGuardarTitulo"  styleClass="btnsAgregar">
+                  <padding>
+                     <Insets top="10" bottom="10" right="40" left="40"/>
+                  </padding>
+               </JFXButton>
+               <JFXButton text="Editar Titulo" fx:id="btnEditarTitulo" styleClass="btnEdit">
+                  <padding>
+                     <Insets top="10" bottom="10" right="40" left="40"/>
+                  </padding>
+               </JFXButton>
+
+            </StackPane>
+            <JFXButton text="Abrir Titulo" fx:id="btnRecargarTitulo" styleClass="btnVer">
                <padding>
                   <Insets top="10" bottom="10" right="40" left="40"/>
                </padding>
             </JFXButton>
-            <JFXButton text="Editar Titulo" fx:id="btnEditarTitulo" styleClass="btnEdit">
-               <padding>
-                  <Insets top="10" bottom="10" right="40" left="40"/>
-               </padding>
-            </JFXButton>
-         </StackPane>
+         </HBox>
       </VBox>
       <VBox fx:id="panelAdicionales" alignment="CENTER" spacing="30">
          <HBox spacing="40" alignment="CENTER">
@@ -261,7 +269,7 @@
                   <Label text="Fecha:" />
                   <CalendarPicker fx:id="dateFechaDoc"/>
                </VBox>
-               <JFXButton fx:id="btnGenerarDocumento" text="Generar Docuemento" styleClass="btnsAgregar" minWidth="-Infinity" maxWidth="Infinity"/>
+               <JFXButton fx:id="btnGenerarDocumento" text="Generar Documento" styleClass="btnsAgregar" minWidth="-Infinity" maxWidth="Infinity"/>
             </VBox>
             <VBox styleClass="panelShadow" spacing="20">
                <Label text="Usuario y Contraseña" styleClass="subtitulo"/>

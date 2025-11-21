@@ -21,7 +21,6 @@ import java.net.URL;
 import java.util.*;
 
 public class AppController implements Initializable {
-
     @FXML
     private Sidebar sidebar;
     @FXML

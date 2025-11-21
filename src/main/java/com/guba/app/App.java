@@ -18,7 +18,6 @@ public class App extends Application {
         Font.loadFont(App.class.getResource("fonts/Montserrat-Bold.ttf").toExternalForm().replace("%20"," "),12);
     }
 
-
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("presentation/App.fxml"));

@@ -5,6 +5,8 @@ import com.guba.app.data.dao.*;
 import com.guba.app.domain.models.*;
 import com.tenpisoft.n2w.ValueConverters;
 import javafx.scene.control.Alert;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.util.StringUtil;
 import org.apache.poi.xwpf.usermodel.*;
 import java.awt.Desktop;
 import java.io.*;
@@ -29,34 +31,30 @@ public class WordModifier {
     private final String  FOLDER_PATH = Config.getConif().obtenerConfiguracion("06 RUTA Documentos");
 
     public void modifyDocument(Documentos documento, Estudiante estudiante, String fecha) {
-
         String filePath = FOLDER_PATH + "\\" + documento.getNombre() + ".docx";
         try {
             FileInputStream fis = new FileInputStream(filePath);
             XWPFDocument document = new XWPFDocument(fis);
-
             switch (documento) {
                 case Boleta -> rellenarBoleta(estudiante, fecha);
                 case Certificado -> rellenarCertificado(estudiante, fecha);
                 case Constancia -> rellenarConstancia(estudiante, fecha);
                 case Kardex -> rellenarKardek(estudiante, fecha);
                 case Diploma-> rellenarDiploma(estudiante, fecha);
+
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-
     private static void replaceInDocument(XWPFDocument document, String placeholder, String newValue) {
         for (XWPFParagraph paragraph : document.getParagraphs()) {
             replaceText(paragraph, placeholder, newValue);
-
             XmlCursor cursor = paragraph.getCTP().newCursor();
             cursor.selectPath("declare namespace w='http://schemas.openxmlformats.org/wordprocessingml/2006/main' .//*/w:txbxContent/w:p/w:r");
 
             List<XmlObject> ctrsintxtbx = new ArrayList<XmlObject>();
-
             while (cursor.hasNextSelection()) {
                 cursor.toNextSelection();
                 XmlObject obj = cursor.getObject();
@@ -77,7 +75,6 @@ public class WordModifier {
                     Logger.getLogger(WordModifier.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-
         }
     }
 
@@ -88,7 +85,6 @@ public class WordModifier {
                 text = text.replace(placeholder, newValue);
                 run.setText(text, 0);
             }
-
         }
     }
 
@@ -106,18 +102,15 @@ public class WordModifier {
             return Integer.valueOf(cal.getMateria().getCreditos());
         }).sum();
         String[] fechaArray = fecha.split("de");
-
         Collections.sort(calificaciones, (cal1, cal2) -> {
             Integer materia1 = Integer.parseInt(cal1.getMateria().getClave().substring(3));
             Integer materia2 = Integer.parseInt(cal2.getMateria().getClave().substring(3));
             return Integer.compare(materia1,materia2);
         });
         DAOAcuerdo opAcuerdo = new DAOAcuerdo();
-        Acuerdo acuerdo = opAcuerdo.getAcuerdo(modelo.getCarrera().getIdCarrera());
-
+        Acuerdo acuerdo = opAcuerdo.getAcuerdoByCarrera(modelo.getCarrera().getIdCarrera());
         try {
             String filePath = FOLDER_PATH + "\\" + Documentos.Boleta.getNombre() + ".docx";
-
             XWPFDocument d = new XWPFDocument(new FileInputStream(filePath));
             replaceInDocument(d, "name", modelo.toComboCell());
             replaceInDocument(d, "career", modelo.getCarrera().getNombre() + ". " + modelo.getCarrera().getModalidad());
@@ -132,15 +125,11 @@ public class WordModifier {
             replaceInDocument(d, "articulenumber", acuerdo.getNumero());
             replaceInDocument(d, "artdat", acuerdo.getFecha());
             replaceInDocument(d, "articulecc", acuerdo.getCc());
-
             calificaciones.forEach((cal) -> {
                 rellenarFilaCalificacion(d, cal, "Calibri Light", "15", "325", "2", "188", "196", "217", "2", "2");
             });
-
-
             String generatedFolderPath = Config.getConif().obtenerConfiguracion("06 RUTA Documentos") + "\\Generados";
             new File(generatedFolderPath).mkdirs();
-
             String modifiedFilePath = generatedFolderPath + "\\" + modelo.getMatricula() + "_" + Documentos.Boleta.getNombre()+ ".docx";
             FileOutputStream fos = new FileOutputStream(modifiedFilePath);
             d.write(fos);
@@ -167,87 +156,9 @@ public class WordModifier {
             replaceInDocument(d, "tuition", modelo.getMatricula());
             replaceInDocument(d, "ciclo-inicio", opPeriodo.getUltimoPeriodo().getInicio());
             replaceInDocument(d, "date", fecha);
-
             String generatedFolderPath = Config.getConif().obtenerConfiguracion("06 RUTA Documentos") + "\\Generados";
             new File(generatedFolderPath).mkdirs();
-
             String modifiedFilePath = generatedFolderPath + "\\" + modelo.getMatricula() + "_" + "acta" + ".docx";
-            FileOutputStream fos = new FileOutputStream(modifiedFilePath);
-            d.write(fos);
-            fos.close();
-            d.close();
-            openModifiedDocument(modifiedFilePath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void rellenarCertificado(Estudiante modelo, String fecha) {
-        DAOCalificiaciones opCalificaciones = new DAOCalificiaciones();
-        DAOMaterias daoMaterias = new DAOMaterias();
-        List<Calificacion> calificacions = opCalificaciones.obtenerCalificaciones(modelo.getId());
-        List<Calificacion> califcacionesOrdenadas = calificacions.stream()
-                .sorted(new Comparator<Calificacion>() {
-                    @Override
-            public int compare(Calificacion o1, Calificacion o2) {
-                Integer materia1 = Integer.parseInt(o1.getMateria().getClave().substring(3));
-                Integer materia2 = Integer.parseInt(o2.getMateria().getClave().substring(3));
-
-                return Integer.compare(materia1,materia2);
-            }
-        }).filter(c->{
-                    Materia materia = daoMaterias.getMateria(c.getMateria().getId());
-                    boolean esValido = materia.getCarreraModelo().getIdCarrera().equals(modelo.getCarrera().getIdCarrera());
-            return esValido;
-        }).toList();
-
-        double promedio = califcacionesOrdenadas.stream().mapToDouble((Calificacion cal) -> {
-            cal.establecerPromedioFinal();
-            return cal.getPromedioFinal() != null ? cal.getPromedioFinal() : 0.0;
-        }).average().orElse(0.0);
-        String promedioFinal = String.format("%.1f", promedio);
-
-        String genero = modelo.getSexo().equals("Hombre") ? "el alumno" : "la alumna";
-        String[] fechaArray = fecha.split("de");
-        DAOAcuerdo opAcuerdo = new DAOAcuerdo();
-        Acuerdo acuerdo = opAcuerdo.getAcuerdo(modelo.getCarrera().getIdCarrera());
-        ValueConverters converter1 = ValueConverters.SPANISH_INTEGER;
-        String yeartoWord = converter1.asWords(Integer.valueOf(fechaArray[2].trim()));
-
-        try {
-            String filePath = Config.getConif().obtenerConfiguracion("09 RUTA CERTIFICADOS") + "\\" + modelo.getCarrera().getIdClave().replace("/", "") + ".docx";
-            XWPFDocument d = new XWPFDocument(new FileInputStream(filePath));
-
-            replaceInDocument(d, "name", modelo.toString().toUpperCase());
-            replaceInDocument(d, "date", fecha);
-            replaceInDocument(d, "tuition", modelo.getMatricula());
-            replaceInDocument(d, "gener", genero);
-            replaceInDocument(d, "career", modelo.getCarrera().getNombre().toUpperCase());
-            replaceInDocument(d, "totalAsignaturas", modelo.getCarrera().getTotalAsignaturas());
-            replaceInDocument(d, "averaje", promedioFinal);
-            replaceInDocument(d, "letter", numeroAString(promedioFinal));
-            replaceInDocument(d, "credits", modelo.getCarrera().getCreditos());
-            replaceInDocument(d, "dd", fechaArray[0].trim());
-            replaceInDocument(d, "MM", fechaArray[1].trim());
-            replaceInDocument(d, "yyyy",yeartoWord);
-            replaceInDocument(d, "articulenumber", acuerdo.getNumero());
-            replaceInDocument(d, "artdat", acuerdo.getFecha());
-            replaceInDocument(d, "articulecc", acuerdo.getCc());
-
-
-            XWPFTable tabla = d.getTables().get(0);
-
-
-
-            for (int i = 0; i < califcacionesOrdenadas.size(); i++) {
-                XWPFTableRow xwpfTable = tabla.getRow(i+2);
-                rellenarCalificacionCertificado(xwpfTable, califcacionesOrdenadas.get(i) , "Calibri", "188", "325", "225", "125", "175", "225", "275", "225");
-            }
-
-            String generatedFolderPath = Config.getConif().obtenerConfiguracion("06 RUTA Documentos") + "\\Generados";
-            new File(generatedFolderPath).mkdirs();
-
-            String modifiedFilePath = generatedFolderPath + "\\" + modelo.getMatricula() + "_" + "CERTIFICADO" + ".docx";
             FileOutputStream fos = new FileOutputStream(modifiedFilePath);
             d.write(fos);
             fos.close();
@@ -313,7 +224,7 @@ public class WordModifier {
     private void rellenarKardek( Estudiante modelo, String fecha) {
         DAOCalificiaciones opCalificaciones = new DAOCalificiaciones();
         DAOAcuerdo opAcuerdo = new DAOAcuerdo();
-        Acuerdo acuerdo = opAcuerdo.getAcuerdo(modelo.getCarrera().getIdCarrera());
+        Acuerdo acuerdo = opAcuerdo.getAcuerdoByCarrera(modelo.getCarrera().getIdCarrera());
         List<Calificacion> calificaciones = opCalificaciones.obtenerCalificaciones(modelo.getId());
         double promedio = calificaciones.stream().mapToDouble((Calificacion cal) -> {
             cal.establecerPromedioFinal();
@@ -390,11 +301,11 @@ public class WordModifier {
     }
 
 
-    public void rellarTitulo(Estudiante modelo, Titulo titulo) {
+    public String crearTitulo(Estudiante modelo, Titulo titulo) {
         String rutaBD = Config.getConif().obtenerConfiguracion("06 RUTA Documentos");
         String folderPath = rutaBD;
         String filePath = folderPath + "\\Acta de Examen\\" + "acta" + ".docx";
-        Acuerdo acuerdo = new DAOAcuerdo().getAcuerdo(modelo.getCarrera().getIdCarrera());
+        Acuerdo acuerdo = new DAOAcuerdo().getAcuerdoByCarrera(modelo.getCarrera().getIdCarrera());
         try {
 
             FileInputStream fis = new FileInputStream(filePath);
@@ -436,13 +347,86 @@ public class WordModifier {
             System.out.println("Documento modificado guardado en: " + modifiedFilePath);
 
             openModifiedDocument(modifiedFilePath);
+            return modifiedFilePath;
         } catch (IOException e) {
             System.out.println(e);
             e.printStackTrace();
         }
-
+        return null;
     }
 
+    private void rellenarCertificado(Estudiante modelo, String fecha) {
+        DAOCalificiaciones opCalificaciones = new DAOCalificiaciones();
+        DAOMaterias daoMaterias = new DAOMaterias();
+        List<Calificacion> calificacions = opCalificaciones.obtenerCalificaciones(modelo.getId());
+        List<Calificacion> califcacionesOrdenadas = calificacions.stream()
+                .sorted(new Comparator<Calificacion>() {
+                    @Override
+                    public int compare(Calificacion o1, Calificacion o2) {
+                        Integer materia1 = Integer.parseInt(o1.getMateria().getClave().substring(3));
+                        Integer materia2 = Integer.parseInt(o2.getMateria().getClave().substring(3));
+
+                        return Integer.compare(materia1,materia2);
+                    }
+                }).filter(c->{
+                    Materia materia = daoMaterias.getMateria(c.getMateria().getId());
+                    boolean esValido = materia.getCarreraModelo().getIdCarrera().equals(modelo.getCarrera().getIdCarrera());
+                    return esValido;
+                }).toList();
+
+        double promedio = califcacionesOrdenadas.stream().mapToDouble((Calificacion cal) -> {
+            cal.establecerPromedioFinal();
+            return cal.getPromedioFinal() != null ? cal.getPromedioFinal() : 0.0;
+        }).average().orElse(0.0);
+        String promedioFinal = String.format("%.1f", promedio);
+
+        String genero = modelo.getSexo().equals("Hombre") ? "el alumno" : "la alumna";
+        String[] fechaArray = fecha.split("de");
+        DAOAcuerdo opAcuerdo = new DAOAcuerdo();
+        Acuerdo acuerdo = opAcuerdo.getAcuerdoByCarrera(modelo.getCarrera().getIdCarrera());
+        ValueConverters converter1 = ValueConverters.SPANISH_INTEGER;
+        String yeartoWord = converter1.asWords(Integer.valueOf(fechaArray[2].trim()));
+
+        try {
+            String filePath = Config.getConif().obtenerConfiguracion("09 RUTA CERTIFICADOS") + "\\" + modelo.getCarrera().getIdClave().replace("/", "") + ".docx";
+            XWPFDocument d = new XWPFDocument(new FileInputStream(filePath));
+
+            replaceInDocument(d, "name", modelo.toString().toUpperCase());
+            replaceInDocument(d, "date", fecha);
+            replaceInDocument(d, "tuition", modelo.getMatricula());
+            replaceInDocument(d, "gener", genero);
+            replaceInDocument(d, "career", modelo.getCarrera().getNombre().toUpperCase());
+            replaceInDocument(d, "totalAsignaturas", modelo.getCarrera().getTotalAsignaturas());
+            replaceInDocument(d, "averaje", promedioFinal);
+            replaceInDocument(d, "letter", numeroAString(promedioFinal));
+            replaceInDocument(d, "credits", modelo.getCarrera().getCreditos());
+            replaceInDocument(d, "dd", fechaArray[0].trim());
+            replaceInDocument(d, "MM", fechaArray[1].trim());
+            replaceInDocument(d, "yyyy",yeartoWord);
+            replaceInDocument(d, "articulenumber", acuerdo.getNumero());
+            replaceInDocument(d, "artdat", acuerdo.getFecha());
+            replaceInDocument(d, "articulecc", acuerdo.getCc());
+
+            XWPFTable tabla = d.getTables().get(0);
+
+            for (int i = 0; i < califcacionesOrdenadas.size(); i++) {
+                XWPFTableRow xwpfTable = tabla.getRow(i+2);
+                rellenarCalificacionCertificado(xwpfTable, califcacionesOrdenadas.get(i) , "Calibri", "188", "325", "225", "125", "175", "225", "275", "225");
+            }
+
+            String generatedFolderPath = Config.getConif().obtenerConfiguracion("06 RUTA Documentos") + "\\Generados";
+            new File(generatedFolderPath).mkdirs();
+
+            String modifiedFilePath = generatedFolderPath + "\\" + modelo.getMatricula() + "_" + "CERTIFICADO" + ".docx";
+            FileOutputStream fos = new FileOutputStream(modifiedFilePath);
+            d.write(fos);
+            fos.close();
+            d.close();
+            openModifiedDocument(modifiedFilePath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private void rellenarDiploma(Estudiante estudiante, String fecha) {
         DateTimeFormatter formatterEspañol = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", new Locale.Builder().setLanguage("es").setRegion("MX").build());
@@ -572,16 +556,16 @@ public class WordModifier {
     private String numeroAString(String resultado) {
         double calficacion = Double.parseDouble(resultado);
         String[] letrasNumero = {
-            "CERO", "UNO", "DOS", "TRES", "CUATRO", "CINCO", "SEIS", "SIETE", "OCHO", "NUEVE", "DIEZ"
+            "cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez"
         };
         int parteEntera = (int) calficacion;
         int parteDecimal = (int) ((calficacion - parteEntera) * 10);
 
-        return letrasNumero[parteEntera] + " PUNTO " + letrasNumero[parteDecimal];
+        return "(" + StringUtils.capitalize(letrasNumero[parteEntera]) + " punto " + letrasNumero[parteDecimal] + ")";
     }
 
 
-    private void openModifiedDocument(String filePath) {
+    public void openModifiedDocument(String filePath) {
         try {
             File file = new File(filePath);
             if (file.exists()) {

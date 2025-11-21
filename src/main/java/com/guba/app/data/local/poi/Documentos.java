@@ -5,7 +5,8 @@ public enum Documentos {
     Certificado("Certificado"),
     Constancia("Constancia"),
     Diploma("Diploma"),
-    Kardex("Kardex");
+    Kardex("Kardex"),
+    Acta("Acta");
 
     private String nombre;
 

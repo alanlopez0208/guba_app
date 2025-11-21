@@ -28,7 +28,6 @@ public class DAOAcuerdo {
         }
     }
 
-    // ✅ CORREGIDO: Espacio después de SELECT
     private final String SELECT_ACUERDO_WITH_CARRERA = "SELECT " +
             "a.IdAcuerdo, " +
             "a.Acuerdo, " +
@@ -64,6 +63,14 @@ public class DAOAcuerdo {
             pstmt.setInt(5, acuerdo.getId());
         });
     }
+
+    public Acuerdo getAcuerdoByCarrera(String idCarrera) {
+        String sql = SELECT_ACUERDO_WITH_CARRERA + " WHERE a.IdCarrera = ?";
+        return dataConsumer.getData(sql, pstm -> {
+            pstm.setString(1, idCarrera);
+        }, this::mapResultSetToAcuerdo);
+    }
+
 
     public boolean insertarAcuerdo(Acuerdo acuerdo) {
         String sql = "INSERT INTO Acuerdo (Acuerdo, Fecha, CC, IdCarrera) VALUES (?, ?, ?, ?)";
