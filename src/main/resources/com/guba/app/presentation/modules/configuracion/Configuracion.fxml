@@ -9,38 +9,61 @@
 <?import javafx.geometry.Insets?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <?import com.jfoenix.controls.JFXButton?>
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      styleClass="panel"
-      fx:controller="com.guba.app.controllers.configuracion.ConfiguracionController" alignment="CENTER" spacing="30">
-    <StackPane.margin>
-        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-    </StackPane.margin>
-    <HBox alignment="CENTER">
-        <VBox styleClass="panelShadow" spacing="10">
-            <Label text="Ciclo Escolar" styleClass="subtitulo"/>
-            <Region prefWidth="20"/>
-            <VBox fillWidth="false" spacing="10.0">
-                <Label text="Nombre del Ciclo:" />
-                <TextField fx:id="txtNombreCiclo" editable="false" prefWidth="200" styleClass="textField" />
+<ScrollPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fitToWidth="true" fitToHeight="true"
+            styleClass="scroll"
+            fx:controller="com.guba.app.controllers.configuracion.ConfiguracionController">
+    <VBox styleClass="panel" alignment="TOP_CENTER" spacing="30">
+        <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+        </padding>
+
+        <!-- Sección: Ciclo Escolar -->
+        <VBox styleClass="panelShadow" spacing="15" maxWidth="400">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Ciclo Escolar" styleClass="subtitulo"/>
+            </HBox>
+            <Separator/>
+            <VBox fillWidth="false" spacing="5.0">
+                <Label text="Nombre del Ciclo:" styleClass="textoNegritas"/>
+                <TextField fx:id="txtNombreCiclo" editable="false" prefWidth="350" styleClass="textField" />
             </VBox>
-            <VBox fillWidth="false" spacing="10.0">
-                <Label text="Inicio del Ciclo:" />
-                <TextField fx:id="txtInicioCiclo" editable="false" prefWidth="200" styleClass="textField" />
-            </VBox>
-            <VBox fillWidth="false" maxWidth="Infinity" spacing="10.0">
-                <Label text="Fin del Ciclo:" />
-                <TextField fx:id="txtFinCiclo"  editable="false" prefWidth="200" styleClass="textField" />
-            </VBox>
-            <HBox maxWidth="Infinity" alignment="CENTER_RIGHT">
-                <JFXButton fx:id="btnActualizarCiclo" text="Actualizar" focusTraversable="false" onAction="#handleActualizarCiclo" styleClass="btnNormal"/>
+            <HBox spacing="20">
+                <VBox fillWidth="false" spacing="5.0" HBox.hgrow="ALWAYS">
+                    <Label text="Inicio del Ciclo:" styleClass="textoNegritas"/>
+                    <TextField fx:id="txtInicioCiclo" editable="false" styleClass="textField" />
+                </VBox>
+                <VBox fillWidth="false" spacing="5.0" HBox.hgrow="ALWAYS">
+                    <Label text="Fin del Ciclo:" styleClass="textoNegritas"/>
+                    <TextField fx:id="txtFinCiclo" editable="false" styleClass="textField" />
+                </VBox>
+            </HBox>
+            <HBox alignment="CENTER_RIGHT">
+                <JFXButton fx:id="btnActualizarCiclo" text="Actualizar Ciclo" focusTraversable="false" onAction="#handleActualizarCiclo" styleClass="btnNormal"/>
             </HBox>
         </VBox>
-    </HBox>
-   <VBox spacing="10" VBox.vgrow="ALWAYS" maxWidth="Infinity" maxHeight="Infinity" alignment="TOP_RIGHT">
-       <HBox spacing="10" alignment="CENTER_RIGHT">
-           <JFXButton text="Agregar Acuerdo" styleClass="btnNormal" onAction="#handleClickAddAcuerdo"/>
-       </HBox>
-       <ListView styleClass="listView" focusTraversable="false" fx:id="listviewAcuerdos" orientation="HORIZONTAL"/>
-   </VBox>
-</VBox>
+
+        <!-- Sección: Acuerdos de Carreras -->
+        <VBox spacing="15" VBox.vgrow="ALWAYS" maxWidth="Infinity" styleClass="panelShadow">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Acuerdos de Reconocimiento de Validez Oficial (RVOE)" styleClass="subtitulo"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <JFXButton text="+ Agregar Acuerdo" styleClass="btnsAgregar" onAction="#handleClickAddAcuerdo"/>
+            </HBox>
+            <Separator/>
+            <Label text="Gestiona los acuerdos RVOE de cada carrera. Cada acuerdo contiene el número oficial, fecha de emisión y CCT."
+                   wrapText="true" style="-fx-text-fill: #666666; -fx-font-size: 12px;"/>
+
+            <!-- Lista de Acuerdos -->
+            <VBox VBox.vgrow="ALWAYS" minHeight="200">
+                <ListView styleClass="listView" focusTraversable="false" fx:id="listviewAcuerdos" orientation="HORIZONTAL" VBox.vgrow="ALWAYS"/>
+            </VBox>
+
+            <!-- Mensaje cuando no hay acuerdos -->
+            <Label fx:id="lblNoAcuerdos" text="No hay acuerdos registrados. Haz clic en '+ Agregar Acuerdo' para crear uno nuevo."
+                   wrapText="true" visible="false" managed="false"
+                   style="-fx-text-fill: #999999; -fx-font-style: italic; -fx-padding: 20;"/>
+        </VBox>
+    </VBox>
+</ScrollPane>

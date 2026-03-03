@@ -30,6 +30,7 @@ module com.guba.app {
     opens com.guba.app to javafx.fxml;
     opens com.guba.app.presentation.componets to javafx.fxml;
     opens com.guba.app.utils to javafx.fxml;
+    opens com.guba.app.controllers.inicio to javafx.fxml;
     opens com.guba.app.controllers.estudiantes to javafx.fxml;
     opens com.guba.app.controllers.carreras to javafx.fxml;
     opens com.guba.app.controllers.materias to javafx.fxml;

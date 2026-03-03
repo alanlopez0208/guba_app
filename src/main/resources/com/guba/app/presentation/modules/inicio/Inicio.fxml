@@ -5,12 +5,110 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
 
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml">
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.guba.app.controllers.inicio.InicioController"
+            styleClass="dashboard-container">
+    <top>
+        <VBox spacing="10" styleClass="header-section">
+            <padding>
+                <Insets top="20" right="20" bottom="10" left="20"/>
+            </padding>
+            <Text text="Dashboard - Panel de Control" styleClass="dashboard-title" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <Text fx:id="txtResumen" text="Resumen general del sistema" style="-fx-font-size: 14px; -fx-fill: #666666;"/>
+        </VBox>
+    </top>
+
     <center>
-        <Label text="Hola Mundo"/>
+        <ScrollPane fitToWidth="true" fitToHeight="true" style="-fx-background-color: transparent;">
+            <VBox spacing="20">
+                <padding>
+                    <Insets top="10" right="20" bottom="20" left="20"/>
+                </padding>
+                <HBox spacing="15" alignment="CENTER">
+                    <VBox styleClass="stat-card" alignment="CENTER" spacing="5" HBox.hgrow="ALWAYS">
+                        <Text fx:id="txtTotalEstudiantes" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #3498db;"/>
+                        <Text text="Estudiantes" style="-fx-font-size: 14px;"/>
+                    </VBox>
+                    <VBox styleClass="stat-card" alignment="CENTER" spacing="5" HBox.hgrow="ALWAYS">
+                        <Text fx:id="txtTotalMaestros" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #2ecc71;"/>
+                        <Text text="Maestros" style="-fx-font-size: 14px;"/>
+                    </VBox>
+                    <VBox styleClass="stat-card" alignment="CENTER" spacing="5" HBox.hgrow="ALWAYS">
+                        <Text fx:id="txtTotalCarreras" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #9b59b6;"/>
+                        <Text text="Carreras" style="-fx-font-size: 14px;"/>
+                    </VBox>
+                    <VBox styleClass="stat-card" alignment="CENTER" spacing="5" HBox.hgrow="ALWAYS">
+                        <Text fx:id="txtTotalIngresos" text="\$0.00" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #e74c3c;"/>
+                        <Text text="Ingresos Totales" style="-fx-font-size: 14px;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Primera fila de gráficos -->
+                <HBox spacing="20" HBox.hgrow="ALWAYS">
+                    <VBox HBox.hgrow="ALWAYS" styleClass="chart-container">
+                        <PieChart fx:id="pieChartCarreras" title="Estudiantes por Carrera" prefHeight="300" legendSide="BOTTOM"/>
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" styleClass="chart-container">
+                        <PieChart fx:id="pieChartGenero" title="Distribución por Género" prefHeight="300" legendSide="BOTTOM"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Segunda fila de gráficos -->
+                <HBox spacing="20" HBox.hgrow="ALWAYS">
+                    <VBox HBox.hgrow="ALWAYS" styleClass="chart-container">
+                        <BarChart fx:id="barChartPagosMes" title="Pagos de Alumnos por Mes" prefHeight="300" legendVisible="false">
+                            <xAxis>
+                                <CategoryAxis label="Mes" side="BOTTOM"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis label="Cantidad ($)" side="LEFT"/>
+                            </yAxis>
+                        </BarChart>
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" styleClass="chart-container">
+                        <LineChart fx:id="lineChartIngresos" title="Tendencia de Ingresos Mensuales" prefHeight="300">
+                            <xAxis>
+                                <CategoryAxis label="Mes" side="BOTTOM"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis label="Ingresos ($)" side="LEFT"/>
+                            </yAxis>
+                        </LineChart>
+                    </VBox>
+                </HBox>
+
+                <!-- Tercera fila de gráficos -->
+                <HBox spacing="20" HBox.hgrow="ALWAYS">
+                    <VBox HBox.hgrow="ALWAYS" styleClass="chart-container">
+                        <BarChart fx:id="barChartEstudiantesSemestre" title="Estudiantes por Semestre" prefHeight="300" legendVisible="false">
+                            <xAxis>
+                                <CategoryAxis label="Semestre" side="BOTTOM"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis label="Cantidad" side="LEFT"/>
+                            </yAxis>
+                        </BarChart>
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" styleClass="chart-container">
+                        <BarChart fx:id="barChartPagosDocentes" title="Pagos a Docentes por Mes" prefHeight="300" legendVisible="false">
+                            <xAxis>
+                                <CategoryAxis label="Mes" side="BOTTOM"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis label="Cantidad ($)" side="LEFT"/>
+                            </yAxis>
+                        </BarChart>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </ScrollPane>
     </center>
 </BorderPane>

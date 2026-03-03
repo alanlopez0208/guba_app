@@ -1,4 +1,3 @@
-
 .root{
     -fx-font-family: 'Montserrat';
     -fx-background-color:#F4F4F4;
@@ -433,4 +432,152 @@
 .monthPicker .edit-button{
     -fx-background-color: grey;
     -fx-fill: white;
+}
+
+/* Dashboard Container */
+.dashboard-container {
+    -fx-background-color: #F4F4F4;
+}
+
+/* Tarjetas de estadísticas */
+.stat-card {
+    -fx-background-color: white;
+    -fx-padding: 20;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgb(0,0,0,0.1), 10, 0.2, 0, 2);
+}
+
+/* Contenedor de charts */
+.chart-container {
+    -fx-background-color: white;
+    -fx-padding: 15;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgb(0,0,0,0.1), 10, 0.2, 0, 2);
+}
+
+/* Títulos de charts */
+.chart-title {
+    -fx-font-family: "Montserrat Bold";
+    -fx-font-size: 16px;
+    -fx-fill: #1B3765;
+}
+
+/* ===== PIE CHART - Colores GUBA ===== */
+.chart-pie.data0 { -fx-pie-color: #1B3765; }
+.chart-pie.data1 { -fx-pie-color: #8B1D41; }
+.chart-pie.data2 { -fx-pie-color: #2C5AA0; }
+.chart-pie.data3 { -fx-pie-color: #A7737C; }
+.chart-pie.data4 { -fx-pie-color: #42517A; }
+.chart-pie.data5 { -fx-pie-color: #894957; }
+.chart-pie.data6 { -fx-pie-color: #5A7BB5; }
+.chart-pie.data7 { -fx-pie-color: #C4485A; }
+
+/* Leyenda del PieChart */
+.chart-pie-label {
+    -fx-fill: #333333;
+    -fx-font-size: 11px;
+}
+
+.chart-legend-item-symbol.data0 { -fx-background-color: #1B3765; }
+.chart-legend-item-symbol.data1 { -fx-background-color: #8B1D41; }
+.chart-legend-item-symbol.data2 { -fx-background-color: #2C5AA0; }
+.chart-legend-item-symbol.data3 { -fx-background-color: #A7737C; }
+.chart-legend-item-symbol.data4 { -fx-background-color: #42517A; }
+.chart-legend-item-symbol.data5 { -fx-background-color: #894957; }
+.chart-legend-item-symbol.data6 { -fx-background-color: #5A7BB5; }
+.chart-legend-item-symbol.data7 { -fx-background-color: #C4485A; }
+
+/* ===== BAR CHART - Colores GUBA ===== */
+.chart-bar.data0.default-color0 { -fx-bar-fill: #1B3765; }
+.chart-bar.data1.default-color0 { -fx-bar-fill: #2C5AA0; }
+.chart-bar.data2.default-color0 { -fx-bar-fill: #8B1D41; }
+.chart-bar.data3.default-color0 { -fx-bar-fill: #A7737C; }
+.chart-bar.data4.default-color0 { -fx-bar-fill: #42517A; }
+.chart-bar.data5.default-color0 { -fx-bar-fill: #894957; }
+.chart-bar.data6.default-color0 { -fx-bar-fill: #5A7BB5; }
+.chart-bar.data7.default-color0 { -fx-bar-fill: #C4485A; }
+.chart-bar.data8.default-color0 { -fx-bar-fill: #1B3765; }
+.chart-bar.data9.default-color0 { -fx-bar-fill: #2C5AA0; }
+.chart-bar.data10.default-color0 { -fx-bar-fill: #8B1D41; }
+.chart-bar.data11.default-color0 { -fx-bar-fill: #A7737C; }
+
+/* Series de colores para BarChart */
+.default-color0.chart-bar { -fx-bar-fill: #1B3765; }
+.default-color1.chart-bar { -fx-bar-fill: #8B1D41; }
+.default-color2.chart-bar { -fx-bar-fill: #2C5AA0; }
+.default-color3.chart-bar { -fx-bar-fill: #A7737C; }
+.default-color4.chart-bar { -fx-bar-fill: #42517A; }
+
+/* ===== LINE CHART - Colores GUBA ===== */
+.default-color0.chart-series-line { -fx-stroke: #1B3765; -fx-stroke-width: 3px; }
+.default-color1.chart-series-line { -fx-stroke: #8B1D41; -fx-stroke-width: 3px; }
+.default-color2.chart-series-line { -fx-stroke: #2C5AA0; -fx-stroke-width: 3px; }
+
+/* Símbolos/puntos del LineChart */
+.default-color0.chart-line-symbol { -fx-background-color: #1B3765, white; -fx-background-insets: 0, 2; -fx-background-radius: 5px; }
+.default-color1.chart-line-symbol { -fx-background-color: #8B1D41, white; -fx-background-insets: 0, 2; -fx-background-radius: 5px; }
+.default-color2.chart-line-symbol { -fx-background-color: #2C5AA0, white; -fx-background-insets: 0, 2; -fx-background-radius: 5px; }
+
+/* Leyenda del LineChart */
+.default-color0.chart-legend-item-symbol { -fx-background-color: #1B3765; }
+.default-color1.chart-legend-item-symbol { -fx-background-color: #8B1D41; }
+.default-color2.chart-legend-item-symbol { -fx-background-color: #2C5AA0; }
+
+/* ===== ESTILOS GENERALES DE CHARTS ===== */
+.chart {
+    -fx-background-color: transparent;
+    -fx-padding: 10;
+}
+
+.chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.chart-vertical-grid-lines {
+    -fx-stroke: #E6E6E6;
+    -fx-stroke-dash-array: 4 4;
+}
+
+.chart-horizontal-grid-lines {
+    -fx-stroke: #E6E6E6;
+    -fx-stroke-dash-array: 4 4;
+}
+
+.chart-alternative-row-fill {
+    -fx-fill: transparent;
+}
+
+.chart-alternative-column-fill {
+    -fx-fill: transparent;
+}
+
+/* Ejes */
+.axis {
+    -fx-tick-label-fill: #333333;
+    -fx-tick-label-font-size: 11px;
+}
+
+.axis-label {
+    -fx-fill: #1B3765;
+    -fx-font-family: "Montserrat Bold";
+}
+
+.chart-legend {
+    -fx-background-color: transparent;
+    -fx-padding: 10;
+}
+
+.chart-legend-item {
+    -fx-text-fill: #333333;
+}
+
+/* ===== ICONOS ===== */
+.icon-primary {
+    -fx-fill: #1B3765;
+    -fx-icon-color: #1B3765;
+}
+
+.icon-secondary {
+    -fx-fill: #8B1D41;
+    -fx-icon-color: #8B1D41;
 }
