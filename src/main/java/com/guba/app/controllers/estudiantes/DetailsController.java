@@ -291,16 +291,41 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
 
     private void editarTitulo(ActionEvent event){
         loadDataToTiulo();
-        boolean seCreo = daoTitulo.updateTitulacionByIdAlumno(titulo);
-        if (seCreo){
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setContentText("Se ha actualizado el titulo con exito");
-            alert.show();
-        }else{
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText("Error al actualizar el titulo intentelo de nuevo porfavor");
-            alert.show();
-        }
+        // Ejecutar en segundo plano para evitar bloquear la UI y reducir riesgos de competencia por la BD
+        Task<Boolean> task = new Task<>() {
+            @Override
+            protected Boolean call() throws Exception {
+                return daoTitulo.updateTitulacionByIdAlumno(titulo);
+            }
+        };
+
+        task.setOnSucceeded(workerStateEvent -> {
+            Boolean seCreo = task.getValue();
+            if (seCreo){
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setContentText("Se ha actualizado el titulo con exito");
+                alert.show();
+            }else{
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Error al actualizar el titulo intentelo de nuevo porfavor");
+                alert.show();
+            }
+        });
+
+        task.setOnFailed(workerStateEvent -> {
+            Throwable ex = task.getException();
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Error al actualizar título");
+                alert.setContentText(ex != null ? ex.getMessage() : "Error desconocido");
+                alert.showAndWait();
+            });
+        });
+
+        Thread t = new Thread(task);
+        t.setDaemon(true);
+        t.start();
     }
 
     private void generarDocumentos(ActionEvent event){
@@ -673,5 +698,4 @@ public class DetailsController extends BaseController<Estudiante> implements Loa
 
     }
 }
-
 

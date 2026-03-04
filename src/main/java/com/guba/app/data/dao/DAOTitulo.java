@@ -7,9 +7,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DAOTitulo {
+    private final DataConsumer<Titulo> dataConsumer;
 
-    private final DataConsumer<Titulo> dataConsumer = new DataConsumer<>();
-
+    public DAOTitulo() {
+        this.dataConsumer = new DataConsumer<>();
+    }
 
     public Titulo getTitulacionByIdAlumno(String idAlumno) {
         String sql = "SELECT * FROM Titulacion WHERE IdAlumno = ? LIMIT 1 ";
@@ -29,7 +31,7 @@ public class DAOTitulo {
     public boolean updateTitulacionByIdAlumno(Titulo titulo) {
         String sql = "UPDATE Titulacion SET Nombre = ?, Registro = ?, Libro = ?, Foja = ?, Folio = ?, "
                 + "Acta = ?, TipoExamen = ?, FechaAplicacion = ?, HoraAplicacion = ?, "
-                + "Duracion = ?, HoraFinalizacion = ?, Presidente = ?, Secretario = ?, Vocal = ?, Nombre = ?, src = ?? "
+                + "Duracion = ?, HoraFinalizacion = ?, Presidente = ?, Secretario = ?, Vocal = ?, Nombre = ?, src = ? "
                 + "WHERE IdAlumno = ?";
 
         return dataConsumer.executeUpdate(sql, pstmt -> {

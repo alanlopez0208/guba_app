@@ -4,7 +4,6 @@ import com.guba.app.data.local.database.conexion.Conexion;
 import com.guba.app.data.local.database.DataConsumer;
 import com.guba.app.domain.models.Carrera;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -13,8 +12,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class DAOCarreras {
-
-    Connection conn;
 
     private DataConsumer<Carrera> dataConsumer;
 
@@ -77,6 +74,40 @@ public class DAOCarreras {
     }
 
 
+    public ArrayList<Carrera> buscarCarreras(String where, String filtro) {
+        ArrayList<Carrera> resultados = new ArrayList<>();
+        String sql = "SELECT * FROM Carreras WHERE " + where + " LIKE ?";
+
+        // Usar try-with-resources para asegurar cierre de Connection y evitar fugas que pueden causar bloqueos en SQLite
+        try (var conn = Conexion.getConnection()) {
+            if (conn == null) {
+                throw new RuntimeException("No se pudo conectar a la base de datos");
+            }
+
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+                pstmt.setString(1, filtro + "%");
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        Carrera carrera = mapResultSetToCarrera(rs);
+                        resultados.add(carrera);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al buscar las Carrera ", e);
+        }
+        return resultados;
+    }
+
+
+    public List<Carrera> getCarreraWithoutAcuerdo(){
+        String sql = "SELECT * FROM Carreras WHERE IdCarrera NOT IN ( SELECT IdCarrera FROM Acuerdo );";
+        return dataConsumer.getList(sql, this::mapResultSetToCarrera);
+    }
+
+
     private Carrera mapResultSetToCarrera(ResultSet rs) {
         try {
             Carrera carrera = new Carrera();
@@ -94,38 +125,5 @@ public class DAOCarreras {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
-
-
-    public ArrayList<Carrera> buscarCarreras(String where, String filtro) {
-        ArrayList<Carrera> resultados = new ArrayList<>();
-        String sql = "SELECT * FROM Carreras WHERE " + where + " LIKE ?";
-
-        conn = Conexion.getConnection();
-
-        if (conn == null) {
-            throw new RuntimeException("No se pudo conectar a la base de datos");
-        }
-
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, filtro + "%");
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    Carrera carrera = mapResultSetToCarrera(rs);
-                    resultados.add(carrera);
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar las Carrera ", e);
-        }
-        return resultados;
-    }
-
-
-    public List<Carrera> getCarreraWithoutAcuerdo(){
-        String sql = "SELECT * FROM Carreras WHERE IdCarrera NOT IN ( SELECT IdCarrera FROM Acuerdo );";
-        return dataConsumer.getList(sql, this::mapResultSetToCarrera);
     }
 }

@@ -17,8 +17,14 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.function.UnaryOperator;
 
 
 public class AddController extends BaseController<PagoDocente> implements Initializable, Loadable<PagoDocente> {
@@ -45,6 +51,9 @@ public class AddController extends BaseController<PagoDocente> implements Initia
 
     public AddController(Mediador<PagoDocente> mediador, ObjectProperty<Estado> estadoProperty, ObjectProperty<Paginas> paginasProperty) {
         super("/pago_docentes/Add", mediador, estadoProperty, paginasProperty);
+        // Inicializar objeto para evitar NPE si el usuario interactúa con los campos antes de loadData
+        pagoDocente = new PagoDocente();
+
         txtCantidad.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
@@ -55,6 +64,52 @@ public class AddController extends BaseController<PagoDocente> implements Initia
                 }
             }
         });
+
+        // Configurar TextFormatter para aceptar solo números y punto decimal (máx 2 decimales)
+        UnaryOperator<TextFormatter.Change> filter = change -> {
+            String newText = change.getControlNewText();
+            // Permitir cadena vacía
+            if (newText.isEmpty()) {
+                return change;
+            }
+            // Rechazar comas y cualquier otro caracter distinto de dígito y punto
+            if (newText.contains(",")) {
+                return null;
+            }
+            // Validar formato: dígitos opcionales, opcional punto y hasta 2 decimales
+            if (newText.matches("\\d*(\\.\\d{0,2})?")) {
+                return change;
+            }
+            return null;
+        };
+
+        TextFormatter<String> textFormatter = new TextFormatter<>(filter);
+        txtCantidad.setTextFormatter(textFormatter);
+
+        // Formatear a 2 decimales al perder el foco
+        txtCantidad.focusedProperty().addListener((obs, oldV, newV) -> {
+            if (!newV) { // perdió foco
+                String text = txtCantidad.getText();
+                if (text != null && !text.isBlank()) {
+                    try {
+                        // Usar BigDecimal para precisión y formateo
+                        BigDecimal value = new BigDecimal(text);
+                        value = value.setScale(2, RoundingMode.HALF_UP);
+                        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+                        DecimalFormat df = new DecimalFormat("#0.00", symbols);
+                        txtCantidad.setText(df.format(value));
+                        pagoDocente.setCantidad(df.format(value));
+                    } catch (NumberFormatException ex) {
+                        // Si no es un número válido, limpiar o dejar como está
+                        txtCantidad.setText("");
+                        pagoDocente.setCantidad("");
+                    }
+                } else {
+                    pagoDocente.setCantidad("");
+                }
+            }
+        });
+
         comboMaestros.setCellFactory(new Callback<ListView<Maestro>, ListCell<Maestro>>() {
             @Override
             public ListCell<Maestro> call(ListView<Maestro> carreraListView) {
@@ -96,6 +151,37 @@ public class AddController extends BaseController<PagoDocente> implements Initia
     @FXML
     private void guardar(ActionEvent event){
         if (mostrarConfirmacion()){
+            // Validar cantidad: no vacía y coincide con patrón numérico con punto
+            String cantidadText = txtCantidad.getText();
+            if (cantidadText == null || cantidadText.isBlank()) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("La cantidad es obligatoria");
+                alert.showAndWait();
+                return;
+            }
+            // Asegurar que no contenga comas
+            if (cantidadText.contains(",")) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("La cantidad no puede contener comas, use punto decimal (ej. 3000.50)");
+                alert.showAndWait();
+                return;
+            }
+
+            // Intentar parsear y formatear de nuevo antes de guardar
+            try {
+                BigDecimal value = new BigDecimal(cantidadText.replaceAll("\\s+", ""));
+                value = value.setScale(2, RoundingMode.HALF_UP);
+                DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+                DecimalFormat df = new DecimalFormat("#0.00", symbols);
+                String formatted = df.format(value);
+                pagoDocente.setCantidad(formatted);
+            } catch (NumberFormatException ex) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("La cantidad no es un número válido. Use el formato 3000.50");
+                alert.showAndWait();
+                return;
+            }
+
             pagoDocente.setMaestro(comboMaestros.getValue());
             pagoDocente.setDate(dateFeha.getValue());
             boolean seAgrego = mediador.guardar(pagoDocente);
@@ -128,6 +214,10 @@ public class AddController extends BaseController<PagoDocente> implements Initia
     public void loadData(PagoDocente data) {
         pagoDocente = data;
         loadMaestrosAsync();
+        // Si viene un pago con cantidad, formatearlo en la vista
+        if (pagoDocente != null && pagoDocente.getCantidad() != null && !pagoDocente.getCantidad().isBlank()) {
+            txtCantidad.setText(pagoDocente.getCantidad());
+        }
     }
 
     private boolean mostrarConfirmacion() {
