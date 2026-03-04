@@ -10,37 +10,31 @@ import javafx.scene.chart.*;
 import javafx.scene.text.Text;
 
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
-import java.time.format.TextStyle;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class InicioController implements Initializable {
 
+    // Componentes de texto para estadísticas
     @FXML private Text txtResumen;
     @FXML private Text txtTotalEstudiantes;
     @FXML private Text txtTotalMaestros;
     @FXML private Text txtTotalCarreras;
-    @FXML private Text txtTotalIngresos;
+    @FXML private Text txtTotalGrupos;
 
+    // Charts
     @FXML private PieChart pieChartCarreras;
     @FXML private PieChart pieChartGenero;
-    @FXML private BarChart<String, Number> barChartPagosMes;
-    @FXML private LineChart<String, Number> lineChartIngresos;
     @FXML private BarChart<String, Number> barChartEstudiantesSemestre;
-    @FXML private BarChart<String, Number> barChartPagosDocentes;
+    @FXML private BarChart<String, Number> barChartEstudiantesGeneracion;
 
+    // DAOs
     private final DAOAlumno daoAlumno = new DAOAlumno();
     private final DAOMaestro daoMaestro = new DAOMaestro();
     private final DAOCarreras daoCarreras = new DAOCarreras();
-    private final DAOPagoAlumnos daoPagoAlumnos = new DAOPagoAlumnos();
-    private final DAOPagoDocentes daoPagoDocentes = new DAOPagoDocentes();
-
-    private final DecimalFormat currencyFormat = new DecimalFormat("$#,##0.00");
-    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private final DAOGrupo daoGrupo = new DAOGrupo();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -49,20 +43,20 @@ public class InicioController implements Initializable {
 
     private void cargarDatos() {
         try {
+            // Obtener datos de la base de datos
             List<Estudiante> estudiantes = daoAlumno.getEstudiantes();
             List<Maestro> maestros = daoMaestro.getDocentes();
             List<Carrera> carreras = daoCarreras.getAllCarreras();
-            List<PagoAlumno> pagosAlumnos = daoPagoAlumnos.getPagos();
-            List<PagoDocente> pagosDocentes = daoPagoDocentes.getPagos();
+            List<Grupo> grupos = daoGrupo.getGrupos();
 
-            actualizarEstadisticas(estudiantes, maestros, carreras, pagosAlumnos);
+            // Actualizar estadísticas generales
+            actualizarEstadisticas(estudiantes, maestros, carreras, grupos);
 
+            // Cargar gráficos
             cargarPieChartCarreras(estudiantes, carreras);
             cargarPieChartGenero(estudiantes);
-            cargarBarChartPagosMes(pagosAlumnos);
-            cargarLineChartIngresos(pagosAlumnos);
             cargarBarChartEstudiantesSemestre(estudiantes);
-            cargarBarChartPagosDocentes(pagosDocentes);
+            cargarBarChartEstudiantesGeneracion(estudiantes);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -71,15 +65,11 @@ public class InicioController implements Initializable {
     }
 
     private void actualizarEstadisticas(List<Estudiante> estudiantes, List<Maestro> maestros,
-                                         List<Carrera> carreras, List<PagoAlumno> pagosAlumnos) {
+                                         List<Carrera> carreras, List<Grupo> grupos) {
         txtTotalEstudiantes.setText(String.valueOf(estudiantes.size()));
         txtTotalMaestros.setText(String.valueOf(maestros.size()));
         txtTotalCarreras.setText(String.valueOf(carreras.size()));
-
-        double totalIngresos = pagosAlumnos.stream()
-                .mapToDouble(p -> parseDoubleSeguro(p.getCantidad()))
-                .sum();
-        txtTotalIngresos.setText(currencyFormat.format(totalIngresos));
+        txtTotalGrupos.setText(String.valueOf(grupos.size()));
 
         txtResumen.setText("Resumen actualizado - " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
     }
@@ -129,41 +119,6 @@ public class InicioController implements Initializable {
         pieChartGenero.setLabelsVisible(true);
     }
 
-    private void cargarBarChartPagosMes(List<PagoAlumno> pagosAlumnos) {
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Pagos Alumnos");
-
-        Map<Month, Double> pagosPorMes = agruparPagosPorMes(pagosAlumnos);
-
-        // Ordenar por mes
-        List<Month> mesesOrdenados = Arrays.asList(Month.values());
-        for (Month mes : mesesOrdenados) {
-            String nombreMes = mes.getDisplayName(TextStyle.SHORT, new Locale("es", "ES"));
-            double cantidad = pagosPorMes.getOrDefault(mes, 0.0);
-            series.getData().add(new XYChart.Data<>(nombreMes, cantidad));
-        }
-
-        barChartPagosMes.getData().clear();
-        barChartPagosMes.getData().add(series);
-    }
-
-    private void cargarLineChartIngresos(List<PagoAlumno> pagosAlumnos) {
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Ingresos Mensuales");
-
-        Map<Month, Double> pagosPorMes = agruparPagosPorMes(pagosAlumnos);
-
-        double acumulado = 0;
-        for (Month mes : Month.values()) {
-            String nombreMes = mes.getDisplayName(TextStyle.SHORT, new Locale("es", "ES"));
-            acumulado += pagosPorMes.getOrDefault(mes, 0.0);
-            series.getData().add(new XYChart.Data<>(nombreMes, acumulado));
-        }
-
-        lineChartIngresos.getData().clear();
-        lineChartIngresos.getData().add(series);
-    }
-
     private void cargarBarChartEstudiantesSemestre(List<Estudiante> estudiantes) {
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName("Estudiantes por Semestre");
@@ -186,66 +141,31 @@ public class InicioController implements Initializable {
         barChartEstudiantesSemestre.getData().add(series);
     }
 
-    private void cargarBarChartPagosDocentes(List<PagoDocente> pagosDocentes) {
+    private void cargarBarChartEstudiantesGeneracion(List<Estudiante> estudiantes) {
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Pagos Docentes");
+        series.setName("Estudiantes por Generación");
 
-        Map<Month, Double> pagosPorMes = new EnumMap<>(Month.class);
+        Map<String, Long> estudiantesPorGeneracion = estudiantes.stream()
+                .filter(e -> e.getGeneracion() != null && !e.getGeneracion().isEmpty())
+                .collect(Collectors.groupingBy(
+                        Estudiante::getGeneracion,
+                        Collectors.counting()
+                ));
 
-        for (PagoDocente pago : pagosDocentes) {
-            try {
-                LocalDate fecha = pago.getDate();
-                if (fecha != null) {
-                    Month mes = fecha.getMonth();
-                    double cantidad = parseDoubleSeguro(pago.getCantidad());
-                    pagosPorMes.merge(mes, cantidad, Double::sum);
-                }
-            } catch (Exception e) {
-                // Ignorar pagos con fecha inválida
-            }
+        // Ordenar por generación (de más reciente a más antigua)
+        estudiantesPorGeneracion.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByKey().reversed())
+                .limit(8) // Mostrar solo las últimas 8 generaciones
+                .forEach(entry ->
+                    series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()))
+                );
+
+        if (series.getData().isEmpty()) {
+            series.getData().add(new XYChart.Data<>("Sin datos", 0));
         }
 
-        for (Month mes : Month.values()) {
-            String nombreMes = mes.getDisplayName(TextStyle.SHORT, new Locale("es", "ES"));
-            double cantidad = pagosPorMes.getOrDefault(mes, 0.0);
-            series.getData().add(new XYChart.Data<>(nombreMes, cantidad));
-        }
-
-        barChartPagosDocentes.getData().clear();
-        barChartPagosDocentes.getData().add(series);
-    }
-
-    // Métodos auxiliares
-    private Map<Month, Double> agruparPagosPorMes(List<PagoAlumno> pagos) {
-        Map<Month, Double> pagosPorMes = new EnumMap<>(Month.class);
-
-        for (PagoAlumno pago : pagos) {
-            try {
-                LocalDate fecha = pago.getDate();
-                if (fecha != null) {
-                    Month mes = fecha.getMonth();
-                    double cantidad = parseDoubleSeguro(pago.getCantidad());
-                    pagosPorMes.merge(mes, cantidad, Double::sum);
-                }
-            } catch (Exception e) {
-                // Ignorar pagos con fecha inválida
-            }
-        }
-
-        return pagosPorMes;
-    }
-
-    private double parseDoubleSeguro(String valor) {
-        if (valor == null || valor.isEmpty()) {
-            return 0.0;
-        }
-        try {
-            // Remover símbolos de moneda y comas
-            String valorLimpio = valor.replace("$", "").replace(",", "").trim();
-            return Double.parseDouble(valorLimpio);
-        } catch (NumberFormatException e) {
-            return 0.0;
-        }
+        barChartEstudiantesGeneracion.getData().clear();
+        barChartEstudiantesGeneracion.getData().add(series);
     }
 
     private String normalizarGenero(String genero) {

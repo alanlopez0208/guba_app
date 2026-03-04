@@ -32,22 +32,24 @@
                 <padding>
                     <Insets top="10" right="20" bottom="20" left="20"/>
                 </padding>
+
+                <!-- Tarjetas de estadísticas (sin dinero) -->
                 <HBox spacing="15" alignment="CENTER">
                     <VBox styleClass="stat-card" alignment="CENTER" spacing="5" HBox.hgrow="ALWAYS">
-                        <Text fx:id="txtTotalEstudiantes" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #3498db;"/>
+                        <Text fx:id="txtTotalEstudiantes" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #1B3765;"/>
                         <Text text="Estudiantes" style="-fx-font-size: 14px;"/>
                     </VBox>
                     <VBox styleClass="stat-card" alignment="CENTER" spacing="5" HBox.hgrow="ALWAYS">
-                        <Text fx:id="txtTotalMaestros" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #2ecc71;"/>
+                        <Text fx:id="txtTotalMaestros" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #8B1D41;"/>
                         <Text text="Maestros" style="-fx-font-size: 14px;"/>
                     </VBox>
                     <VBox styleClass="stat-card" alignment="CENTER" spacing="5" HBox.hgrow="ALWAYS">
-                        <Text fx:id="txtTotalCarreras" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #9b59b6;"/>
+                        <Text fx:id="txtTotalCarreras" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #2C5AA0;"/>
                         <Text text="Carreras" style="-fx-font-size: 14px;"/>
                     </VBox>
                     <VBox styleClass="stat-card" alignment="CENTER" spacing="5" HBox.hgrow="ALWAYS">
-                        <Text fx:id="txtTotalIngresos" text="\$0.00" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #e74c3c;"/>
-                        <Text text="Ingresos Totales" style="-fx-font-size: 14px;"/>
+                        <Text fx:id="txtTotalGrupos" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #42517A;"/>
+                        <Text text="Grupos" style="-fx-font-size: 14px;"/>
                     </VBox>
                 </HBox>
 
@@ -64,30 +66,6 @@
                 <!-- Segunda fila de gráficos -->
                 <HBox spacing="20" HBox.hgrow="ALWAYS">
                     <VBox HBox.hgrow="ALWAYS" styleClass="chart-container">
-                        <BarChart fx:id="barChartPagosMes" title="Pagos de Alumnos por Mes" prefHeight="300" legendVisible="false">
-                            <xAxis>
-                                <CategoryAxis label="Mes" side="BOTTOM"/>
-                            </xAxis>
-                            <yAxis>
-                                <NumberAxis label="Cantidad ($)" side="LEFT"/>
-                            </yAxis>
-                        </BarChart>
-                    </VBox>
-                    <VBox HBox.hgrow="ALWAYS" styleClass="chart-container">
-                        <LineChart fx:id="lineChartIngresos" title="Tendencia de Ingresos Mensuales" prefHeight="300">
-                            <xAxis>
-                                <CategoryAxis label="Mes" side="BOTTOM"/>
-                            </xAxis>
-                            <yAxis>
-                                <NumberAxis label="Ingresos ($)" side="LEFT"/>
-                            </yAxis>
-                        </LineChart>
-                    </VBox>
-                </HBox>
-
-                <!-- Tercera fila de gráficos -->
-                <HBox spacing="20" HBox.hgrow="ALWAYS">
-                    <VBox HBox.hgrow="ALWAYS" styleClass="chart-container">
                         <BarChart fx:id="barChartEstudiantesSemestre" title="Estudiantes por Semestre" prefHeight="300" legendVisible="false">
                             <xAxis>
                                 <CategoryAxis label="Semestre" side="BOTTOM"/>
@@ -98,12 +76,12 @@
                         </BarChart>
                     </VBox>
                     <VBox HBox.hgrow="ALWAYS" styleClass="chart-container">
-                        <BarChart fx:id="barChartPagosDocentes" title="Pagos a Docentes por Mes" prefHeight="300" legendVisible="false">
+                        <BarChart fx:id="barChartEstudiantesGeneracion" title="Estudiantes por Generación" prefHeight="300" legendVisible="false">
                             <xAxis>
-                                <CategoryAxis label="Mes" side="BOTTOM"/>
+                                <CategoryAxis label="Generación" side="BOTTOM"/>
                             </xAxis>
                             <yAxis>
-                                <NumberAxis label="Cantidad ($)" side="LEFT"/>
+                                <NumberAxis label="Cantidad" side="LEFT"/>
                             </yAxis>
                         </BarChart>
                     </VBox>

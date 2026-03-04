@@ -41,7 +41,6 @@ public class WordModifier {
                 case Constancia -> rellenarConstancia(estudiante, fecha);
                 case Kardex -> rellenarKardek(estudiante, fecha);
                 case Diploma-> rellenarDiploma(estudiante, fecha);
-
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -315,7 +314,7 @@ public class WordModifier {
 
             replaceInDocument(document, "acdate", acuerdo.getFecha());
             replaceInDocument(document,"accordance", acuerdo.getNumero());
-            replaceInDocument(document,"accordance", acuerdo.getCc());
+            replaceInDocument(document,"acct", acuerdo.getCc());
             replaceInDocument(document, "tezt", titulo.getTipoExamen());
             replaceInDocument(document, "hoursI", titulo.getHoraAplicacion());
             replaceInDocument(document, "date", titulo.getFechaAplicacion());
